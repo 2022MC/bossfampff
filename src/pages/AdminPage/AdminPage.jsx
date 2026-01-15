@@ -149,44 +149,6 @@ const AdminPage = () => {
     }
   };
 
-  // Migration Logic
-  const handleMigration = async () => {
-    if (!window.confirm("คุณต้องการย้ายข้อมูลจาก 'works' ไปยัง 'works_video' และ 'works_graphic' ใช่หรือไม่? (แนะนำให้ทำครั้งเดียว)")) return;
-
-    setIsLoading(true);
-    setMigrationStatus("กำลังเริ่มย้ายข้อมูล...");
-
-    try {
-      const oldWorksRef = collection(db, "works");
-      const snapshot = await getDocs(oldWorksRef);
-
-      let videoCount = 0;
-      let graphicCount = 0;
-
-      for (const docSnapshot of snapshot.docs) {
-        const data = docSnapshot.data();
-        const targetCollection = data.type === 'Video' ? 'works_video' : 'works_graphic';
-
-        // Add to new collection (using same ID if possible, or new ID)
-        // Using addDoc creates new ID, setDoc would preserve ID but let's just create new ones to be safe and clean
-        await addDoc(collection(db, targetCollection), data);
-
-        if (data.type === 'Video') videoCount++;
-        else graphicCount++;
-      }
-
-      setMigrationStatus(`ย้ายสำเร็จ! Video: ${videoCount}, Graphic: ${graphicCount}`);
-      showNotification(`ย้ายข้อมูลสำเร็จ (Video: ${videoCount}, Graphic: ${graphicCount})`, 'success');
-
-    } catch (error) {
-      console.error("Migration failed:", error);
-      setMigrationStatus("เกิดข้อผิดพลาดในการย้าย: " + error.message);
-      showNotification("Migration Failed", 'error');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   // จัดการอัพโหลดรูปภาพ (เลือกไฟล์)
   const handleImageSelect = (e) => {
     const file = e.target.files[0];
@@ -345,8 +307,7 @@ const AdminPage = () => {
     if (isConfirmed) {
       setIsLoading(true);
       try {
-        const collectionName = getCollectionName();
-        await deleteDoc(doc(db, collectionName, id));
+        await deleteDoc(doc(db, "works", id));
         setWorks(works.filter(w => w.id !== id));
         showNotification("ลบเรียบร้อยแล้ว", 'success');
       } catch (error) {
