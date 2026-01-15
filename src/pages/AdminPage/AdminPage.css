@@ -795,6 +795,7 @@
   color: #818cf8;
 }
 
+
 .btn-edit:hover {
   background: var(--primary-color);
   color: white;
@@ -808,66 +809,137 @@
 .btn-delete:hover {
   background: #ef4444;
   color: white;
-}/* Admin Tabs */
+}
+
+/* Type Selector Styles (Restored) */
+.type-selector {
+  display: flex;
+  gap: 10px;
+  background: var(--bg-secondary);
+  padding: 6px;
+  border-radius: 16px;
+  border: 1px solid var(--border-color);
+  width: fit-content;
+  margin-bottom: 10px;
+}
+
+.type-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 24px;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 140px;
+  justify-content: center;
+}
+
+.type-btn:hover {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.type-btn.active {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  border-color: var(--border-color);
+}
+
+/* Specific colors for active states */
+.type-btn.active:first-child {
+  /* Graphic */
+  color: #818cf8;
+  /* Indigo */
+  background: rgba(99, 102, 241, 0.1);
+  border-color: rgba(99, 102, 241, 0.3);
+}
+
+.type-btn.active:last-child {
+  /* Video */
+  color: #fb7185;
+  /* Rose */
+  background: rgba(244, 63, 94, 0.1);
+  border-color: rgba(244, 63, 94, 0.3);
+}
+
+
+.btn-delete {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+}
+
+.btn-delete:hover {
+  background: #ef4444;
+  color: white;
+}
+
+/* Admin Tabs */
 .admin-tabs {
-    display: flex;
-    gap: 10px;
-    padding: 0 40px;
-    margin-top: 20px;
-    align-items: center;
-    flex-wrap: wrap;
+  display: flex;
+  gap: 10px;
+  padding: 0 40px;
+  margin-top: 20px;
+  align-items: center;
+  flex-wrap: wrap;
 }
 
 .tab-btn {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    color: var(--text-secondary);
-    padding: 12px 24px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 1rem;
-    font-family: 'Outfit', sans-serif;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    gap: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-secondary);
+  padding: 12px 24px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-family: 'Outfit', sans-serif;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .tab-btn:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: var(--text-primary);
-    transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-primary);
+  transform: translateY(-2px);
 }
 
 .tab-btn.active {
-    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-    color: white;
-    border-color: transparent;
-    box-shadow: 0 4px 15px rgba(233, 30, 99, 0.4);
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  color: white;
+  border-color: transparent;
+  box-shadow: 0 4px 15px rgba(233, 30, 99, 0.4);
 }
 
 .tab-actions-bar {
-    display: flex;
-    justify-content: flex-end;
-    gap: 15px;
-    padding: 10px 40px;
-    margin-bottom: 20px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  display: flex;
+  justify-content: flex-end;
+  gap: 15px;
+  padding: 10px 40px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 /* Adjust Admin Header to remove duplicate actions if needed */
 .admin-header-actions {
-    margin-left: auto;
-    display: flex;
-    gap: 10px;
-    align-items: center;
+  margin-left: auto;
+  display: flex;
+  gap: 10px;
+  align-items: center;
 }
 
 /* Migration Status */
 .migration-status {
-    padding: 15px;
-    background: rgba(76, 175, 80, 0.2);
-    border: 1px solid #4CAF50;
-    color: #4CAF50;
-    border-radius: 8px;
+  padding: 15px;
+  background: rgba(76, 175, 80, 0.2);
+  border: 1px solid #4CAF50;
+  color: #4CAF50;
+  border-radius: 8px;
 }
