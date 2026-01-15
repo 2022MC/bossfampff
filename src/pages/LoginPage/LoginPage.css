@@ -1,0 +1,134 @@
+/* src/pages/LoginPage/LoginPage.css */
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-primary);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Background Effects */
+.login-page::before {
+  content: '';
+  position: absolute;
+  top: -10%;
+  left: -10%;
+  width: 50vw;
+  height: 50vw;
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.2) 0%, transparent 60%);
+  filter: blur(80px);
+  z-index: 1;
+  animation: floatOrb 15s ease-in-out infinite;
+}
+
+.login-page::after {
+  content: '';
+  position: absolute;
+  bottom: -10%;
+  right: -10%;
+  width: 50vw;
+  height: 50vw;
+  background: radial-gradient(circle, rgba(168, 85, 247, 0.2) 0%, transparent 60%);
+  filter: blur(80px);
+  z-index: 1;
+  animation: floatOrb 20s ease-in-out infinite reverse;
+}
+
+@keyframes floatOrb {
+
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+
+  50% {
+    transform: translate(30px, -50px);
+  }
+}
+
+.login-container {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  margin-top: 80px;
+  position: relative;
+  z-index: 2;
+}
+
+.login-box {
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  padding: 3.5rem;
+  border-radius: 24px;
+  width: 100%;
+  max-width: 440px;
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: transform 0.3s ease;
+}
+
+.login-box:hover {
+  transform: translateY(-5px);
+  border-color: rgba(99, 102, 241, 0.3);
+}
+
+.login-box h2 {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 2.5rem;
+  font-weight: 700;
+  background: var(--gradient-text);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.login-desc {
+  text-align: center;
+  color: var(--text-secondary);
+  margin-bottom: 2.5rem;
+  line-height: 1.6;
+  font-size: 1.05rem;
+}
+
+.btn-discord-login {
+  width: 100%;
+  padding: 16px;
+  background-color: #5865F2;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(88, 101, 242, 0.4);
+}
+
+.btn-discord-login:hover {
+  background-color: #4752c4;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(88, 101, 242, 0.5);
+}
+
+.btn-discord-login:active {
+  transform: translateY(0);
+}
+
+.discord-icon {
+  font-size: 1.5rem;
+}

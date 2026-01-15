@@ -1,0 +1,45 @@
+/* src/components/CustomCursor/CustomCursor.css */
+.custom-cursor {
+    width: 40px;
+    height: 40px;
+    border: 2px solid white;
+    border-radius: 50%;
+    position: fixed;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    z-index: 9999;
+    transition: width 0.2s, height 0.2s, background-color 0.2s, transform 0.1s;
+    mix-blend-mode: difference;
+    /* Cool blend effect */
+}
+
+/* Hover State */
+.custom-cursor.hover {
+    width: 60px;
+    height: 60px;
+    background-color: rgba(255, 255, 255, 1);
+    mix-blend-mode: difference;
+}
+
+/* Click State */
+.custom-cursor.click {
+    transform: translate(-50%, -50%) scale(0.8);
+    background-color: rgba(255, 255, 255, 0.8);
+}
+
+.custom-cursor.hidden {
+    opacity: 0;
+}
+
+/* Hide Default Cursor only on non-touch devices */
+@media (pointer: fine) {
+
+    body,
+    a,
+    button,
+    input,
+    textarea,
+    select {
+        cursor: none;
+    }
+}

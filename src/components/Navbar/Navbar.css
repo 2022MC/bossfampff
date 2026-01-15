@@ -1,0 +1,228 @@
+/* Navbar.css */
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+  padding: 20px 0;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.navbar.scrolled {
+  padding: 10px 0;
+}
+
+.nav-container {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 24px;
+  height: 70px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: var(--radius-full);
+  transition: all 0.4s ease;
+
+  /* Glassmorphism for the pill itself when scrolled */
+  background: transparent;
+  backdrop-filter: none;
+  border: 1px solid transparent;
+}
+
+.navbar.scrolled .nav-container {
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+  margin: 0 20px;
+  /* Add margin on sides when it becomes a pill */
+  width: calc(100% - 40px);
+  /* Adjust width */
+}
+
+/* On larger screens, center the max-width container properly */
+@media (min-width: 1240px) {
+  .navbar.scrolled .nav-container {
+    margin: 0 auto;
+    width: 100%;
+    max-width: var(--max-width);
+  }
+}
+
+/* Logo */
+.nav-logo a {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-primary);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nav-logo a::before {
+  content: '';
+  width: 10px;
+  height: 10px;
+  background: var(--primary-color);
+  border-radius: 50%;
+  box-shadow: 0 0 10px var(--primary-glow);
+}
+
+/* Menu */
+.nav-menu {
+  display: flex;
+  list-style: none;
+  gap: 32px;
+  align-items: center;
+}
+
+.nav-item a {
+  color: var(--text-secondary);
+  font-weight: 500;
+  font-size: 15px;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  padding: 8px 16px;
+  border-radius: 20px;
+}
+
+.nav-item a:hover,
+.nav-item a.active {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* Dropdown */
+.nav-item-dropdown {
+  position: relative;
+}
+
+.nav-dropdown-toggle {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+}
+
+.dropdown-icon {
+  font-size: 10px;
+  transition: transform 0.3s ease;
+}
+
+.dropdown-icon.open {
+  transform: rotate(180deg);
+}
+
+.nav-dropdown {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%) translateY(-10px);
+  background: var(--bg-tertiary);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+  padding: 8px;
+  border-radius: 12px;
+  list-style: none;
+  min-width: 180px;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.nav-dropdown.active {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}
+
+.nav-dropdown li a {
+  display: block;
+  padding: 10px 16px;
+  border-radius: 8px;
+  color: var(--text-secondary);
+  width: 100%;
+}
+
+.nav-dropdown li a:hover {
+  background: var(--primary-color);
+  color: white;
+}
+
+/* Mobile Toggle */
+.nav-toggle {
+  display: none;
+  font-size: 24px;
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+/* Mobile Styles */
+@media (max-width: 768px) {
+  .nav-toggle {
+    display: block;
+  }
+
+  .nav-menu {
+    position: fixed;
+    top: 80px;
+    left: 20px;
+    right: 20px;
+    background: var(--bg-tertiary);
+    /* Solid background for mobile menu */
+    padding: 24px;
+    border-radius: 24px;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-20px);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .nav-menu.active {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+
+  .nav-item a {
+    display: block;
+    text-align: center;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.03);
+  }
+
+  .nav-dropdown {
+    position: static;
+    transform: none;
+    opacity: 1;
+    visibility: visible;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    padding: 0;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+  }
+
+  .nav-dropdown.active {
+    max-height: 200px;
+    transform: none;
+    padding-top: 10px;
+  }
+
+  .navbar.scrolled .nav-container {
+    margin: 0 10px;
+    width: calc(100% - 20px);
+  }
+}
