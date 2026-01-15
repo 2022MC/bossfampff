@@ -5,7 +5,7 @@ import Navbar from '../../components/Navbar/Navbar';
 import Footer from '../../components/Footer/Footer';
 import './GraphicAIPage.css';
 import { db } from '../../firebase';
-import { collection, query, getDocs } from 'firebase/firestore';
+import { collection, query, where, getDocs } from 'firebase/firestore';
 
 const GraphicAIPage = () => {
   const [scrollY, setScrollY] = useState(0);
@@ -30,7 +30,8 @@ const GraphicAIPage = () => {
   const loadGraphicWorks = async () => {
     try {
       const q = query(
-        collection(db, "works_graphic")
+        collection(db, "works"),
+        where("type", "==", "Graphic")
       );
 
       const querySnapshot = await getDocs(q);

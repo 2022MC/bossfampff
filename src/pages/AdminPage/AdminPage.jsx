@@ -34,7 +34,7 @@ const AdminPage = () => {
     id: null,
     title: '',
     description: '',
-    type: 'Graphic', // Will be auto-set based on activeTab
+    type: 'Graphic',
     image: '',
     videoUrl: '',
     category: 'Graphic Design',
@@ -44,7 +44,6 @@ const AdminPage = () => {
     featured: false
   });
   const [imageFile, setImageFile] = useState(null);
-  const [migrationStatus, setMigrationStatus] = useState(null); // For migration feedback
 
   useEffect(() => {
     // Monitor Firebase Auth State
@@ -71,33 +70,12 @@ const AdminPage = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Set default type when tab changes
-  useEffect(() => {
-    if (activeTab === 'Video') {
-      setFormData(prev => ({ ...prev, type: 'Video' }));
-    } else if (activeTab === 'Graphic') {
-      setFormData(prev => ({ ...prev, type: 'Graphic' }));
-    }
-    // Reload works when tab changes
-    if (activeTab !== 'Migration') {
-      loadWorks();
-    }
-  }, [activeTab]);
-
-  // Helper to get collection name
-  const getCollectionName = () => {
-    return activeTab === 'Video' ? 'works_video' : 'works_graphic';
-  };
-
   // โหลดข้อมูลจาก Firebase
   const loadWorks = React.useCallback(async () => {
-    if (activeTab === 'Migration') return;
-
     setIsLoading(true);
     try {
-      const collectionName = activeTab === 'Video' ? 'works_video' : 'works_graphic';
-      // Fetch all works from the specific collection
-      const q = query(collection(db, collectionName));
+      // Fetch all works, then sort client-side to handle missing 'order' fields gracefully
+      const q = query(collection(db, "works"));
       const querySnapshot = await getDocs(q);
       const loadedWorks = querySnapshot.docs.map(doc => ({
         id: doc.id,
@@ -106,7 +84,7 @@ const AdminPage = () => {
 
       // Sort by order (asc), fallback to createdAt (desc)
       loadedWorks.sort((a, b) => {
-        const orderA = a.order !== undefined ? a.order : 999999;
+        const orderA = a.order !== undefined ? a.order : 999999; // New items go to end
         const orderB = b.order !== undefined ? b.order : 999999;
 
         if (orderA !== orderB) {
@@ -122,7 +100,7 @@ const AdminPage = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [showNotification, activeTab]);
+  }, [showNotification]);
 
   useEffect(() => {
     loadWorks();
@@ -156,9 +134,8 @@ const AdminPage = () => {
 
     setIsLoading(true);
     try {
-      const collectionName = getCollectionName();
       const updates = works.map((work, index) => {
-        const workRef = doc(db, collectionName, work.id);
+        const workRef = doc(db, "works", work.id);
         return updateDoc(workRef, { order: index });
       });
 
@@ -402,7 +379,7 @@ const AdminPage = () => {
       let imageUrl = formData.image; // Initially base64 or existing URL
 
       // Upload new image if selected
-      if (activeTab === 'Graphic' && imageFile) {
+      if (formData.type === 'Graphic' && imageFile) {
         console.log("Uploading image...", imageFile.name);
         try {
           imageUrl = await uploadToCloudinary(imageFile);
@@ -413,7 +390,7 @@ const AdminPage = () => {
           setIsLoading(false);
           return;
         }
-      } else if (activeTab === 'Graphic' && !imageUrl) {
+      } else if (formData.type === 'Graphic' && !imageUrl) {
         // Check if existing image (editing) or validation fail
         if (!editingId) {
           showNotification('กรุณากรอกหรืออัพโหลดรูปภาพ', 'warning');
@@ -423,14 +400,14 @@ const AdminPage = () => {
       }
 
       // Safety check: Don't save if image is still base64 (too large)
-      if (activeTab === 'Graphic' && imageUrl && imageUrl.startsWith('data:image')) {
+      if (formData.type === 'Graphic' && imageUrl && imageUrl.startsWith('data:image')) {
         showNotification("เกิดข้อผิดพลาด: ระบบพยายามบันทึกรูปภาพขนาดใหญ่เกินไป (Base64)", 'error');
         console.error("Attempted to save Base64 image to Firestore");
         setIsLoading(false);
         return;
       }
 
-      if (activeTab === 'Video' && !formData.videoUrl.trim()) {
+      if (formData.type === 'Video' && !formData.videoUrl.trim()) {
         showNotification('กรุณากรอกลิงก์วิดีโอ', 'warning');
         setIsLoading(false);
         return;
@@ -443,26 +420,25 @@ const AdminPage = () => {
         tech: formData.tech,
         size: { aspectRatio: formData.aspectRatio },
         featured: formData.featured,
-        type: activeTab, // Explicitly set based on tab
+        type: formData.type,
         createdAt: Date.now()
       };
 
-      if (activeTab === 'Graphic') {
+      if (formData.type === 'Graphic') {
         workData.image = imageUrl;
       } else {
         workData.videoUrl = formData.videoUrl.trim();
       }
 
       console.log("Saving to Firestore...", workData);
-      const collectionName = getCollectionName();
 
       if (editingId) {
         // Update existing document
-        const workRef = doc(db, collectionName, editingId);
+        const workRef = doc(db, "works", editingId);
         await updateDoc(workRef, workData);
       } else {
         // Add new document
-        await addDoc(collection(db, collectionName), workData);
+        await addDoc(collection(db, "works"), workData);
       }
 
       console.log("Save successful!");
@@ -511,76 +487,19 @@ const AdminPage = () => {
           </div>
         </div>
 
-        {/* TAB NAVIGATION */}
-        <div className="admin-tabs">
-          <button
-            className={`tab-btn ${activeTab === 'Video' ? 'active' : ''}`}
-            onClick={() => setActiveTab('Video')}
-          >
-            🎥 Video Works
+        <div className="tab-actions-bar">
+          <button className="btn-save-order" onClick={handleSaveOrder} disabled={isLoading}>
+            <FaSave /> บันทึกลำดับ
           </button>
-          <button
-            className={`tab-btn ${activeTab === 'Graphic' ? 'active' : ''}`}
-            onClick={() => setActiveTab('Graphic')}
-          >
-            🎨 Graphic Works
-          </button>
-          <button
-            className={`tab-btn ${activeTab === 'Migration' ? 'active' : ''}`}
-            onClick={() => setActiveTab('Migration')}
-            style={{ marginLeft: 'auto', backgroundColor: '#333' }}
-          >
-            ⚙️ Database Migration
+          <button className="btn-add" onClick={handleAddNew}>
+            <FaPlus /> เพิ่มผลงานใหม่
           </button>
         </div>
 
-        {/* Tab Actions (Only for Content Tabs) */}
-        {activeTab !== 'Migration' && (
-          <div className="tab-actions-bar">
-            <button className="btn-save-order" onClick={handleSaveOrder} disabled={isLoading}>
-              <FaSave /> บันทึกลำดับ ({activeTab})
-            </button>
-            <button className="btn-add" onClick={handleAddNew}>
-              <FaPlus /> เพิ่มผลงาน {activeTab} ใหม่
-            </button>
-          </div>
-        )}
-
-        {/* ... (rest of the render same as before) */}
         {isLoading && <div className="loading-overlay">กำลังโหลด...</div>}
 
-        {/* MIGRATION UI */}
-        {activeTab === 'Migration' && (
-          <div className="migration-container" style={{ padding: '40px', textAlign: 'center', background: 'rgba(255,255,255,0.05)', borderRadius: '12px', marginTop: '20px' }}>
-            <h2>🔄 Database Migration Tool</h2>
-            <p>เครื่องมือนี้จะทำการย้ายข้อมูลจาก Collection เก่า (`works`) ไปยัง Collection ใหม่แยกตามประเภท:</p>
-            <ul style={{ listStyle: 'none', margin: '20px 0', opacity: 0.8 }}>
-              <li>`works` (Video) ➡️ `works_video`</li>
-              <li>`works` (Graphic) ➡️ `works_graphic`</li>
-            </ul>
-            <div style={{ padding: '20px', background: '#332b00', borderRadius: '8px', marginBottom: '20px', color: '#ffd700' }}>
-              ⚠️ คำเตือน: ควรทำรายการนี้เพียงครั้งเดียวหลังจาก Backup ข้อมูลแล้ว
-            </div>
-
-            {migrationStatus && (
-              <div className="migration-status" style={{ margin: '20px 0', fontSize: '1.2em', fontWeight: 'bold' }}>
-                {migrationStatus}
-              </div>
-            )}
-
-            <button
-              onClick={handleMigration}
-              className="btn-add"
-              style={{ fontSize: '1.2rem', padding: '15px 40px', background: '#e91e63' }}
-              disabled={isLoading}
-            >
-              🚀 เริ่มต้นการย้ายข้อมูล (Start Migration)
-            </button>
-          </div>
-        )}
-
-        {/* ฟอร์มเพิ่ม/แก้ไข (Show only if not migration) */}
-        {showForm && activeTab !== 'Migration' && (
+        {/* ฟอร์มเพิ่ม/แก้ไข */}
+        {showForm && (
           <motion.div
             className="admin-form-container"
             initial={{ opacity: 0, y: -20 }}
@@ -588,14 +507,32 @@ const AdminPage = () => {
             exit={{ opacity: 0, y: -20 }}
           >
             <div className="admin-form-header">
-              <h2>{editingId ? `แก้ไขผลงาน (${activeTab})` : `เพิ่มผลงานใหม่ (${activeTab})`}</h2>
+              <h2>{editingId ? `แก้ไขผลงาน` : `เพิ่มผลงานใหม่`}</h2>
               <button className="btn-close" onClick={resetForm}>
                 <FaTimes />
               </button>
             </div>
-            {/* ... Form Content ... */}
+
             <div className="admin-form">
-              {/* REMOVED TYPE SELECTOR - Type is determined by Tab */}
+              <div className="form-group">
+                <label>ประเภทผลงาน *</label>
+                <div className="type-selector">
+                  <button
+                    type="button"
+                    className={`type-btn ${formData.type === 'Graphic' ? 'active' : ''}`}
+                    onClick={() => setFormData({ ...formData, type: 'Graphic' })}
+                  >
+                    🎨 Graphic
+                  </button>
+                  <button
+                    type="button"
+                    className={`type-btn ${formData.type === 'Video' ? 'active' : ''}`}
+                    onClick={() => setFormData({ ...formData, type: 'Video' })}
+                  >
+                    🎥 Video
+                  </button>
+                </div>
+              </div>
 
               <div className="form-group">
                 <label>ชื่อผลงาน *</label>
@@ -617,7 +554,7 @@ const AdminPage = () => {
                 />
               </div>
 
-              {activeTab === 'Graphic' ? (
+              {formData.type === 'Graphic' ? (
                 <div className="form-group">
                   <label>รูปภาพ *</label>
                   <div className="image-upload-section">
@@ -755,65 +692,62 @@ const AdminPage = () => {
                 </button>
               </div>
             </div>
-            {/* ... End Form Content ... */}
-
           </motion.div>
         )}
 
         {/* รายการผลงานแบบ Reorderable */}
-        {activeTab !== 'Migration' && (
-          <div className="works-list">
-            <h2>รายการผลงาน {activeTab} ทั้งหมด ({works.length}) <small>(ลากเพื่อจัดลำดับ)</small></h2>
-            {works.length === 0 ? (
-              <div className="empty-state">
-                <p>ยังไม่มีผลงาน {activeTab} กรุณาเพิ่มผลงานใหม่</p>
-              </div>
-            ) : (
-              <div className="works-reorder-container">
-                <div className="works-header-row">
-                  <div className="col-drag"></div>
-                  <div className="col-type">ประเภท</div>
-                  <div className="col-title">ชื่อผลงาน</div>
-                  <div className="col-category">หมวดหมู่</div>
-                  <div className="col-featured">Featured</div>
-                  <div className="col-actions">จัดการ</div>
-                </div>
 
-                <Reorder.Group axis="y" values={works} onReorder={setWorks} className="works-reorder-group">
-                  {works.map((work) => (
-                    <Reorder.Item key={work.id} value={work} className="work-reorder-item">
-                      <div className="col-drag">
-                        <span className="drag-handle"><FaBars /></span>
-                      </div>
-                      <div className="col-type">
-                        <span className={`type-badge ${work.type === 'Graphic' ? 'graphic' : 'video'}`}>
-                          {work.type === 'Graphic' ? 'Graphic' : 'Video'}
-                        </span>
-                      </div>
-                      <div className="col-title">{work.title}</div>
-                      <div className="col-category">{work.category}</div>
-                      <div className="col-featured">
-                        {work.featured ? (
-                          <span className="featured-badge">✓</span>
-                        ) : (
-                          <span className="featured-badge-empty">-</span>
-                        )}
-                      </div>
-                      <div className="col-actions">
-                        <button onClick={() => handleEdit(work)} className="btn-edit">
-                          <FaEdit />
-                        </button>
-                        <button onClick={() => handleDelete(work.id)} className="btn-delete">
-                          <FaTrash />
-                        </button>
-                      </div>
-                    </Reorder.Item>
-                  ))}
-                </Reorder.Group>
+        <div className="works-list">
+          <h2>รายการผลงานทั้งหมด ({works.length}) <small>(ลากเพื่อจัดลำดับ)</small></h2>
+          {works.length === 0 ? (
+            <div className="empty-state">
+              <p>ยังไม่มีผลงาน กรุณาเพิ่มผลงานใหม่</p>
+            </div>
+          ) : (
+            <div className="works-reorder-container">
+              <div className="works-header-row">
+                <div className="col-drag"></div>
+                <div className="col-type">ประเภท</div>
+                <div className="col-title">ชื่อผลงาน</div>
+                <div className="col-category">หมวดหมู่</div>
+                <div className="col-featured">Featured</div>
+                <div className="col-actions">จัดการ</div>
               </div>
-            )}
-          </div>
-        )}
+
+              <Reorder.Group axis="y" values={works} onReorder={setWorks} className="works-reorder-group">
+                {works.map((work) => (
+                  <Reorder.Item key={work.id} value={work} className="work-reorder-item">
+                    <div className="col-drag">
+                      <span className="drag-handle"><FaBars /></span>
+                    </div>
+                    <div className="col-type">
+                      <span className={`type-badge ${work.type === 'Graphic' ? 'graphic' : 'video'}`}>
+                        {work.type === 'Graphic' ? 'Graphic' : 'Video'}
+                      </span>
+                    </div>
+                    <div className="col-title">{work.title}</div>
+                    <div className="col-category">{work.category}</div>
+                    <div className="col-featured">
+                      {work.featured ? (
+                        <span className="featured-badge">✓</span>
+                      ) : (
+                        <span className="featured-badge-empty">-</span>
+                      )}
+                    </div>
+                    <div className="col-actions">
+                      <button onClick={() => handleEdit(work)} className="btn-edit">
+                        <FaEdit />
+                      </button>
+                      <button onClick={() => handleDelete(work.id)} className="btn-delete">
+                        <FaTrash />
+                      </button>
+                    </div>
+                  </Reorder.Item>
+                ))}
+              </Reorder.Group>
+            </div>
+          )}
+        </div>
       </div>
       <Footer />
     </div>

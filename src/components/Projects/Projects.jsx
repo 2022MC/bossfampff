@@ -6,7 +6,7 @@ import './Projects.css';
 import ProjectModal from '../ProjectModal/ProjectModal';
 
 import { db } from '../../firebase';
-import { collection, query, getDocs } from 'firebase/firestore';
+import { collection, query, where, getDocs } from 'firebase/firestore';
 
 const Projects = ({ limit }) => {
   const [projects, setProjects] = useState([]);
@@ -20,7 +20,8 @@ const Projects = ({ limit }) => {
   const loadVideoProjects = async () => {
     try {
       const q = query(
-        collection(db, "works_video")
+        collection(db, "works"),
+        where("type", "==", "Video")
       );
 
       const querySnapshot = await getDocs(q);
