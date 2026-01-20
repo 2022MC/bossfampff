@@ -2,6 +2,7 @@ import React from 'react';
 import { FaArrowDown } from 'react-icons/fa';
 import { motion } from 'framer-motion';
 import './Hero.css';
+import WeatherWidget from '../WeatherWidget/WeatherWidget';
 
 const Hero = () => {
 
@@ -37,6 +38,10 @@ const Hero = () => {
         initial="hidden"
         animate="visible"
       >
+        <motion.div variants={itemVariants} className="weather-container">
+          <WeatherWidget />
+        </motion.div>
+
         <motion.div className="hero-greeting" variants={itemVariants}>
           <span className="greeting-text">สวัสดีครับ, ผมชื่อ</span>
         </motion.div>
@@ -49,9 +54,9 @@ const Hero = () => {
           <span className="title-line">ชื่อเล่น : บอส</span>
         </motion.h2>
         <motion.p className="hero-description" variants={itemVariants}>
-          ผมเป็นคนตัดต่อวิดีโอที่หลงใหลการเล่าเรื่องผ่านภาพและจังหวะ 
-          เสียง และอารมณ์ในทุกเฟรม งานของผมเน้นความลื่นไหล เรียบง่าย แต่มีพลัง 
-          ผมชอบการทำงานที่ใส่ใจรายละเอียด และพร้อมเรียนรู้เทคนิคใหม่ ๆ 
+          ผมเป็นคนตัดต่อวิดีโอที่หลงใหลการเล่าเรื่องผ่านภาพและจังหวะ
+          เสียง และอารมณ์ในทุกเฟรม งานของผมเน้นความลื่นไหล เรียบง่าย แต่มีพลัง
+          ผมชอบการทำงานที่ใส่ใจรายละเอียด และพร้อมเรียนรู้เทคนิคใหม่ ๆ
           เพื่อให้ทุกโปรเจกต์ออกมาดีที่สุด เป้าหมายของผมคือการสร้างวิดีโอที่ทำให้คนดู "รู้สึก" และเชื่อมต่อกับเรื่องราวได้อย่างแท้จริง
         </motion.p>
         <motion.div className="hero-buttons" variants={itemVariants}>
