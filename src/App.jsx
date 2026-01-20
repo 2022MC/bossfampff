@@ -18,6 +18,7 @@ import { ThemeProvider } from './context/ThemeContext';
 import PrivateRoute from './components/PrivateRoute/PrivateRoute';
 import LoginPage from './pages/LoginPage/LoginPage';
 import DiscordCallback from './pages/DiscordCallback/DiscordCallback';
+import MusicPlayer from './components/MusicPlayer/MusicPlayer';
 
 
 function HomePage() {
@@ -50,8 +51,8 @@ function App() {
     <AuthProvider>
       <NotificationProvider>
         <ThemeProvider>
-
           <Router>
+            <MusicPlayer />
             <Routes>
               <Route path="/" element={<HomePage />} />
               <Route path="/projects" element={<ProjectsPage />} />
