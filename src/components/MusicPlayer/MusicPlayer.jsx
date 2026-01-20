@@ -29,7 +29,8 @@ const MusicPlayer = () => {
     return (
         <div className={`music-player-container ${expanded ? 'expanded' : ''}`}>
             {/* Hidden Player */}
-            <div style={{ display: 'none' }}>
+            {/* Hidden Player - keeping it rendered but off-screen */}
+            <div style={{ position: 'absolute', top: '-9999px', left: '-9999px' }}>
                 <ReactPlayer
                     url={streamUrl}
                     playing={playing}
@@ -37,6 +38,7 @@ const MusicPlayer = () => {
                     volume={volume}
                     width="0"
                     height="0"
+                    playsinline={true}
                 />
             </div>
 
