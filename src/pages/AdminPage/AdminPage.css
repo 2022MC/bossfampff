@@ -472,13 +472,33 @@
   justify-content: center;
 }
 
+
+
 .custom-color-btn input {
+  display: none;
+}
+
+.custom-color-wrapper {
+  position: relative;
+}
+
+.popover {
   position: absolute;
-  width: 100%;
-  height: 100%;
-  opacity: 0;
-  cursor: pointer;
-  z-index: 2;
+  z-index: 100;
+  top: 36px;
+  left: 0;
+}
+
+.tag-popover {
+  top: 100%;
+}
+
+.cover {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
 }
 
 .rainbow-bg {
@@ -490,19 +510,16 @@
 
 .tech-tag-item {
   position: relative;
-  /* Ensure absolute input positioning relative to this */
 }
 
-.tag-color-picker {
+.tag-color-trigger {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  opacity: 0;
   cursor: pointer;
   z-index: 1;
-  /* Below remove button but above text */
 }
 
 

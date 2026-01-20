@@ -10,6 +10,7 @@ import { db } from '../../firebase';
 import { collection, addDoc, updateDoc, deleteDoc, doc, getDocs, query } from 'firebase/firestore';
 
 // import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'; // Removed Firebase Storage
+import { SketchPicker } from 'react-color';
 
 // ... imports
 import { auth } from '../../firebase';
@@ -19,6 +20,10 @@ const AdminPage = () => {
   const [scrollY, setScrollY] = useState(0);
   const { logout: discordLogout } = useAuth(); // Renamed for clarity
   const { showNotification, showConfirm } = useNotification();
+
+  // Color Picker State
+  const [showColorPicker, setShowColorPicker] = useState(false);
+  const [activeTagColorIndex, setActiveTagColorIndex] = useState(null);
   const [works, setWorks] = useState([]);
   const [editingId, setEditingId] = useState(null);
   const [showForm, setShowForm] = useState(false);
@@ -640,17 +645,25 @@ const AdminPage = () => {
                   ))}
 
                   {/* Custom Color Button */}
-                  <label
-                    className={`color-btn custom-color-btn ${!TAG_COLORS.some(c => c.hex === selectedColor) ? 'active' : ''}`}
-                    title="Custom Color"
-                  >
-                    <input
-                      type="color"
-                      value={selectedColor}
-                      onChange={(e) => setSelectedColor(e.target.value)}
-                    />
-                    <div className="rainbow-bg"></div>
-                  </label>
+                  <div className="custom-color-wrapper">
+                    <div
+                      className={`color-btn custom-color-btn ${!TAG_COLORS.some(c => c.hex === selectedColor) ? 'active' : ''}`}
+                      title="Custom Color"
+                      onClick={() => setShowColorPicker(!showColorPicker)}
+                    >
+                      <div className="rainbow-bg"></div>
+                    </div>
+                    {showColorPicker && (
+                      <div className="popover">
+                        <div className="cover" onClick={() => setShowColorPicker(false)} />
+                        <SketchPicker
+                          color={selectedColor}
+                          onChange={(color) => setSelectedColor(color.hex)}
+                          disableAlpha={true}
+                        />
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 <div className="tech-input-group">
@@ -678,14 +691,23 @@ const AdminPage = () => {
                           borderColor: `${techColor}50`
                         }}
                       >
-                        {/* Hidden Color Picker for Direct Editing */}
-                        <input
-                          type="color"
-                          value={techColor}
-                          onChange={(e) => updateTagColor(index, e.target.value)}
-                          className="tag-color-picker"
+                        {/* SketchPicker for Direct Tag Editing */}
+                        <div
+                          className="tag-color-trigger"
+                          onClick={() => setActiveTagColorIndex(index)}
                           title="Click to change color"
                         />
+
+                        {activeTagColorIndex === index && (
+                          <div className="popover tag-popover">
+                            <div className="cover" onClick={() => setActiveTagColorIndex(null)} />
+                            <SketchPicker
+                              color={techColor}
+                              onChange={(color) => updateTagColor(index, color.hex)}
+                              disableAlpha={true}
+                            />
+                          </div>
+                        )}
 
                         {techName}
                         <button
