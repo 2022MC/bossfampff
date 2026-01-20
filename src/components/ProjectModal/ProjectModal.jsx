@@ -130,9 +130,22 @@ const ProjectModal = ({ project, onClose }) => {
                     <div className="modal-tech">
                         <h3><FaTools style={{ marginRight: '8px', fontSize: '0.8em' }} /> Tag</h3>
                         <div className="tech-tags-wrapper">
-                            {project.tech && project.tech.map((t, i) => (
-                                <span key={i} className="tech-tag modal-tag">{t}</span>
-                            ))}
+                            {project.tech && project.tech.map((t, i) => {
+                                const techName = typeof t === 'string' ? t : t.name;
+                                const style = typeof t === 'string'
+                                    ? {}
+                                    : {
+                                        color: t.color,
+                                        backgroundColor: `${t.color}20`,
+                                        borderColor: `${t.color}40`
+                                    };
+
+                                return (
+                                    <span key={i} className="tech-tag modal-tag" style={style}>
+                                        {techName}
+                                    </span>
+                                );
+                            })}
                         </div>
                     </div>
 
