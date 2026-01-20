@@ -121,12 +121,6 @@ const Projects = ({ limit }) => {
                 whileHover={{ y: -10 }}
                 onClick={() => setSelectedProject(project)}
               >
-                {project.featured && (
-                  <div className="project-featured-badge">
-                    ✨ ผลงานเด่น
-                  </div>
-                )}
-
                 {hasVideo ? (
                   <div className="project-video">
                     {hasError ? (
@@ -211,6 +205,12 @@ const Projects = ({ limit }) => {
                     })}
                   </div>
                 </div>
+
+                {project.featured && (
+                  <div className="project-featured-badge">
+                    ✨ ผลงานเด่น
+                  </div>
+                )}
               </motion.div>
             );
           })}

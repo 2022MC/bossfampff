@@ -141,12 +141,6 @@ const GraphicAIPage = () => {
                     variants={itemVariants}
                     whileHover={{ y: -10 }}
                   >
-                    {work.featured && (
-                      <div className="work-featured-badge">
-                        ✨ ผลงานเด่น
-                      </div>
-                    )}
-
                     <div
                       className="work-image"
                       style={{ aspectRatio: aspectRatio }}
@@ -179,6 +173,12 @@ const GraphicAIPage = () => {
                         })}
                       </div>
                     </div>
+
+                    {work.featured && (
+                      <div className="work-featured-badge">
+                        ✨ ผลงานเด่น
+                      </div>
+                    )}
                   </motion.div>
                 );
               })}
