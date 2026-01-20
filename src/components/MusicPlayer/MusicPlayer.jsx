@@ -10,7 +10,7 @@ const MusicPlayer = () => {
     const [expanded, setExpanded] = useState(false);
     const [volume, setVolume] = useState(0.5);
     // Default: Lofi Girl - lofi hip hop radio
-    const streamUrl = 'https://www.youtube.com/watch?v=jfKfPfyJRdk';
+    const streamUrl = 'https://youtu.be/WdltGaVA1sI?si=4k3-iThXyYThJqSW';
 
     const togglePlay = (e) => {
         e.stopPropagation();
