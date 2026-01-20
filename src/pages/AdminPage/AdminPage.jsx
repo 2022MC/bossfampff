@@ -234,6 +234,39 @@ const AdminPage = () => {
     { name: 'Gray', hex: '#64748B' }
   ];
 
+  // Custom Dark Styles for SketchPicker
+  const pickerStyles = {
+    default: {
+      picker: {
+        background: '#1e293b', // Slate-800
+        borderRadius: '16px',
+        boxShadow: '0 20px 40px rgba(0,0,0,0.5)',
+        border: '1px solid rgba(255,255,255,0.1)',
+        padding: '16px',
+        width: '260px',
+        color: '#fff'
+      },
+      controls: {
+        display: 'flex',
+        paddingTop: '12px'
+      },
+      input: {
+        background: '#0f172a', // Slate-900
+        border: '1px solid rgba(255,255,255,0.1)',
+        boxShadow: 'none',
+        color: '#fff',
+        fontFamily: 'inherit',
+        borderRadius: '8px'
+      },
+      label: {
+        color: '#94a3b8', // Slate-400
+        fontWeight: '600',
+        textTransform: 'uppercase',
+        fontSize: '11px'
+      }
+    }
+  };
+
   const [selectedColor, setSelectedColor] = useState(TAG_COLORS[0].hex);
 
   // เพิ่ม tech tag
@@ -660,6 +693,8 @@ const AdminPage = () => {
                           color={selectedColor}
                           onChange={(color) => setSelectedColor(color.hex)}
                           disableAlpha={true}
+                          styles={pickerStyles}
+                          presetColors={[]}
                         />
                       </div>
                     )}
@@ -705,6 +740,8 @@ const AdminPage = () => {
                               color={techColor}
                               onChange={(color) => updateTagColor(index, color.hex)}
                               disableAlpha={true}
+                              styles={pickerStyles}
+                              presetColors={[]}
                             />
                           </div>
                         )}
