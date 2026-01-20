@@ -3,6 +3,7 @@ import { FaArrowDown } from 'react-icons/fa';
 import { motion } from 'framer-motion';
 import './Hero.css';
 import WeatherWidget from '../WeatherWidget/WeatherWidget';
+import ShootingStars from '../ShootingStars/ShootingStars';
 
 const Hero = () => {
 
@@ -31,6 +32,7 @@ const Hero = () => {
         <div className="gradient-orb orb-1"></div>
         <div className="gradient-orb orb-2"></div>
         <div className="gradient-orb orb-3"></div>
+        <ShootingStars />
       </div>
       <motion.div
         className="hero-content"
