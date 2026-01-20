@@ -465,6 +465,49 @@
   transform: scale(1.1);
 }
 
+.custom-color-btn {
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.custom-color-btn input {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+  z-index: 2;
+}
+
+.rainbow-bg {
+  width: 100%;
+  height: 100%;
+  background: conic-gradient(red, yellow, lime, aqua, blue, magenta, red);
+  border-radius: 50%;
+}
+
+.tech-tag-item {
+  position: relative;
+  /* Ensure absolute input positioning relative to this */
+}
+
+.tag-color-picker {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+  z-index: 1;
+  /* Below remove button but above text */
+}
+
+
+
+
 .tech-input-group {
   display: flex;
   gap: 12px;
@@ -517,6 +560,8 @@
 }
 
 .remove-tech {
+  z-index: 2;
+  position: relative;
   background: rgba(255, 255, 255, 0.1);
   border-radius: 50%;
   border: none;

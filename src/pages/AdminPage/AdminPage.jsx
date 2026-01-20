@@ -255,6 +255,17 @@ const AdminPage = () => {
     });
   };
 
+  // อัพเดทสีของ Tag ที่มีอยู่แล้ว
+  const updateTagColor = (index, newColor) => {
+    const updatedTech = [...formData.tech];
+    if (typeof updatedTech[index] === 'string') {
+      updatedTech[index] = { name: updatedTech[index], color: newColor };
+    } else {
+      updatedTech[index].color = newColor;
+    }
+    setFormData({ ...formData, tech: updatedTech });
+  };
+
   // รีเซ็ตฟอร์ม
   const resetForm = () => {
     setFormData({
@@ -627,7 +638,21 @@ const AdminPage = () => {
                       title={color.name}
                     />
                   ))}
+
+                  {/* Custom Color Button */}
+                  <label
+                    className={`color-btn custom-color-btn ${!TAG_COLORS.some(c => c.hex === selectedColor) ? 'active' : ''}`}
+                    title="Custom Color"
+                  >
+                    <input
+                      type="color"
+                      value={selectedColor}
+                      onChange={(e) => setSelectedColor(e.target.value)}
+                    />
+                    <div className="rainbow-bg"></div>
+                  </label>
                 </div>
+
                 <div className="tech-input-group">
                   <input
                     type="text"
@@ -653,8 +678,25 @@ const AdminPage = () => {
                           borderColor: `${techColor}50`
                         }}
                       >
+                        {/* Hidden Color Picker for Direct Editing */}
+                        <input
+                          type="color"
+                          value={techColor}
+                          onChange={(e) => updateTagColor(index, e.target.value)}
+                          className="tag-color-picker"
+                          title="Click to change color"
+                        />
+
                         {techName}
-                        <button onClick={() => removeTech(index)} className="remove-tech">×</button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation(); // Prevent color picker trigger if clicking remove
+                            removeTech(index);
+                          }}
+                          className="remove-tech"
+                        >
+                          ×
+                        </button>
                       </span>
                     );
                   })}
