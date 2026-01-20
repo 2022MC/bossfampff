@@ -121,6 +121,12 @@ const Projects = ({ limit }) => {
                 whileHover={{ y: -10 }}
                 onClick={() => setSelectedProject(project)}
               >
+                {project.featured && (
+                  <div className="project-featured-badge">
+                    ✨ ผลงานเด่น
+                  </div>
+                )}
+
                 {hasVideo ? (
                   <div className="project-video">
                     {hasError ? (
@@ -185,11 +191,24 @@ const Projects = ({ limit }) => {
                   <h3 className="project-title">{project.title}</h3>
                   <p className="project-description">{project.description}</p>
                   <div className="project-tech">
-                    {project.tech.map((tech, techIndex) => (
-                      <span key={techIndex} className="tech-tag">
-                        {tech}
-                      </span>
-                    ))}
+                    {project.tech.map((tech, techIndex) => {
+                      const techName = typeof tech === 'string' ? tech : tech.name;
+                      // Fallback color logic: if string, use default blue style class (via empty inline style letting CSS handle it)
+                      // if object, use inline style.
+                      const style = typeof tech === 'string'
+                        ? {}
+                        : {
+                          color: tech.color,
+                          backgroundColor: `${tech.color}20`,
+                          borderColor: `${tech.color}40`
+                        };
+
+                      return (
+                        <span key={techIndex} className="tech-tag" style={style}>
+                          {techName}
+                        </span>
+                      );
+                    })}
                   </div>
                 </div>
               </motion.div>

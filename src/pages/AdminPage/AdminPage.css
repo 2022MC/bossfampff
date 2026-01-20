@@ -439,9 +439,43 @@
   display: block;
 }
 
+.color-selector {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.color-btn {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+}
+
+.color-btn.active {
+  border-color: white;
+  box-shadow: 0 0 0 2px var(--primary-color);
+  transform: scale(1.1);
+}
+
+.color-btn:hover {
+  transform: scale(1.1);
+}
+
 .tech-input-group {
   display: flex;
   gap: 12px;
+}
+
+/* ... existing styles ... */
+
+.toggle-switch input:checked~.toggle-label {
+  color: #fbbf24;
+  /* Amber-400 for yellow highlight */
+  text-shadow: 0 0 10px rgba(251, 191, 36, 0.4);
 }
 
 .btn-add-tech {

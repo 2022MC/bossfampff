@@ -218,12 +218,30 @@ const AdminPage = () => {
     return data.secure_url;
   };
 
+  // Available colors for tags
+  const TAG_COLORS = [
+    { name: 'Blue', hex: '#3B82F6' },
+    { name: 'Green', hex: '#10B981' },
+    { name: 'Red', hex: '#EF4444' },
+    { name: 'Yellow', hex: '#F59E0B' },
+    { name: 'Purple', hex: '#8B5CF6' },
+    { name: 'Pink', hex: '#EC4899' },
+    { name: 'Gray', hex: '#64748B' }
+  ];
+
+  const [selectedColor, setSelectedColor] = useState(TAG_COLORS[0].hex);
+
   // เพิ่ม tech tag
   const addTech = () => {
     if (formData.techInput.trim()) {
+      const newTag = {
+        name: formData.techInput.trim(),
+        color: selectedColor
+      };
+
       setFormData({
         ...formData,
-        tech: [...formData.tech, formData.techInput.trim()],
+        tech: [...formData.tech, newTag],
         techInput: ''
       });
     }
@@ -255,6 +273,7 @@ const AdminPage = () => {
     setImageFile(null);
     setEditingId(null);
     setShowForm(false);
+    setSelectedColor(TAG_COLORS[0].hex);
   };
 
 
@@ -276,6 +295,15 @@ const AdminPage = () => {
       handleFirebaseLogin();
       return;
     }
+
+    // Convert legacy string tags to objects
+    const formattedTech = (work.tech || []).map(t => {
+      if (typeof t === 'string') {
+        return { name: t, color: TAG_COLORS[0].hex }; // Default blue
+      }
+      return t;
+    });
+
     setFormData({
       id: work.id,
       title: work.title || '',
@@ -284,7 +312,7 @@ const AdminPage = () => {
       image: work.image || '',
       videoUrl: work.videoUrl || '',
       category: work.category || 'Graphic Design',
-      tech: work.tech || [],
+      tech: formattedTech,
       techInput: '',
       aspectRatio: work.size?.aspectRatio || '4/3',
       featured: work.featured || false
@@ -378,7 +406,7 @@ const AdminPage = () => {
         title: formData.title.trim(),
         description: formData.description.trim(),
         category: formData.category.trim() || 'Graphic Design',
-        tech: formData.tech,
+        tech: formData.tech, // Now saves array of objects
         size: { aspectRatio: formData.aspectRatio },
         featured: formData.featured,
         type: formData.type,
@@ -588,23 +616,48 @@ const AdminPage = () => {
 
               <div className="form-group">
                 <label>เทคโนโลยี/เครื่องมือ</label>
+                <div className="color-selector">
+                  {TAG_COLORS.map(color => (
+                    <button
+                      key={color.name}
+                      type="button"
+                      className={`color-btn ${selectedColor === color.hex ? 'active' : ''}`}
+                      style={{ backgroundColor: color.hex }}
+                      onClick={() => setSelectedColor(color.hex)}
+                      title={color.name}
+                    />
+                  ))}
+                </div>
                 <div className="tech-input-group">
                   <input
                     type="text"
                     value={formData.techInput}
                     onChange={(e) => setFormData({ ...formData, techInput: e.target.value })}
                     onKeyPress={(e) => e.key === 'Enter' && addTech()}
-                    placeholder="พิมพ์แล้วกด Enter หรือคลิกเพิ่ม"
+                    placeholder="พิมพ์ชื่อเครื่องมือ..."
                   />
                   <button type="button" onClick={addTech} className="btn-add-tech">เพิ่ม</button>
                 </div>
                 <div className="tech-tags">
-                  {formData.tech.map((tech, index) => (
-                    <span key={index} className="tech-tag-item">
-                      {tech}
-                      <button onClick={() => removeTech(index)} className="remove-tech">×</button>
-                    </span>
-                  ))}
+                  {formData.tech.map((tech, index) => {
+                    const techName = typeof tech === 'string' ? tech : tech.name;
+                    const techColor = typeof tech === 'string' ? '#3B82F6' : tech.color;
+
+                    return (
+                      <span
+                        key={index}
+                        className="tech-tag-item"
+                        style={{
+                          backgroundColor: `${techColor}20`,
+                          color: techColor,
+                          borderColor: `${techColor}50`
+                        }}
+                      >
+                        {techName}
+                        <button onClick={() => removeTech(index)} className="remove-tech">×</button>
+                      </span>
+                    );
+                  })}
                 </div>
               </div>
 
