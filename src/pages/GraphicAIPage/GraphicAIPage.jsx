@@ -141,6 +141,12 @@ const GraphicAIPage = () => {
                     variants={itemVariants}
                     whileHover={{ y: -10 }}
                   >
+                    {work.featured && (
+                      <div className="work-featured-badge">
+                        ✨ ผลงานเด่น
+                      </div>
+                    )}
+
                     <div
                       className="work-image"
                       style={{ aspectRatio: aspectRatio }}
@@ -155,11 +161,22 @@ const GraphicAIPage = () => {
                       <h3 className="work-title">{work.title}</h3>
                       <p className="work-description">{work.description}</p>
                       <div className="work-tech">
-                        {work.tech && work.tech.map((tech, techIndex) => (
-                          <span key={techIndex} className="tech-tag">
-                            {tech}
-                          </span>
-                        ))}
+                        {work.tech && work.tech.map((tech, techIndex) => {
+                          const techName = typeof tech === 'string' ? tech : tech.name;
+                          const style = typeof tech === 'string'
+                            ? {}
+                            : {
+                              color: tech.color,
+                              backgroundColor: `${tech.color}20`,
+                              borderColor: `${tech.color}40`
+                            };
+
+                          return (
+                            <span key={techIndex} className="tech-tag" style={style}>
+                              {techName}
+                            </span>
+                          );
+                        })}
                       </div>
                     </div>
                   </motion.div>
@@ -200,11 +217,21 @@ const GraphicAIPage = () => {
                 <h3 className="image-modal-title">{selectedImage.title}</h3>
                 <p className="image-modal-description">{selectedImage.description}</p>
                 <div className="image-modal-tech">
-                  {selectedImage.tech && selectedImage.tech.map((tech, techIndex) => (
-                    <span key={techIndex} className="tech-tag">
-                      {tech}
-                    </span>
-                  ))}
+                  {selectedImage.tech && selectedImage.tech.map((tech, techIndex) => {
+                    const techName = typeof tech === 'string' ? tech : tech.name;
+                    const style = typeof tech === 'string'
+                      ? {}
+                      : {
+                        color: tech.color,
+                        backgroundColor: `${tech.color}20`,
+                        borderColor: `${tech.color}40`
+                      };
+                    return (
+                      <span key={techIndex} className="tech-tag" style={style}>
+                        {techName}
+                      </span>
+                    );
+                  })}
                 </div>
               </div>
             </motion.div>
