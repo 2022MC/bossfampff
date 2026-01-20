@@ -25,7 +25,7 @@ const AdminPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
 
-  const [activeTab, setActiveTab] = useState('Video'); // 'Video', 'Graphic', 'Migration'
+
 
   // Firebase Auth State
   const [firebaseUser, setFirebaseUser] = useState(null);
