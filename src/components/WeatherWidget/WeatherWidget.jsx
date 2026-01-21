@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { WiDaySunny, WiCloudy, WiRain, WiThunderstorm, WiSnow, WiFog } from 'react-icons/wi';
-import './WeatherWidget.css';
+// import './WeatherWidget.css'; // Removed CSS import
 
 const WeatherWidget = () => {
     const [weather, setWeather] = useState(null);
@@ -60,13 +60,13 @@ const WeatherWidget = () => {
         // 61, 63, 65: Rain
         // 71, 73, 75: Snow
         // 95, 96, 99: Thunderstorm
-        if (code === 0) return <WiDaySunny className="weather-icon sunny" />;
-        if (code >= 1 && code <= 3) return <WiCloudy className="weather-icon cloudy" />;
-        if (code === 45 || code === 48) return <WiFog className="weather-icon fog" />;
-        if (code >= 51 && code <= 67) return <WiRain className="weather-icon rain" />;
-        if (code >= 71 && code <= 77) return <WiSnow className="weather-icon snow" />;
-        if (code >= 95) return <WiThunderstorm className="weather-icon storm" />;
-        return <WiDaySunny className="weather-icon" />;
+        if (code === 0) return <WiDaySunny className="text-2xl text-amber-500" />;
+        if (code >= 1 && code <= 3) return <WiCloudy className="text-2xl text-slate-400" />;
+        if (code === 45 || code === 48) return <WiFog className="text-2xl text-slate-300" />;
+        if (code >= 51 && code <= 67) return <WiRain className="text-2xl text-blue-500" />;
+        if (code >= 71 && code <= 77) return <WiSnow className="text-2xl text-white" />;
+        if (code >= 95) return <WiThunderstorm className="text-2xl text-violet-500" />;
+        return <WiDaySunny className="text-2xl text-white" />;
     };
 
     if (loading) return null; // Don't show anything while loading to avoid layout shift or ugly loading state
@@ -74,16 +74,16 @@ const WeatherWidget = () => {
 
     return (
         <motion.div
-            className="weather-widget"
+            className="bg-white/5 backdrop-blur-[10px] border border-white/10 rounded-[50px] px-4 py-2 inline-flex items-center gap-3 shadow-sm mb-4"
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 1, duration: 0.5 }}
         >
-            <div className="weather-content">
+            <div className="flex items-center gap-2">
                 {getWeatherIcon(weather.weathercode)}
-                <div className="weather-info">
-                    <span className="weather-temp">{Math.round(weather.temperature)}°C</span>
-                    <span className="weather-location">{locationName}</span>
+                <div className="flex flex-col leading-tight">
+                    <span className="text-base font-bold text-white">{Math.round(weather.temperature)}°C</span>
+                    <span className="text-[10px] text-white/70 uppercase tracking-[0.5px]">{locationName}</span>
                 </div>
             </div>
         </motion.div>

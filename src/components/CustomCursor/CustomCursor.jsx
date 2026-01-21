@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import './CustomCursor.css';
+// import './CustomCursor.css'; // Removed CSS import
 
 const CustomCursor = () => {
     const [position, setPosition] = useState({ x: 0, y: 0 });
@@ -91,14 +91,18 @@ const CustomCursor = () => {
         return null;
     }
 
-    const cursorClasses = `custom-cursor ${hidden ? 'hidden' : ''} ${click ? 'click' : ''} ${linkHover ? 'hover' : ''}`;
+    const baseClasses = "fixed -translate-x-1/2 -translate-y-1/2 pointer-events-none z-[9999] transition-all duration-200 ease-out mix-blend-difference rounded-full border-2 border-white";
+    const hoverClasses = linkHover ? "!w-[60px] !h-[60px] bg-white mix-blend-difference" : "w-10 h-10";
+    const clickClasses = click ? "!scale-75 bg-white/80" : "";
+    const hiddenClasses = hidden ? "opacity-0" : "";
 
     return (
         <div
-            className={cursorClasses}
+            className={`${baseClasses} ${hoverClasses} ${clickClasses} ${hiddenClasses}`}
             style={{
                 left: `${position.x}px`,
-                top: `${position.y}px`
+                top: `${position.y}px`,
+                // transition: 'width 0.2s, height 0.2s, background-color 0.2s, transform 0.1s' // Handle via Tailwind classes where possible, or keep inline for specific transform if needed but tailwind handles standard transitions
             }}
         />
     );

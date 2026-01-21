@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import './App.css';
+// import './App.css'; // Removed CSS import
 import Navbar from './components/Navbar/Navbar';
 import Hero from './components/Hero/Hero';
 import About from './components/About/About';
@@ -32,7 +32,7 @@ function HomePage() {
   }, []);
 
   return (
-    <div className="App">
+    <div className="w-full min-h-screen relative">
       <NewsPopup />
       <Navbar scrollY={scrollY} />
       <Hero />
