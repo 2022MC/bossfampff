@@ -27,7 +27,7 @@ const Hero = () => {
   };
 
   return (
-    <section id="home" className="relative min-h-screen flex items-center justify-center overflow-hidden pt-[120px] px-5 pb-20 bg-[radial-gradient(circle_at_50%_50%,#0f172a_0%,#020617_100%)]">
+    <section id="home" className="relative min-h-screen flex items-center justify-center overflow-hidden pt-[120px] px-5 pb-20 theme-bg-primary transition-colors duration-300 dark:bg-[radial-gradient(circle_at_50%_50%,#0f172a_0%,#020617_100%)] bg-[radial-gradient(circle_at_50%_50%,#e2e8f0_0%,#f1f5f9_100%)]">
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
         <div className="absolute rounded-full blur-[100px] opacity-40 animate-float-orb z-0 w-[600px] h-[600px] bg-primary-glow -top-[10%] -left-[10%]"></div>
         <div className="absolute rounded-full blur-[100px] opacity-40 animate-float-orb z-0 w-[500px] h-[500px] bg-secondary-glow -bottom-[10%] -right-[5%] [animation-delay:-5s]"></div>

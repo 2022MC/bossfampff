@@ -23,7 +23,7 @@ const LoginPage = () => {
     }, [location, navigate]);
 
     return (
-        <div className="min-h-screen flex flex-col bg-bg-primary relative overflow-hidden">
+        <div className="min-h-screen flex flex-col theme-bg-primary relative overflow-hidden transition-colors duration-300">
             {/* Background Orbs */}
             <div className="absolute -top-[10%] -left-[10%] w-[50vw] h-[50vw] bg-[radial-gradient(circle,rgba(99,102,241,0.2)_0%,transparent_60%)] blur-[80px] z-[1] animate-float-orb"></div>
             <div className="absolute -bottom-[10%] -right-[10%] w-[50vw] h-[50vw] bg-[radial-gradient(circle,rgba(168,85,247,0.2)_0%,transparent_60%)] blur-[80px] z-[1] animate-float-orb [animation-direction:reverse]"></div>
@@ -31,11 +31,11 @@ const LoginPage = () => {
             <Navbar scrollY={100} />
 
             <div className="flex-1 flex items-center justify-center p-8 mt-20 relative z-[2]">
-                <div className="bg-glass-panel backdrop-blur-[20px] p-14 rounded-[24px] w-full max-w-[440px] border border-white/10 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)] flex flex-col items-center transition-transform duration-300 hover:-translate-y-1 hover:border-primary/30">
+                <div className="glass-panel backdrop-blur-[20px] p-14 rounded-[24px] w-full max-w-[440px] shadow-[0_25px_50px_-12px_rgba(0,0,0,0.25)] dark:shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)] flex flex-col items-center transition-all duration-300 hover:-translate-y-1 hover:border-primary/30">
                     <h2 className="text-center mb-6 font-space text-[2.5rem] font-bold bg-gradient-text text-transparent bg-clip-text">
                         Admin Access
                     </h2>
-                    <p className="text-center text-text-secondary mb-10 leading-[1.6] text-[1.05rem]">
+                    <p className="text-center theme-text-secondary mb-10 leading-[1.6] text-[1.05rem]">
                         Please login with Discord to continue.<br />You must have the required role to access.
                     </p>
 
