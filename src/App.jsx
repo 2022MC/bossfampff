@@ -20,7 +20,7 @@ import LoginPage from './pages/LoginPage/LoginPage';
 import DiscordCallback from './pages/DiscordCallback/DiscordCallback';
 
 
-import CustomCursor from './components/CustomCursor/CustomCursor';
+// import CustomCursor from './components/CustomCursor/CustomCursor';
 
 function HomePage() {
   const [scrollY, setScrollY] = useState(0);
@@ -35,7 +35,6 @@ function HomePage() {
 
   return (
     <div className="w-full min-h-screen relative">
-      <CustomCursor />
       <NewsPopup />
       <Navbar scrollY={scrollY} />
       <Hero />

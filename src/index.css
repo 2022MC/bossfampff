@@ -63,4 +63,4 @@
 
 ::-webkit-scrollbar-thumb:hover {
   @apply bg-primary;
-}@media (pointer: fine) { body, a, button, input, textarea, select { cursor: none; } }
+}
