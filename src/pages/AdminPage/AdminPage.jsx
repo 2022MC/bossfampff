@@ -492,8 +492,14 @@ const AdminPage = () => {
     }
   };
 
+  // Font Size State
+  const [fontSizeLevel, setFontSizeLevel] = useState(1); // 0: Small, 1: Normal, 2: Large, 3: Extra Large
+  const FONT_SCALES = ['0.875rem', '1rem', '1.125rem', '1.25rem'];
+
+  // ... (existing code)
+
   return (
-    <div className="min-h-screen bg-bg-primary relative overflow-x-hidden">
+    <div className="min-h-screen bg-bg-primary relative overflow-x-hidden" style={{ fontSize: FONT_SCALES[fontSizeLevel] }}>
       {/* Background Effects (Subtle for Admin) */}
       <div className="absolute top-[-20%] right-[-10%] w-[60vw] h-[60vw] bg-[radial-gradient(circle,rgba(99,102,241,0.15)_0%,transparent_60%)] blur-[80px] z-[1] pointer-events-none" />
 
@@ -501,8 +507,35 @@ const AdminPage = () => {
 
       <div className="pt-[120px] max-w-[1200px] mx-auto px-5 pb-[60px] relative z-[2]">
         <div className="flex flex-wrap justify-between items-center mb-[50px] gap-5 bg-glass-bg backdrop-blur-md p-6 md:p-8 rounded-[24px] border border-glass-border shadow-lg transition-all duration-300">
-          <h1 className="font-space text-[28px] font-bold text-text-primary -tracking-[0.5px]">Admin Panel - จัดการผลงาน</h1>
+          <div className="flex flex-col gap-1">
+            <h1 className="font-space text-[2em] font-bold text-text-primary -tracking-[0.5px] leading-tight">Admin Panel - จัดการผลงาน</h1>
+            <p className="text-text-secondary text-[0.9em]">จัดการข้อมูลและผลงานทั้งหมดที่นี่</p>
+          </div>
+
           <div className="flex flex-wrap gap-3 items-center ml-auto">
+
+            {/* Font Size Controls */}
+            <div className="flex items-center gap-1 bg-white/5 border border-white/10 rounded-lg p-1 mr-2">
+              <button
+                onClick={() => setFontSizeLevel(prev => Math.max(0, prev - 1))}
+                disabled={fontSizeLevel === 0}
+                className="w-8 h-8 flex items-center justify-center text-text-secondary hover:text-white hover:bg-white/10 rounded disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                title="ลดขนาดตัวอักษร"
+              >
+                <span className="text-xs font-bold">A-</span>
+              </button>
+              <div className="w-px h-4 bg-white/10 mx-1"></div>
+              <button
+                onClick={() => setFontSizeLevel(prev => Math.min(3, prev + 1))}
+                disabled={fontSizeLevel === 3}
+                className="w-8 h-8 flex items-center justify-center text-text-secondary hover:text-white hover:bg-white/10 rounded disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                title="เพิ่มขนาดตัวอักษร"
+              >
+                <span className="text-lg font-bold">A+</span>
+              </button>
+            </div>
+
+            {/* ... rest of the buttons */}
 
             {/* Identity Verification Status */}
             {firebaseUser ? (
@@ -873,8 +906,8 @@ const AdminPage = () => {
                     </div>
                     <div className="flex items-center">
                       <span className={`inline-block px-3 py-1.5 rounded-lg text-[11px] font-bold tracking-[0.5px] uppercase border ${work.type === 'Graphic'
-                          ? 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20'
-                          : 'bg-rose-500/10 text-rose-400 border-rose-500/20'
+                        ? 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20'
+                        : 'bg-rose-500/10 text-rose-400 border-rose-500/20'
                         }`}>
                         {work.type === 'Graphic' ? 'Graphic' : 'Video'}
                       </span>
