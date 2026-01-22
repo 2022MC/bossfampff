@@ -96,7 +96,7 @@ const ProjectModal = ({ project, onClose }) => {
                             <div className="border-b border-white/10 pb-6">
                                 <span className="font-mono text-sm text-primary uppercase tracking-[2px] font-medium mb-3 block">{project.category}</span>
                                 <h2 className="font-space text-[2rem] md:text-[2.8rem] font-bold text-text-primary leading-[1.2] mb-4">{project.title}</h2>
-                                {project.featured && <span className="inline-block bg-bg-primary border border-primary text-primary text-[0.7rem] font-bold py-1.5 px-3 rounded-lg uppercase tracking-wider">Featured Project</span>}
+                                {project.featured && <span className="inline-block bg-yellow-500/10 border border-yellow-500 text-yellow-500 text-[0.7rem] font-bold py-1.5 px-3 rounded-lg uppercase tracking-wider shadow-[0_0_10px_rgba(234,179,8,0.2)]">Featured Project</span>}
                             </div>
 
                             {/* Description Content */}
@@ -170,7 +170,7 @@ const ProjectModal = ({ project, onClose }) => {
                             {/* Tags */}
                             <div className="bg-white/[0.03] rounded-2xl border border-white/10 p-6 backdrop-blur-sm">
                                 <h3 className="font-space text-lg text-text-primary mb-4 font-semibold flex items-center gap-2">
-                                    <FaTools className="text-secondary" /> Technologies
+                                    <FaTools className="text-secondary" /> ต่ำแหน่งที่ทำ
                                 </h3>
                                 <div className="flex flex-wrap gap-2">
                                     {project.tech && project.tech.map((t, i) => {
