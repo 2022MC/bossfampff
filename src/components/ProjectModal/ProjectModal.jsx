@@ -56,7 +56,7 @@ const ProjectModal = ({ project, onClose }) => {
             onClick={onClose}
         >
             <motion.div
-                className="bg-bg-secondary text-text-primary w-full max-w-[1000px] max-h-[90vh] rounded-[24px] shadow-2xl flex flex-col md:flex-row overflow-hidden relative border border-white/10"
+                className="bg-bg-secondary text-text-primary w-full max-w-[1280px] max-h-[90vh] rounded-[24px] shadow-2xl flex flex-col overflow-hidden relative border border-white/10"
                 variants={modalVariants}
                 initial="hidden"
                 animate="visible"
@@ -64,13 +64,14 @@ const ProjectModal = ({ project, onClose }) => {
                 onClick={(e) => e.stopPropagation()} // Prevent click propagation to backdrop
             >
                 <button
-                    className="absolute top-5 right-5 bg-black/30 border border-white/10 backdrop-blur-sm text-white w-10 h-10 rounded-full flex items-center justify-center cursor-pointer z-10 transition-all duration-200 hover:bg-primary hover:border-primary hover:rotate-90"
+                    className="absolute top-5 right-5 bg-black/30 border border-white/10 backdrop-blur-sm text-white w-10 h-10 rounded-full flex items-center justify-center cursor-pointer z-20 transition-all duration-200 hover:bg-primary hover:border-primary hover:rotate-90"
                     onClick={onClose}
                 >
                     <FaTimes />
                 </button>
 
-                <div className="flex-none md:flex-[1.5] bg-black flex items-center justify-center relative min-h-[300px] md:min-h-[400px] h-[300px] md:h-auto">
+                {/* Video/Image Section - 16:9 Aspect Ratio */}
+                <div className="w-full bg-black relative" style={{ aspectRatio: '16/9' }}>
                     {project.type === 'Video' && embedUrl ? (
                         <iframe
                             src={embedUrl}
@@ -78,10 +79,10 @@ const ProjectModal = ({ project, onClose }) => {
                             frameBorder="0"
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                             allowFullScreen
-                            className="w-full h-full aspect-video"
+                            className="absolute inset-0 w-full h-full"
                         />
                     ) : (
-                        <div className="w-full h-full flex items-center justify-center">
+                        <div className="absolute inset-0 w-full h-full flex items-center justify-center">
                             <img src={project.image} alt={project.title} className="w-full h-full object-cover" />
                         </div>
                     )}
