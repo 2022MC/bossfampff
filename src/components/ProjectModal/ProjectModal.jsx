@@ -56,7 +56,7 @@ const ProjectModal = ({ project, onClose }) => {
             onClick={onClose}
         >
             <motion.div
-                className="bg-bg-secondary text-text-primary w-full max-w-[1200px] max-h-[90vh] rounded-[24px] shadow-2xl flex flex-col md:grid md:grid-cols-5 overflow-hidden relative border border-white/10"
+                className="bg-bg-secondary text-text-primary w-full max-w-[1200px] max-h-[90vh] rounded-[24px] shadow-2xl flex flex-col md:block overflow-hidden relative border border-white/10"
                 variants={modalVariants}
                 initial="hidden"
                 animate="visible"
@@ -70,8 +70,8 @@ const ProjectModal = ({ project, onClose }) => {
                     <FaTimes />
                 </button>
 
-                {/* Video/Image Section - Strictly 16:9 on Desktop */}
-                <div className="bg-black w-full relative md:col-span-3 md:aspect-video aspect-video md:h-full">
+                {/* Video/Image Section - Strictly 16:9 on Desktop (Drivers Height) */}
+                <div className="bg-black w-full relative md:w-[60%] md:aspect-video aspect-video md:h-full">
                     <div className="absolute inset-0 w-full h-full flex items-center justify-center">
                         {project.type === 'Video' && embedUrl ? (
                             <iframe
@@ -88,7 +88,8 @@ const ProjectModal = ({ project, onClose }) => {
                     </div>
                 </div>
 
-                <div className="md:col-span-2 flex-1 p-6 md:p-10 overflow-y-auto w-full h-full flex flex-col gap-6 bg-bg-tertiary">
+                {/* Content Section - Absolute on right to match height */}
+                <div className="flex-1 p-6 md:p-10 w-full flex flex-col gap-6 bg-bg-tertiary md:absolute md:top-0 md:right-0 md:w-[40%] md:h-full md:overflow-y-auto">
                     <div className="border-b border-white/10 pb-5">
                         <span className="font-mono text-sm text-primary uppercase tracking-[2px] font-medium mb-3 block">{project.category}</span>
                         <h2 className="font-space text-[1.8rem] md:text-[2.5rem] font-bold text-text-primary leading-[1.1] m-0">{project.title}</h2>
