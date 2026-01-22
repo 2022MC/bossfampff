@@ -191,6 +191,17 @@ const ProjectModal = ({ project, onClose }) => {
                                     })}
                                 </div>
                             </div>
+                            <div className="bg-white/[0.03] rounded-2xl border border-white/10 p-6 backdrop-blur-sm mt-auto">
+                                <h3 className="font-space text-sm text-text-secondary mb-3 font-semibold uppercase tracking-wider">
+                                    หมายเหตุ / ลิขสิทธิ์
+                                </h3>
+                                <p className="text-xs text-text-tertiary leading-relaxed">
+                                    © {new Date().getFullYear()} {project.client || "BossFam"}. All rights reserved.
+                                    <br />
+                                    ผลงานนี้จัดทำขึ้นเพื่อการศึกษาหรือแฟ้มสะสมผลงานเท่านั้น
+                                    ห้ามนำไปใช้ในเชิงพาณิชย์โดยไม่ได้รับอนุญาต
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </div>
