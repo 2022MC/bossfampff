@@ -56,7 +56,7 @@ const ProjectModal = ({ project, onClose }) => {
             onClick={onClose}
         >
             <motion.div
-                className="bg-bg-secondary text-text-primary w-full max-w-[1280px] max-h-[90vh] rounded-[24px] shadow-2xl flex flex-col overflow-hidden relative border border-white/10"
+                className="bg-bg-secondary text-text-primary w-full max-w-[1200px] max-h-[90vh] rounded-[24px] shadow-2xl flex flex-col md:flex-row overflow-hidden relative border border-white/10"
                 variants={modalVariants}
                 initial="hidden"
                 animate="visible"
@@ -71,21 +71,23 @@ const ProjectModal = ({ project, onClose }) => {
                 </button>
 
                 {/* Video/Image Section - 16:9 Aspect Ratio */}
-                <div className="w-full bg-black relative" style={{ aspectRatio: '16/9' }}>
-                    {project.type === 'Video' && embedUrl ? (
-                        <iframe
-                            src={embedUrl}
-                            title={project.title}
-                            frameBorder="0"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                            allowFullScreen
-                            className="absolute inset-0 w-full h-full"
-                        />
-                    ) : (
-                        <div className="absolute inset-0 w-full h-full flex items-center justify-center">
-                            <img src={project.image} alt={project.title} className="w-full h-full object-cover" />
-                        </div>
-                    )}
+                <div className="md:flex-[1.2] bg-black flex items-center justify-center relative">
+                    <div className="w-full" style={{ aspectRatio: '16/9' }}>
+                        {project.type === 'Video' && embedUrl ? (
+                            <iframe
+                                src={embedUrl}
+                                title={project.title}
+                                frameBorder="0"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                allowFullScreen
+                                className="w-full h-full"
+                            />
+                        ) : (
+                            <div className="w-full h-full flex items-center justify-center">
+                                <img src={project.image} alt={project.title} className="w-full h-full object-cover" />
+                            </div>
+                        )}
+                    </div>
                 </div>
 
                 <div className="flex-1 p-6 md:p-10 overflow-y-auto flex flex-col gap-6 bg-bg-tertiary">
