@@ -56,122 +56,142 @@ const ProjectModal = ({ project, onClose }) => {
             onClick={onClose}
         >
             <motion.div
-                className="bg-bg-secondary text-text-primary w-full max-w-[1200px] max-h-[90vh] rounded-[24px] shadow-2xl flex flex-col md:block overflow-hidden relative border border-white/10"
+                className="bg-bg-secondary text-text-primary w-full max-w-[1400px] h-[95vh] rounded-[24px] shadow-2xl flex flex-col relative border border-white/10 overflow-hidden"
                 variants={modalVariants}
                 initial="hidden"
                 animate="visible"
                 exit="exit"
-                onClick={(e) => e.stopPropagation()} // Prevent click propagation to backdrop
+                onClick={(e) => e.stopPropagation()}
             >
+                {/* Close Button */}
                 <button
-                    className="absolute top-5 right-5 bg-black/30 border border-white/10 backdrop-blur-sm text-white w-10 h-10 rounded-full flex items-center justify-center cursor-pointer z-20 transition-all duration-200 hover:bg-primary hover:border-primary hover:rotate-90"
+                    className="absolute top-4 right-4 z-50 bg-black/50 border border-white/10 backdrop-blur-sm text-white w-10 h-10 rounded-full flex items-center justify-center cursor-pointer transition-all duration-200 hover:bg-primary hover:border-primary hover:rotate-90"
                     onClick={onClose}
                 >
                     <FaTimes />
                 </button>
 
-                {/* Video/Image Section - Strictly 16:9 on Desktop (Drivers Height) */}
-                <div className="bg-black w-full relative md:w-[60%] md:aspect-video aspect-video md:h-full">
-                    <div className="absolute inset-0 w-full h-full flex items-center justify-center">
-                        {project.type === 'Video' && embedUrl ? (
-                            <iframe
-                                src={embedUrl}
-                                title={project.title}
-                                frameBorder="0"
-                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                allowFullScreen
-                                className="w-full h-full"
-                            />
-                        ) : (
-                            <img src={project.image} alt={project.title} className="w-full h-full object-cover" />
-                        )}
-                    </div>
-                </div>
+                {/* Scrollable Content Area */}
+                <div className="flex-1 overflow-y-auto w-full custom-scrollbar">
+                    <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-8 p-6 md:p-10">
+                        {/* LEFT COLUMN: Video & Main Content */}
+                        <div className="flex flex-col gap-8">
+                            {/* Video / Image Player */}
+                            <div className="w-full bg-black rounded-xl overflow-hidden shadow-2xl border border-white/5 relative" style={{ aspectRatio: '16/9' }}>
+                                {project.type === 'Video' && embedUrl ? (
+                                    <iframe
+                                        src={embedUrl}
+                                        title={project.title}
+                                        frameBorder="0"
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                        allowFullScreen
+                                        className="absolute inset-0 w-full h-full"
+                                    />
+                                ) : (
+                                    <img src={project.image} alt={project.title} className="w-full h-full object-cover" />
+                                )}
+                            </div>
 
-                {/* Content Section - Absolute on right to match height */}
-                <div className="flex-1 p-6 md:p-10 w-full flex flex-col gap-6 bg-bg-tertiary md:absolute md:top-0 md:right-0 md:w-[40%] md:h-full md:overflow-y-auto">
-                    <div className="border-b border-white/10 pb-5">
-                        <span className="font-mono text-sm text-primary uppercase tracking-[2px] font-medium mb-3 block">{project.category}</span>
-                        <h2 className="font-space text-[1.8rem] md:text-[2.5rem] font-bold text-text-primary leading-[1.1] m-0">{project.title}</h2>
-                        {project.featured && <span className="inline-block bg-bg-primary border border-primary text-primary text-[0.7rem] font-bold py-1 px-2.5 rounded-xl mt-3 uppercase tracking-wider">Featured Project</span>}
-                    </div>
+                            {/* Title & Header (YouTube Style: Under Video) */}
+                            <div className="border-b border-white/10 pb-6">
+                                <span className="font-mono text-sm text-primary uppercase tracking-[2px] font-medium mb-3 block">{project.category}</span>
+                                <h2 className="font-space text-[2rem] md:text-[2.8rem] font-bold text-text-primary leading-[1.2] mb-4">{project.title}</h2>
+                                {project.featured && <span className="inline-block bg-bg-primary border border-primary text-primary text-[0.7rem] font-bold py-1.5 px-3 rounded-lg uppercase tracking-wider">Featured Project</span>}
+                            </div>
 
-                    <div className="grid grid-cols-2 gap-4 p-4 bg-white/[0.02] rounded-2xl border border-white/10">
-                        <div className="flex items-center gap-3">
-                            <FaUser className="text-[1.2rem] text-secondary" />
-                            <div>
-                                <span className="block text-xs text-text-tertiary uppercase tracking-wider mb-0.5">Client</span>
-                                <span className="block text-base text-text-primary font-medium">{project.client || "Personal Project"}</span>
+                            {/* Description Content */}
+                            <div className="text-base md:text-lg leading-[1.8] text-text-secondary pr-0 lg:pr-10">
+                                <section className="mb-8">
+                                    <h3 className="font-space text-[1.4rem] text-text-primary mb-4 font-semibold">About the Project</h3>
+                                    <p>{project.description}</p>
+                                </section>
+
+                                {project.challenge && (
+                                    <section className="mb-8">
+                                        <h3 className="font-space text-[1.4rem] text-text-primary mb-4 font-semibold">The Challenge</h3>
+                                        <p>{project.challenge}</p>
+                                    </section>
+                                )}
+                                {project.solution && (
+                                    <section className="mb-8">
+                                        <h3 className="font-space text-[1.4rem] text-text-primary mb-4 font-semibold">The Solution</h3>
+                                        <p>{project.solution}</p>
+                                    </section>
+                                )}
                             </div>
                         </div>
-                        <div className="flex items-center gap-3">
-                            <FaCalendar className="text-[1.2rem] text-secondary" />
-                            <div>
-                                <span className="block text-xs text-text-tertiary uppercase tracking-wider mb-0.5">Year</span>
-                                <span className="block text-base text-text-primary font-medium">{project.year || new Date().getFullYear()}</span>
+
+                        {/* RIGHT COLUMN: Sidebar (Actions, Meta, Tags) */}
+                        <div className="flex flex-col gap-6 h-fit lg:sticky lg:top-0">
+                            {/* Action Buttons */}
+                            <div className="flex flex-col gap-3">
+                                {project.videoUrl && project.type === 'Video' && (
+                                    <a href={project.videoUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-3 py-4 px-6 rounded-xl font-bold text-lg transition-all duration-200 bg-primary text-white shadow-glow-primary hover:bg-secondary hover:-translate-y-1 no-underline">
+                                        <FaExternalLinkAlt /> Watch on Platform
+                                    </a>
+                                )}
+                                {project.demo && project.type !== 'Video' && (
+                                    <a href={project.demo} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-3 py-4 px-6 rounded-xl font-bold text-lg transition-all duration-200 bg-primary text-white shadow-glow-primary hover:bg-secondary hover:-translate-y-1 no-underline">
+                                        <FaExternalLinkAlt /> Live Demo
+                                    </a>
+                                )}
+                                {project.github && (
+                                    <a href={project.github} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-3 py-4 px-6 rounded-xl font-semibold transition-all duration-200 bg-white/5 border border-white/10 text-text-primary hover:bg-white/10 hover:border-text-primary/50 hover:-translate-y-1 no-underline">
+                                        <FaGithub /> View Source Code
+                                    </a>
+                                )}
+                            </div>
+
+                            {/* Info Card */}
+                            <div className="bg-white/[0.03] rounded-2xl border border-white/10 p-5 backdrop-blur-sm">
+                                <div className="grid grid-cols-1 gap-5">
+                                    <div className="flex items-start gap-4 p-2">
+                                        <div className="p-2.5 rounded-lg bg-secondary/10 text-secondary">
+                                            <FaUser className="text-xl" />
+                                        </div>
+                                        <div>
+                                            <span className="block text-xs text-text-tertiary uppercase tracking-wider mb-1">Client</span>
+                                            <span className="block text-lg text-text-primary font-medium">{project.client || "Personal Project"}</span>
+                                        </div>
+                                    </div>
+                                    <div className="h-px bg-white/10 w-full" />
+                                    <div className="flex items-start gap-4 p-2">
+                                        <div className="p-2.5 rounded-lg bg-secondary/10 text-secondary">
+                                            <FaCalendar className="text-xl" />
+                                        </div>
+                                        <div>
+                                            <span className="block text-xs text-text-tertiary uppercase tracking-wider mb-1">Year</span>
+                                            <span className="block text-lg text-text-primary font-medium">{project.year || new Date().getFullYear()}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Tags */}
+                            <div className="bg-white/[0.03] rounded-2xl border border-white/10 p-6 backdrop-blur-sm">
+                                <h3 className="font-space text-lg text-text-primary mb-4 font-semibold flex items-center gap-2">
+                                    <FaTools className="text-secondary" /> Technologies
+                                </h3>
+                                <div className="flex flex-wrap gap-2">
+                                    {project.tech && project.tech.map((t, i) => {
+                                        const techName = typeof t === 'string' ? t : t.name;
+                                        const style = typeof t === 'string'
+                                            ? {}
+                                            : {
+                                                color: t.color,
+                                                backgroundColor: `${t.color}15`,
+                                                borderColor: `${t.color}30`
+                                            };
+
+                                        return (
+                                            <span key={i} className="bg-white/5 text-text-secondary py-1.5 px-3 rounded-lg text-sm border border-white/10 font-medium transition-colors hover:bg-white/10" style={style}>
+                                                {techName}
+                                            </span>
+                                        );
+                                    })}
+                                </div>
                             </div>
                         </div>
-                    </div>
-
-                    <div className="text-base leading-[1.7] text-text-secondary">
-                        <h3 className="font-space text-[1.2rem] text-text-primary mb-3 font-semibold">About the Project</h3>
-                        <p className="mb-4">{project.description}</p>
-
-                        {/* Future extensibility for Challenge/Solution */}
-                        {project.challenge && (
-                            <>
-                                <h3 className="font-space text-[1.2rem] text-text-primary mb-3 font-semibold mt-4">The Challenge</h3>
-                                <p className="mb-4">{project.challenge}</p>
-                            </>
-                        )}
-                        {project.solution && (
-                            <>
-                                <h3 className="font-space text-[1.2rem] text-text-primary mb-3 font-semibold mt-4">The Solution</h3>
-                                <p className="mb-4">{project.solution}</p>
-                            </>
-                        )}
-                    </div>
-
-                    <div>
-                        <h3 className="font-space text-[1.2rem] text-text-primary mb-3 font-semibold flex items-center gap-2">
-                            <FaTools className="text-[0.8em]" /> Tag
-                        </h3>
-                        <div className="flex flex-wrap gap-2.5">
-                            {project.tech && project.tech.map((t, i) => {
-                                const techName = typeof t === 'string' ? t : t.name;
-                                const style = typeof t === 'string'
-                                    ? {}
-                                    : {
-                                        color: t.color,
-                                        backgroundColor: `${t.color}20`,
-                                        borderColor: `${t.color}40`
-                                    };
-
-                                return (
-                                    <span key={i} className="bg-primary/10 text-primary py-1.5 px-3.5 rounded-[20px] text-sm border border-primary/20 font-medium" style={style}>
-                                        {techName}
-                                    </span>
-                                );
-                            })}
-                        </div>
-                    </div>
-
-                    <div className="mt-auto flex gap-4 pt-6 border-t border-white/10 md:flex-row flex-col">
-                        {project.videoUrl && project.type === 'Video' && (
-                            <a href={project.videoUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 py-3 px-6 rounded-[10px] font-semibold transition-all duration-200 flex-1 bg-primary text-white shadow-glow-primary hover:bg-secondary hover:-translate-y-0.5 no-underline">
-                                <FaExternalLinkAlt /> Watch on Platform
-                            </a>
-                        )}
-                        {project.github && (
-                            <a href={project.github} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 py-3 px-6 rounded-[10px] font-semibold transition-all duration-200 flex-1 bg-transparent border border-white/10 text-text-primary hover:bg-white/5 hover:border-text-primary hover:-translate-y-0.5 no-underline">
-                                <FaGithub /> View Code
-                            </a>
-                        )}
-                        {project.demo && project.type !== 'Video' && (
-                            <a href={project.demo} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 py-3 px-6 rounded-[10px] font-semibold transition-all duration-200 flex-1 bg-primary text-white shadow-glow-primary hover:bg-secondary hover:-translate-y-0.5 no-underline">
-                                <FaExternalLinkAlt /> Live Demo
-                            </a>
-                        )}
                     </div>
                 </div>
             </motion.div>
