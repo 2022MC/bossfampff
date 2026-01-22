@@ -56,7 +56,7 @@ const ProjectModal = ({ project, onClose }) => {
             onClick={onClose}
         >
             <motion.div
-                className="bg-bg-secondary text-text-primary w-full max-w-[1200px] max-h-[90vh] rounded-[24px] shadow-2xl flex flex-col md:grid md:grid-cols-[1.5fr_1fr] overflow-hidden relative border border-white/10"
+                className="bg-bg-secondary text-text-primary w-full max-w-[1200px] max-h-[90vh] rounded-[24px] shadow-2xl flex flex-col md:grid md:grid-cols-5 overflow-hidden relative border border-white/10"
                 variants={modalVariants}
                 initial="hidden"
                 animate="visible"
@@ -71,7 +71,7 @@ const ProjectModal = ({ project, onClose }) => {
                 </button>
 
                 {/* Video/Image Section - Strictly 16:9 on Desktop */}
-                <div className="bg-black w-full relative md:aspect-video aspect-video md:h-full">
+                <div className="bg-black w-full relative md:col-span-3 md:aspect-video aspect-video md:h-full">
                     <div className="absolute inset-0 w-full h-full flex items-center justify-center">
                         {project.type === 'Video' && embedUrl ? (
                             <iframe
@@ -88,7 +88,7 @@ const ProjectModal = ({ project, onClose }) => {
                     </div>
                 </div>
 
-                <div className="flex-1 p-6 md:p-10 overflow-y-auto w-full h-full flex flex-col gap-6 bg-bg-tertiary">
+                <div className="md:col-span-2 flex-1 p-6 md:p-10 overflow-y-auto w-full h-full flex flex-col gap-6 bg-bg-tertiary">
                     <div className="border-b border-white/10 pb-5">
                         <span className="font-mono text-sm text-primary uppercase tracking-[2px] font-medium mb-3 block">{project.category}</span>
                         <h2 className="font-space text-[1.8rem] md:text-[2.5rem] font-bold text-text-primary leading-[1.1] m-0">{project.title}</h2>
