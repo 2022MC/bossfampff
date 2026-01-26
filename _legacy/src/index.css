@@ -1,0 +1,122 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ===== Theme CSS Variables ===== */
+:root {
+  /* Light Theme (White Liquid Glass) - Default */
+  --bg-primary: #f1f5f9;
+  --bg-secondary: #e2e8f0;
+  --bg-tertiary: #cbd5e1;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-tertiary: #64748b;
+  --glass-bg: rgba(255, 255, 255, 0.6);
+  --glass-border: rgba(0, 0, 0, 0.1);
+  --scrollbar-track: #e2e8f0;
+  --scrollbar-thumb: #94a3b8;
+}
+
+.dark {
+  /* Dark Theme (Dark Liquid Glass) */
+  --bg-primary: #030712;
+  --bg-secondary: #0f172a;
+  --bg-tertiary: #1e293b;
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-tertiary: #64748b;
+  --glass-bg: rgba(15, 23, 42, 0.6);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --scrollbar-track: #0f172a;
+  --scrollbar-thumb: #334155;
+}
+
+@layer base {
+  body {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    @apply font-outfit overflow-x-hidden antialiased leading-relaxed transition-colors duration-300;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-space font-bold leading-tight;
+  }
+}
+
+@layer utilities {
+  .text-gradient {
+    @apply bg-gradient-text text-transparent bg-clip-text inline-block;
+  }
+
+  .glass-panel {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    @apply backdrop-blur-md shadow-glass transition-colors duration-300;
+  }
+
+  .flex-center {
+    @apply flex justify-center items-center;
+  }
+
+  .section-padding {
+    @apply py-20 px-5 max-w-[1240px] mx-auto;
+  }
+
+  /* Theme-aware text colors */
+  .theme-text-primary {
+    color: var(--text-primary);
+  }
+
+  .theme-text-secondary {
+    color: var(--text-secondary);
+  }
+
+  .theme-bg-primary {
+    background-color: var(--bg-primary);
+  }
+
+  .theme-bg-secondary {
+    background-color: var(--bg-secondary);
+  }
+
+  .theme-bg-tertiary {
+    background-color: var(--bg-tertiary);
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-gradient-main text-white py-3 px-8 border-none rounded-lg text-base font-semibold cursor-pointer transition-all duration-300 no-underline inline-block hover:-translate-y-0.5 hover:shadow-glow-primary;
+  }
+
+  .btn-secondary {
+    @apply bg-transparent py-3 px-8 border-2 border-primary rounded-lg text-base font-semibold cursor-pointer transition-all duration-300 no-underline inline-block hover:bg-primary hover:text-white hover:-translate-y-0.5;
+    color: var(--text-primary);
+  }
+}
+
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background-color: var(--scrollbar-track);
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--scrollbar-thumb);
+  @apply rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-primary;
+}
