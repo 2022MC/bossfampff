@@ -64,49 +64,28 @@ export default function GraphicAIPage() {
         };
     }, [selectedImage]);
 
-    const containerVariants = {
-        hidden: { opacity: 0 },
-        visible: {
-            opacity: 1,
-            transition: {
-                delayChildren: 0.1,
-                staggerChildren: 0.05
-            }
-        }
-    };
 
-    const itemVariants = {
-        hidden: { y: 50, opacity: 0 },
-        visible: {
-            y: 0,
-            opacity: 1
-        }
-    };
 
     return (
         <div className="min-h-screen bg-bg-primary pt-[100px] pb-20 px-5">
             <div className="max-w-[1400px] mx-auto">
                 <motion.section
                     className="text-center mb-[60px]"
-                    variants={containerVariants}
-                    initial="hidden"
-                    animate="visible"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6 }}
                 >
-                    <motion.div variants={itemVariants}>
+                    <div>
                         <h1 className="font-space text-[clamp(40px,5vw,60px)] font-bold mb-4 flex flex-col items-center justify-center gap-2">
                             <span className="text-primary font-space-grotesk text-xl tracking-[5px] uppercase relative pl-[60px] before:content-[''] before:absolute before:left-0 before:top-1/2 before:-translate-y-1/2 before:w-[40px] before:h-[2px] before:bg-primary">Graphic & AI</span>
                         </h1>
                         <p className="text-[clamp(16px,2vw,18px)] text-text-secondary max-w-[600px] mx-auto leading-relaxed">
                             ผลงานกราฟฟิกและ AI Art
                         </p>
-                    </motion.div>
+                    </div>
                 </motion.section>
 
-                <motion.section
-                    variants={containerVariants}
-                    initial="hidden"
-                    animate="visible"
-                >
+                <section>
                     {loading ? (
                         <div className="text-center p-12 text-text-secondary">Loading content...</div>
                     ) : graphicWorks.length === 0 ? (
@@ -120,7 +99,10 @@ export default function GraphicAIPage() {
                                     <motion.div
                                         key={work.id}
                                         className={`relative break-inside-avoid bg-bg-tertiary rounded-[20px] overflow-hidden border border-white/5 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl group cursor-pointer ${work.featured ? 'border-primary shadow-[0_0_20px_rgba(99,102,241,0.2)]' : ''}`}
-                                        variants={itemVariants}
+                                        initial={{ opacity: 0, y: 20 }}
+                                        whileInView={{ opacity: 1, y: 0 }}
+                                        viewport={{ once: true }}
+                                        transition={{ duration: 0.5 }}
                                         onClick={() => setSelectedImage(work)}
                                     >
                                         <div
@@ -176,8 +158,8 @@ export default function GraphicAIPage() {
                             })}
                         </div>
                     )}
-                </motion.section>
-            </div >
+                </section>
+            </div>
 
             {/* Image Modal */}
             <AnimatePresence>
@@ -206,11 +188,13 @@ export default function GraphicAIPage() {
                             </button>
 
                             <div className="w-full md:w-2/3 bg-black flex items-center justify-center p-0 md:h-auto overflow-hidden">
-                                <img
-                                    src={selectedImage.image}
-                                    alt={selectedImage.title}
-                                    className="w-full h-full object-contain max-h-[50vh] md:max-h-[90vh]"
-                                />
+                                {selectedImage.image && (
+                                    <img
+                                        src={selectedImage.image}
+                                        alt={selectedImage.title || ''}
+                                        className="w-full h-full object-contain max-h-[50vh] md:max-h-[90vh]"
+                                    />
+                                )}
                             </div>
 
                             <div className="w-full md:w-1/3 p-6 md:p-8 flex flex-col overflow-y-auto max-h-[40vh] md:max-h-[90vh] bg-[#1a1f2e] border-l border-white/5">
@@ -246,6 +230,6 @@ export default function GraphicAIPage() {
                     </motion.div>
                 )}
             </AnimatePresence>
-        </div >
+        </div>
     );
 }

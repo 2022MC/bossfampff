@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaMapMarkerAlt, FaEnvelope, FaFacebook, FaShareAlt, FaInstagram, FaLink, FaCopy, FaTimes, FaPlay } from 'react-icons/fa';
+import { FaMapMarkerAlt, FaEnvelope, FaFacebook, FaShareAlt, FaInstagram, FaLink, FaCopy, FaTimes, FaPlay, FaStar } from 'react-icons/fa';
 import { SiLine } from 'react-icons/si';
 import Link from 'next/link';
 
@@ -93,7 +93,9 @@ const Projects = ({ limit }: ProjectsProps) => {
         }
     };
 
-    const displayedProjects = limit ? projects.slice(0, limit) : projects.slice(0, visibleCount);
+    const displayedProjects = limit
+        ? projects.slice(0, limit)
+        : projects.slice(0, visibleCount);
 
     return (
         <section id="projects" className="py-[80px] md:py-[100px] px-4 md:px-5 bg-bg-primary relative min-h-screen">
@@ -107,7 +109,8 @@ const Projects = ({ limit }: ProjectsProps) => {
                     <motion.div
                         className="glass-panel rounded-[24px] p-6 md:p-8 relative lg:sticky lg:top-24"
                         initial={{ opacity: 0, x: -50 }}
-                        animate={{ opacity: 1, x: 0 }}
+                        whileInView={{ opacity: 1, x: 0 }}
+                        viewport={{ once: true }}
                         transition={{ duration: 0.5 }}
                     >
                         <div className="relative mb-6">
@@ -182,28 +185,27 @@ const Projects = ({ limit }: ProjectsProps) => {
                             <h2 className="text-2xl font-bold text-text-primary">{projects.length} videos</h2>
                         </div>
 
-                        <motion.div
-                            className="grid grid-cols-1 md:grid-cols-2 gap-8"
-                            initial="hidden"
-                            animate="visible"
-                            variants={{
-                                visible: {
-                                    transition: {
-                                        staggerChildren: 0.1
-                                    }
-                                }
-                            }}
-                        >
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                             {displayedProjects.map((project, index) => {
                                 const embedUrl = getEmbedUrl(project.videoUrl);
                                 const hasVideo = embedUrl !== null;
 
                                 return (
                                     <motion.div
-                                        key={project.title || index}
-                                        className={`glass-panel rounded-[16px] overflow-hidden transition-all duration-300 hover:shadow-glow-primary group flex flex-col h-full`}
-                                        variants={itemVariants}
+                                        key={project.id || project.title || index}
+                                        className={`glass-panel rounded-[16px] overflow-hidden transition-all duration-300 hover:shadow-glow-primary group flex flex-col h-full relative ${project.featured ? 'border border-yellow-500/50 shadow-[0_0_15px_rgba(234,179,8,0.1)]' : ''}`}
+                                        initial={{ opacity: 0, y: 20 }}
+                                        whileInView={{ opacity: 1, y: 0 }}
+                                        viewport={{ once: true }}
+                                        transition={{ duration: 0.5, delay: index * 0.1 }}
                                     >
+                                        {/* Featured Badge */}
+                                        {project.featured && (
+                                            <div className="absolute top-3 left-3 z-20 bg-yellow-500 text-black text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider shadow-lg flex items-center gap-1">
+                                                <FaStar className="text-[10px]" /> Featured
+                                            </div>
+                                        )}
+
                                         <div
                                             className="relative w-full aspect-video bg-black overflow-hidden cursor-pointer"
                                             onClick={() => !project.videoUrl?.includes('facebook.com') && setSelectedProject(project)}
@@ -264,7 +266,7 @@ const Projects = ({ limit }: ProjectsProps) => {
                                             className="p-5 flex flex-col flex-grow cursor-pointer"
                                             onClick={() => setSelectedProject(project)}
                                         >
-                                            <h3 className="font-bold text-lg text-text-primary mb-2 line-clamp-1 group-hover:text-primary transition-colors">
+                                            <h3 className={`font-bold text-lg mb-2 line-clamp-1 transition-colors ${project.featured ? 'text-yellow-400' : 'text-text-primary group-hover:text-primary'} `}>
                                                 {project.title}
                                             </h3>
                                             <div className="text-text-secondary text-sm mb-4 line-clamp-2 leading-relaxed">
@@ -296,7 +298,7 @@ const Projects = ({ limit }: ProjectsProps) => {
                                     </motion.div>
                                 );
                             })}
-                        </motion.div>
+                        </div>
 
                         {limit && (
                             <div className="mt-[60px] flex justify-center">
