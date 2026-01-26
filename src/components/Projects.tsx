@@ -355,7 +355,7 @@ const Projects = ({ limit }: ProjectsProps) => {
 
                             <div className="space-y-3 mb-6">
                                 <a
-                                    href="https://facebook.com/sharer/sharer.php?u=https://facebook.com/sarat.peetaro"
+                                    href="https://www.facebook.com/nathasit.opachalermpan.2025/"
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="flex items-center gap-4 p-3 rounded-xl border border-white/10 hover:bg-white/5 transition-colors group"
