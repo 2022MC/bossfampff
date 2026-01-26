@@ -69,8 +69,8 @@ export default function GraphicAIPage() {
         visible: {
             opacity: 1,
             transition: {
-                delayChildren: 0.2,
-                staggerChildren: 0.1
+                delayChildren: 0.1,
+                staggerChildren: 0.05
             }
         }
     };
@@ -187,15 +187,15 @@ export default function GraphicAIPage() {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        transition={{ duration: 0.3 }}
+                        transition={{ duration: 0.2 }}
                         onClick={() => setSelectedImage(null)}
                     >
                         <motion.div
                             className="relative max-w-[1200px] w-full bg-bg-tertiary rounded-[24px] overflow-hidden shadow-2xl flex flex-col md:flex-row max-h-[90vh] md:h-auto cursor-default"
-                            initial={{ scale: 0.8, opacity: 0 }}
+                            initial={{ scale: 0.95, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}
-                            exit={{ scale: 0.8, opacity: 0 }}
-                            transition={{ duration: 0.3, type: 'spring' }}
+                            exit={{ scale: 0.95, opacity: 0 }}
+                            transition={{ duration: 0.2, ease: "easeOut" }}
                             onClick={(e) => e.stopPropagation()}
                         >
                             <button
