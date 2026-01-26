@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { motion, Reorder, AnimatePresence } from 'framer-motion';
+import { motion, Reorder, AnimatePresence, useDragControls } from 'framer-motion';
 import { FaPlus, FaEdit, FaTrash, FaSave, FaTimes, FaUpload, FaSignOutAlt, FaBars } from 'react-icons/fa';
 import { useAuth } from '@/context/AuthContext';
 import { useNotification } from '@/context/NotificationContext';
@@ -33,6 +33,12 @@ function AdminContent() {
     const [showForm, setShowForm] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [isDragging, setIsDragging] = useState(false);
+    const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+
+    const handleReorder = (newOrder: ProjectData[]) => {
+        setWorks(newOrder);
+        setHasUnsavedChanges(true);
+    };
 
     // Firebase Auth State
     const [firebaseUser, setFirebaseUser] = useState<User | null>(null);
@@ -152,6 +158,7 @@ function AdminContent() {
             showNotification("บันทึกลำดับไม่สำเร็จ", 'error');
         } finally {
             setIsLoading(false);
+            setHasUnsavedChanges(false);
         }
     };
 
@@ -552,11 +559,11 @@ function AdminContent() {
 
                 <div className="flex justify-end gap-4 px-10 mb-5 border-b border-white/5 pb-2.5">
                     <button
-                        className="flex items-center gap-2.5 px-5 py-3 rounded-xl text-sm font-semibold cursor-pointer transition-all duration-300 bg-green-500/10 text-green-500 border border-green-500/20 hover:bg-green-500/20 hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                        className={`flex items-center gap-2.5 px-5 py-3 rounded-xl text-sm font-semibold cursor-pointer transition-all duration-300 border ${hasUnsavedChanges ? 'bg-amber-500 text-white border-amber-600 shadow-[0_0_15px_rgba(245,158,11,0.5)] animate-pulse' : 'bg-green-500/10 text-green-500 border-green-500/20 hover:bg-green-500/20 hover:-translate-y-0.5'} disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none`}
                         onClick={handleSaveOrder}
-                        disabled={isLoading}
+                        disabled={isLoading || !hasUnsavedChanges}
                     >
-                        <FaSave /> บันทึกลำดับ
+                        <FaSave /> {hasUnsavedChanges ? 'บันทึกลำดับ (ยังไม่บันทึก)' : 'ลำดับบันทึกแล้ว'}
                     </button>
                     <button
                         className="flex items-center gap-2.5 px-5 py-3 rounded-xl text-sm font-semibold cursor-pointer transition-all duration-300 bg-primary text-white shadow-glow-primary hover:bg-secondary hover:-translate-y-0.5"
@@ -870,38 +877,14 @@ function AdminContent() {
                                 <div className="flex items-center justify-end">จัดการ</div>
                             </div>
 
-                            <Reorder.Group axis="y" values={works} onReorder={setWorks} className="flex flex-col gap-3 list-none p-0 m-0">
+                            <Reorder.Group axis="y" values={works} onReorder={handleReorder} className="flex flex-col gap-3 list-none p-0 m-0">
                                 {works.map((work) => (
-                                    <Reorder.Item key={work.id} value={work} className="grid grid-cols-[50px_100px_2fr_1.5fr_80px_120px] p-5 border border-border-color rounded-[16px] bg-bg-tertiary backdrop-blur-[10px] text-text-secondary items-center cursor-grab transition-all duration-200 hover:bg-indigo-500/5 hover:border-primary hover:translate-x-1 active:cursor-grabbing active:scale-[0.99] group">
-                                        <div className="flex justify-center items-center">
-                                            <span className="text-xl text-text-secondary opacity-30 cursor-grab transition-opacity duration-200 group-hover:opacity-100"><FaBars /></span>
-                                        </div>
-                                        <div className="flex items-center">
-                                            <span className={`inline-block px-3 py-1.5 rounded-lg text-[11px] font-bold tracking-[0.5px] uppercase border ${work.type === 'Graphic'
-                                                ? 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20'
-                                                : 'bg-rose-500/10 text-rose-400 border-rose-500/20'
-                                                }`}>
-                                                {work.type === 'Graphic' ? 'Graphic' : 'Video'}
-                                            </span>
-                                        </div>
-                                        <div className="font-medium text-[15px] text-text-primary">{work.title}</div>
-                                        <div className="">{work.category}</div>
-                                        <div className="flex justify-center items-center">
-                                            {work.featured ? (
-                                                <span className="inline-flex w-7 h-7 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 text-white items-center justify-center text-sm shadow-[0_2px_8px_rgba(245,158,11,0.4)]">✓</span>
-                                            ) : (
-                                                <span className="inline-block w-7 text-center text-text-secondary opacity-20">-</span>
-                                            )}
-                                        </div>
-                                        <div className="flex gap-2.5 justify-end">
-                                            <button onClick={() => handleEdit(work)} className="w-9 h-9 rounded-[10px] border-none flex items-center justify-center cursor-pointer transition-all duration-200 bg-indigo-500/10 text-indigo-400 hover:bg-primary hover:text-white">
-                                                <FaEdit />
-                                            </button>
-                                            <button onClick={() => handleDelete(work.id!)} className="w-9 h-9 rounded-[10px] border-none flex items-center justify-center cursor-pointer transition-all duration-200 bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white">
-                                                <FaTrash />
-                                            </button>
-                                        </div>
-                                    </Reorder.Item>
+                                    <SortableProjectItem
+                                        key={work.id}
+                                        work={work}
+                                        handleEdit={handleEdit}
+                                        handleDelete={handleDelete}
+                                    />
                                 ))}
                             </Reorder.Group>
                         </div>
@@ -911,4 +894,61 @@ function AdminContent() {
         </div>
     );
 }
+
+
+
+interface SortableProjectItemProps {
+    work: ProjectData;
+    handleEdit: (work: ProjectData) => void;
+    handleDelete: (id: string) => void;
+}
+
+function SortableProjectItem({ work, handleEdit, handleDelete }: SortableProjectItemProps) {
+    const controls = useDragControls();
+
+    return (
+        <Reorder.Item
+            value={work}
+            dragListener={false}
+            dragControls={controls}
+            whileDrag={{ scale: 1.02, boxShadow: "0 20px 50px rgba(0,0,0,0.5)", zIndex: 100 }}
+            className="grid grid-cols-[50px_100px_2fr_1.5fr_80px_120px] p-5 border border-border-color rounded-[16px] bg-bg-tertiary backdrop-blur-[10px] text-text-secondary items-center transition-all duration-200 hover:bg-indigo-500/5 hover:border-primary group"
+        >
+            <div className="flex justify-center items-center">
+                <span
+                    className="text-xl text-text-secondary opacity-50 cursor-grab hover:text-white hover:opacity-100 transition-all duration-200 p-2 touch-none"
+                    onPointerDown={(e) => controls.start(e)}
+                >
+                    <FaBars />
+                </span>
+            </div>
+            <div className="flex items-center">
+                <span className={`inline-block px-3 py-1.5 rounded-lg text-[11px] font-bold tracking-[0.5px] uppercase border ${work.type === 'Graphic'
+                    ? 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20'
+                    : 'bg-rose-500/10 text-rose-400 border-rose-500/20'
+                    }`}>
+                    {work.type === 'Graphic' ? 'Graphic' : 'Video'}
+                </span>
+            </div>
+            <div className="font-medium text-[15px] text-text-primary line-clamp-1 pr-4">{work.title}</div>
+            <div className="line-clamp-1 pr-4">{work.category}</div>
+            <div className="flex justify-center items-center">
+                {work.featured ? (
+                    <span className="inline-flex w-7 h-7 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 text-white items-center justify-center text-sm shadow-[0_2px_8px_rgba(245,158,11,0.4)]">✓</span>
+                ) : (
+                    <span className="inline-block w-7 text-center text-text-secondary opacity-20">-</span>
+                )}
+            </div>
+            <div className="flex gap-2.5 justify-end">
+                <button onClick={() => handleEdit(work)} className="w-9 h-9 rounded-[10px] border-none flex items-center justify-center cursor-pointer transition-all duration-200 bg-indigo-500/10 text-indigo-400 hover:bg-primary hover:text-white">
+                    <FaEdit />
+                </button>
+                <button onClick={() => handleDelete(work.id!)} className="w-9 h-9 rounded-[10px] border-none flex items-center justify-center cursor-pointer transition-all duration-200 bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white">
+                    <FaTrash />
+                </button>
+            </div>
+        </Reorder.Item>
+    );
+}
+
 
