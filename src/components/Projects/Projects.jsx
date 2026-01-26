@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaGithub, FaExternalLinkAlt } from 'react-icons/fa';
+import { FaMapMarkerAlt, FaEnvelope, FaFacebook, FaShareAlt, FaInstagram, FaLink, FaCopy, FaTimes, FaPlay } from 'react-icons/fa';
+import { SiLine } from 'react-icons/si';
 // import './Projects.css'; // Removed CSS import
 import ProjectModal from '../ProjectModal/ProjectModal';
 
@@ -11,10 +12,21 @@ import { collection, query, where, getDocs } from 'firebase/firestore';
 const Projects = ({ limit }) => {
   const [projects, setProjects] = useState([]);
   const [selectedProject, setSelectedProject] = useState(null);
+  const [isBioExpanded, setIsBioExpanded] = useState(false);
+  const [isShareOpen, setIsShareOpen] = useState(false);
+  const [copySuccess, setCopySuccess] = useState(false);
+  const [visibleCount, setVisibleCount] = useState(6);
+
+  const handleCopyLink = () => {
+    navigator.clipboard.writeText(window.location.href);
+    setCopySuccess(true);
+    setTimeout(() => setCopySuccess(false), 2000);
+  };
 
   useEffect(() => {
     loadVideoProjects();
   }, []);
+
 
   // โหลดข้อมูลจาก Firebase
   const loadVideoProjects = async () => {
@@ -44,17 +56,21 @@ const Projects = ({ limit }) => {
     }
   };
 
+  const getYoutubeId = (url) => {
+    if (!url) return null;
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[2].length === 11) ? match[2] : null;
+  };
+
   // ฟังก์ชันแปลง URL เป็น embed URL
   const getEmbedUrl = (url) => {
     if (!url) return null;
 
-    // YouTube URL patterns
-    // https://www.youtube.com/watch?v=VIDEO_ID
-    // https://youtu.be/VIDEO_ID
-    const youtubeRegex = /(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)/;
-    const youtubeMatch = url.match(youtubeRegex);
-    if (youtubeMatch) {
-      return `https://www.youtube.com/embed/${youtubeMatch[1]}`;
+    // YouTube
+    const youtubeId = getYoutubeId(url);
+    if (youtubeId) {
+      return `https://www.youtube.com/embed/${youtubeId}`;
     }
 
     // Facebook Video URL
@@ -88,153 +104,251 @@ const Projects = ({ limit }) => {
     }
   };
 
-  const displayedProjects = limit ? projects.slice(0, limit) : projects;
+  const displayedProjects = limit ? projects.slice(0, limit) : projects.slice(0, visibleCount);
 
   return (
-    <section id="projects" className="py-[100px] px-5 bg-bg-primary relative overflow-hidden">
+    <section id="projects" className="py-[80px] md:py-[100px] px-4 md:px-5 bg-bg-primary relative min-h-screen">
       {/* Background gradient accent */}
-      <div className="absolute top-0 right-0 w-1/2 h-1/2 bg-[radial-gradient(circle_at_100%_0%,rgba(99,102,241,0.15)_0%,transparent_60%)] z-0 pointer-events-none"></div>
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-0 right-0 w-1/2 h-1/2 bg-[radial-gradient(circle_at_100%_0%,rgba(99,102,241,0.15)_0%,transparent_60%)] z-0"></div>
+      </div>
 
-      <motion.div
-        className="max-w-[1200px] mx-auto relative z-1"
-        animate="visible"
-      >
-        <motion.div className="text-center mb-20" variants={itemVariants}>
-          <h2 className="font-space text-[clamp(32px,5vw,48px)] font-bold text-text-primary mb-4 flex items-center justify-center gap-4">
-            <span className="font-mono text-xl text-primary font-normal">03.</span>
-            โปรเจกต์ที่ผ่านมา
-          </h2>
-          <p className="text-[clamp(16px,2vw,18px)] text-text-secondary max-w-[600px] mx-auto">
-            ผลงานตัดต่อที่ผ่านมา
-          </p>
-        </motion.div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {displayedProjects.map((project, index) => {
-            const embedUrl = project.videoUrl ? getEmbedUrl(project.videoUrl) : null;
-            const hasVideo = embedUrl !== null;
-            // Loading is true by default if video exists and hasn't loaded yet
-            const isLoading = hasVideo && videoLoading[index] !== false && !videoErrors[index];
-            const hasError = videoErrors[index];
+      <div className="max-w-[1280px] mx-auto relative z-1">
 
-            return (
-              <motion.div
-                key={project.title || index}
-                className={`bg-bg-tertiary rounded-[20px] overflow-hidden border transition-all duration-400 relative shadow-md group hover:-translate-y-2 hover:shadow-xl ${project.featured ? 'border-[rgba(245,158,11,0.5)] shadow-[0_4px_20px_rgba(245,158,11,0.15)]' : 'border-white/10 hover:border-primary'}`}
-                variants={itemVariants}
-                whileHover={{ y: -10 }}
-                onClick={() => setSelectedProject(project)}
+        <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-8 md:gap-12 items-start">
+          {/* Left Sidebar: Profile Card */}
+          <motion.div
+            className="bg-white dark:bg-[#1e293b] rounded-[24px] p-6 md:p-8 shadow-xl border border-gray-100 dark:border-white/5 relative lg:sticky lg:top-24"
+            initial={{ opacity: 0, x: -50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <div className="relative mb-6">
+              <div className="relative w-32 h-32 mx-auto lg:mx-0">
+                <div className="w-full h-full rounded-full overflow-hidden border-4 border-white dark:border-[#1e293b] shadow-lg">
+                  <img
+                    src="https://scontent.fbkk7-3.fna.fbcdn.net/v/t39.30808-6/591834656_2727646697568544_2737661402911912305_n.jpg?_nc_cat=107&ccb=1-7&_nc_sid=6ee11a&_nc_eui2=AeHl79uEHD0cvSpC5D6Ko5zbM5R0j879GBgzlHSPzv0YGIsFiZpPl5daxGSQ67fLWL--ixKLXJXmdJVxmnrXfoSt&_nc_ohc=T9CAbKOPVYYQ7kNvwGFk23H&_nc_oc=AdmlFcskAfutTfGBq50ABQjmAY6RKyElnc-E-Mk-BJanUscKvnYKHkv6_S07gSxjzqU&_nc_zt=23&_nc_ht=scontent.fbkk7-3.fna&_nc_gid=LS3wB3nuO6Ie9lBmZjdE6w&oh=00_AfoFHWP80VvQVS1CPMD03etcA6fIk2oz2vV5g8GfgzR1pg&oe=697CBBD3"
+                    alt="Profile"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                {/* Online Status / Badge */}
+                <div className="absolute bottom-2 right-2 bg-emerald-500 w-6 h-6 rounded-full border-4 border-white dark:border-[#1e293b] flex items-center justify-center">
+                  {/* Icon inside badge if needed */}
+                </div>
+              </div>
+
+              {/* Share Icon */}
+              <button
+                className="absolute top-0 right-0 text-text-secondary hover:text-text-primary transition-colors cursor-pointer p-2"
+                onClick={() => setIsShareOpen(true)}
               >
-                {hasVideo ? (
-                  <div className="relative w-full aspect-video bg-black overflow-hidden">
-                    {hasError ? (
-                      <div className="absolute inset-0 flex flex-col items-center justify-center bg-bg-tertiary z-[2] text-text-secondary">
-                        <p>ไม่สามารถโหลดวิดีโอได้</p>
-                        <a
-                          href={project.videoUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="bg-transparent text-text-primary py-3 px-8 border-2 border-primary rounded-lg text-base font-semibold cursor-pointer transition-all duration-300 no-underline inline-block hover:bg-primary hover:-translate-y-0.5 mt-4"
-                        >
-                          เปิดวิดีโอในแท็บใหม่
-                        </a>
-                      </div>
-                    ) : (
-                      <>
-                        {isLoading && (
-                          <div className="absolute inset-0 flex flex-col items-center justify-center bg-bg-tertiary z-[2] text-text-secondary">
-                            <div className="w-10 h-10 border-2 border-bg-secondary border-t-secondary rounded-full animate-spin mb-4"></div>
-                            <p>กำลังโหลดวิดีโอ...</p>
+                <FaShareAlt />
+              </button>
+            </div>
+
+            <h2 className="text-2xl md:text-3xl font-bold text-text-primary mb-1 text-center lg:text-left">BossFam</h2>
+            <div className="flex items-center justify-center lg:justify-start gap-2 text-text-secondary mb-4 text-sm font-medium">
+              <FaMapMarkerAlt />
+              <span>Bangkok Thailand</span>
+            </div>
+
+            <p className="text-text-secondary text-sm mb-6 leading-relaxed text-center lg:text-left">
+              he/him
+              <br /><br />
+              Base in Bangkok TH Editor, Beginner Colorist Service ...
+              {!isBioExpanded && (
+                <span
+                  className="text-primary cursor-pointer hover:underline ml-1"
+                  onClick={() => setIsBioExpanded(true)}
+                >
+                  Read more
+                </span>
+              )}
+              {isBioExpanded && (
+                <span>
+                  <br />
+                  Short Film , Music Video , Content Online , Youtube , Tiktok/Reel
+                  <br />
+                  <span
+                    className="text-primary cursor-pointer hover:underline mt-2 inline-block"
+                    onClick={() => setIsBioExpanded(false)}
+                  >
+                    Show less
+                  </span>
+                </span>
+              )}
+            </p>
+
+            <div className="flex flex-col gap-4 mb-8 items-center lg:items-start">
+              <a href="mailto:nathasit.mac@gmail.com" className="flex items-center gap-3 text-text-primary hover:text-primary transition-colors font-medium">
+                <FaEnvelope className="text-lg" />
+                <span>nathasit.mac@gmail.com</span>
+              </a>
+              <a href="https://www.facebook.com/nathasit.opachalermpan.2025/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-text-primary hover:text-primary transition-colors font-medium">
+                <FaFacebook className="text-lg" />
+                <span>Nathasit Opachalermpan</span>
+              </a>
+            </div>
+
+
+
+          </motion.div>
+
+          {/* Right Content: Videos */}
+          <div>
+            <div className="flex items-center justify-between mb-8">
+              <h2 className="text-2xl font-bold text-text-primary">{projects.length} videos</h2>
+              {/* Filter or Sort could go here */}
+            </div>
+
+            <motion.div
+              className="grid grid-cols-1 md:grid-cols-2 gap-8"
+              initial="hidden"
+              animate="visible"
+              variants={{
+                visible: {
+                  transition: {
+                    staggerChildren: 0.1
+                  }
+                }
+              }}
+            >
+              {displayedProjects.map((project, index) => {
+                const embedUrl = project.videoUrl ? getEmbedUrl(project.videoUrl) : null;
+                const hasVideo = embedUrl !== null;
+                const isLoading = hasVideo && videoLoading[index] !== false && !videoErrors[index];
+                const hasError = videoErrors[index];
+
+                return (
+                  <motion.div
+                    key={project.title || index}
+                    className={`bg-white dark:bg-bg-tertiary rounded-[16px] overflow-hidden border border-slate-200 dark:border-white/5 transition-all duration-300 hover:shadow-xl dark:hover:shadow-2xl group flex flex-col h-full`}
+                    variants={itemVariants}
+                  >
+                    {/* Video / Image Area - Aspect Ratio 16:9 */}
+                    <div
+                      className="relative w-full aspect-video bg-black overflow-hidden cursor-pointer"
+                      onClick={() => !project.videoUrl.includes('facebook.com') && setSelectedProject(project)}
+                    >
+                      {hasVideo ? (
+                        <>
+                          {/* Special check for Facebook: Render iframe directly to prevent black thumbnail issues */}
+                          {project.videoUrl.includes('facebook.com') ? (
+                            <iframe
+                              src={embedUrl}
+                              title={project.title}
+                              frameBorder="0"
+                              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                              allowFullScreen
+                              className="absolute inset-0 w-full h-full"
+                            />
+                          ) : (
+                            /* Custom Thumbnail & Play Button Overlay for YouTube/Others */
+                            <div className="w-full h-full relative group">
+                              <img
+                                src={
+                                  project.image ||
+                                  (getYoutubeId(project.videoUrl) ? `https://img.youtube.com/vi/${getYoutubeId(project.videoUrl)}/maxresdefault.jpg` :
+                                    'https://via.placeholder.com/800x450?text=No+Thumbnail')
+                                }
+                                alt={project.title}
+                                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                                onError={(e) => {
+                                  // Fallback to hqdefault if maxresdefault fails
+                                  const ytId = getYoutubeId(project.videoUrl);
+                                  if (ytId && e.target.src.includes('maxresdefault')) {
+                                    e.target.src = `https://img.youtube.com/vi/${ytId}/hqdefault.jpg`;
+                                  }
+                                }}
+                              />
+
+                              {/* Dark Overlay */}
+                              <div className="absolute inset-0 bg-black/20 group-hover:bg-black/30 transition-colors duration-300"></div>
+
+                              {/* Custom Play Button */}
+                              <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
+                                <div className="w-16 h-16 rounded-full bg-white/30 backdrop-blur-md border border-white/50 flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-hover:bg-white shadow-lg">
+                                  <FaPlay className="text-white text-xl ml-1 group-hover:text-primary transition-colors duration-300" />
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                        </>
+                      ) : (
+                        <div className="w-full h-full relative group">
+                          <img
+                            src={project.image || 'https://via.placeholder.com/800x450'}
+                            alt={project.title}
+                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                          />
+                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                            <span className="text-white font-medium px-4 py-2 border border-white/30 rounded-full backdrop-blur-sm">View Details</span>
                           </div>
-                        )}
-                        <iframe
-                          src={embedUrl}
-                          title={project.title}
-                          frameBorder="0"
-                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                          allowFullScreen
-                          onLoad={() => handleVideoLoad(index)}
-                          onError={() => handleVideoError(index)}
-                          className="w-full h-full border-none"
-                          style={{ display: isLoading ? 'none' : 'block', zIndex: 1 }}
-                        />
-                      </>
-                    )}
-                  </div>
-                ) : (
-                  <div className="relative w-full h-[250px] overflow-hidden group">
-                    <img
-                      src={project.image || 'https://via.placeholder.com/800x450'}
-                      alt={project.title}
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                    />
-                    <div className="absolute inset-0 bg-[#0f172a]/80 backdrop-blur-[4px] flex items-center justify-center opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-                      <div className="flex gap-4">
-                        <a
-                          href={project.github}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          aria-label="GitHub"
-                          className="w-12 h-12 rounded-full bg-white text-bg-primary flex items-center justify-center text-xl transition-transform duration-200 hover:scale-110"
-                        >
-                          <FaGithub />
-                        </a>
-                        <a
-                          href={project.demo}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          aria-label="Demo"
-                          className="w-12 h-12 rounded-full bg-white text-bg-primary flex items-center justify-center text-xl transition-transform duration-200 hover:scale-110"
-                        >
-                          <FaExternalLinkAlt />
-                        </a>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Content Area */}
+                    <div
+                      className="p-5 flex flex-col flex-grow cursor-pointer"
+                      onClick={() => setSelectedProject(project)}
+                    >
+                      <h3 className="font-bold text-lg text-text-primary mb-2 line-clamp-1 group-hover:text-primary transition-colors">
+                        {project.title}
+                      </h3>
+                      <div className="text-text-secondary text-sm mb-4 line-clamp-2 leading-relaxed">
+                        {project.description}
+                      </div>
+
+                      <div className="mt-auto flex flex-wrap gap-2">
+                        {project.tech && project.tech.map((tech, i) => {
+                          const techName = typeof tech === 'string' ? tech : tech.name;
+                          const style = typeof tech === 'object' && tech.color ? {
+                            backgroundColor: `${tech.color}20`,
+                            color: tech.color,
+                            borderColor: `${tech.color}40`
+                          } : {};
+
+                          return (
+                            <span
+                              key={i}
+                              className="text-xs font-medium px-2.5 py-1 rounded-md bg-slate-100 dark:bg-white/5 text-text-secondary border border-slate-200 dark:border-white/5"
+                              style={style}
+                            >
+                              {techName}
+                            </span>
+                          )
+                        })}
                       </div>
                     </div>
-                  </div>
-                )}
-                <div className="p-6">
-                  <h3 className="font-space text-2xl font-bold text-text-primary mb-3">{project.title}</h3>
-                  <p className="text-base text-text-secondary leading-[1.6] mb-6 line-clamp-3">{project.description}</p>
-                  <div className="flex flex-wrap gap-2">
-                    {project.tech.map((tech, techIndex) => {
-                      const techName = typeof tech === 'string' ? tech : tech.name;
-                      // Fallback color logic: if string, use default blue style class (via empty inline style letting CSS handle it)
-                      // if object, use inline style.
-                      const style = typeof tech === 'string'
-                        ? {}
-                        : {
-                          color: tech.color,
-                          backgroundColor: `${tech.color}20`,
-                          borderColor: `${tech.color}40`
-                        };
+                  </motion.div>
+                );
+              })}
+            </motion.div>
 
-                      const defaultClasses = "text-[13px] font-medium px-3 py-1 rounded-full border border-primary/20 bg-primary/10 text-primary";
+            {limit && (
+              <div className="mt-[60px] flex justify-center">
+                <Link to="/projects" className="inline-flex items-center gap-2 px-8 py-4 bg-transparent text-text-primary border border-slate-200 dark:border-white/10 rounded-full font-semibold transition-all duration-300 hover:border-primary hover:bg-primary/10 hover:-translate-y-0.5">
+                  ดูผลงานเพิ่มเติม
+                </Link>
+              </div>
+            )}
 
-                      return (
-                        <span key={techIndex} className={typeof tech === 'string' ? defaultClasses : "text-[13px] font-medium px-3 py-1 rounded-full border"} style={style}>
-                          {techName}
-                        </span>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {project.featured && (
-                  <div className="absolute top-3 right-3 bg-gradient-to-br from-amber-400 to-amber-600 text-white px-3 py-1.5 rounded-[20px] text-xs font-bold z-20 shadow-md flex items-center gap-1 tracking-wide">
-                    ✨ ผลงานเด่น
-                  </div>
-                )}
-              </motion.div>
-            );
-          })}
-        </div>
-        {limit && (
-          <div className="mt-[60px] flex justify-center">
-            <Link to="/projects" className="inline-flex items-center gap-2 px-8 py-4 bg-transparent text-text-primary border border-white/10 rounded-full font-semibold transition-all duration-300 hover:border-primary hover:bg-primary/10 hover:-translate-y-0.5">
-              ดูผลงานเพิ่มเติม
-            </Link>
+            {!limit && visibleCount < projects.length && (
+              <div className="mt-[60px] flex justify-center">
+                <button
+                  onClick={() => setVisibleCount(prev => prev + 4)}
+                  className="inline-flex items-center gap-2 px-8 py-4 bg-transparent text-text-primary border border-slate-200 dark:border-white/10 rounded-full font-semibold transition-all duration-300 hover:border-primary hover:bg-primary/10 hover:-translate-y-0.5"
+                >
+                  Load more
+                </button>
+              </div>
+            )}
           </div>
-        )}
-      </motion.div>
+        </div>
+
+      </div>
 
       <AnimatePresence>
         {selectedProject && (
@@ -242,6 +356,93 @@ const Projects = ({ limit }) => {
             project={selectedProject}
             onClose={() => setSelectedProject(null)}
           />
+        )}
+
+        {isShareOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+            onClick={() => setIsShareOpen(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-white dark:bg-[#1e293b] w-full max-w-[400px] rounded-2xl p-6 shadow-2xl relative"
+              onClick={e => e.stopPropagation()}
+            >
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-xl font-bold text-text-primary">Share profile</h3>
+                <button
+                  onClick={() => setIsShareOpen(false)}
+                  className="p-2 text-text-secondary hover:text-text-primary rounded-full hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+                >
+                  <FaTimes />
+                </button>
+              </div>
+
+              <div className="space-y-3 mb-6">
+                <a
+                  href="https://facebook.com/sharer/sharer.php?u=https://facebook.com/sarat.peetaro"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-4 p-3 rounded-xl border border-gray-200 dark:border-white/10 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors group"
+                >
+                  <div className="w-10 h-10 rounded-full bg-[#1877F2]/10 flex items-center justify-center text-[#1877F2] group-hover:bg-[#1877F2] group-hover:text-white transition-colors">
+                    <FaFacebook className="text-xl" />
+                  </div>
+                  <span className="font-medium text-text-primary">Facebook</span>
+                </a>
+
+                <a
+                  href="https://instagram.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-4 p-3 rounded-xl border border-gray-200 dark:border-white/10 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors group"
+                >
+                  <div className="w-10 h-10 rounded-full bg-[#E4405F]/10 flex items-center justify-center text-[#E4405F] group-hover:bg-[#E4405F] group-hover:text-white transition-colors">
+                    <FaInstagram className="text-xl" />
+                  </div>
+                  <span className="font-medium text-text-primary">Instagram</span>
+                </a>
+
+                <a
+                  href="https://line.me"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-4 p-3 rounded-xl border border-gray-200 dark:border-white/10 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors group"
+                >
+                  <div className="w-10 h-10 rounded-full bg-[#00C300]/10 flex items-center justify-center text-[#00C300] group-hover:bg-[#00C300] group-hover:text-white transition-colors">
+                    <SiLine className="text-xl" />
+                  </div>
+                  <span className="font-medium text-text-primary">Line</span>
+                </a>
+              </div>
+
+              <div>
+                <p className="text-sm font-medium text-text-secondary mb-2">Page link</p>
+                <div className="flex items-center gap-2 bg-gray-100 dark:bg-white/5 p-2 rounded-xl border border-transparent focus-within:border-primary/50 transition-colors">
+                  <div className="p-2 text-text-secondary">
+                    <FaLink />
+                  </div>
+                  <input
+                    type="text"
+                    readOnly
+                    value={window.location.href}
+                    className="bg-transparent border-none outline-none text-text-primary text-sm w-full truncate"
+                  />
+                  <button
+                    onClick={handleCopyLink}
+                    className="p-2 text-text-primary hover:text-primary rounded-lg hover:bg-white dark:hover:bg-white/10 transition-all flex items-center gap-2"
+                  >
+                    {copySuccess ? <span className="text-xs text-emerald-500 font-bold">Copied!</span> : <FaCopy />}
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
         )}
       </AnimatePresence>
     </section >

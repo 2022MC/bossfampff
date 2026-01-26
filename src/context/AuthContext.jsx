@@ -13,7 +13,8 @@ export const AuthProvider = ({ children }) => {
 
     // Environment Variables
     const CLIENT_ID = process.env.REACT_APP_DISCORD_CLIENT_ID;
-    const REDIRECT_URI = process.env.REACT_APP_DISCORD_REDIRECT_URI || 'http://localhost:3000/auth/discord/callback';
+    // Dynamic Redirect URI based on current location (Local vs Production)
+    const REDIRECT_URI = `${window.location.origin}/auth/discord/callback`;
     const REQUIRED_GUILD_ID = process.env.REACT_APP_DISCORD_GUILD_ID;
     const REQUIRED_ROLE_ID = process.env.REACT_APP_DISCORD_ROLE_ID;
 
@@ -69,11 +70,14 @@ export const AuthProvider = ({ children }) => {
             };
 
             // 2. Check Guild Membership & Role
-            if (!REQUIRED_GUILD_ID || !REQUIRED_ROLE_ID) {
-                throw new Error("System Configuration Error: Server ID or Role ID is missing.");
+            const targetGuildId = REQUIRED_GUILD_ID?.trim();
+            const targetRoleId = REQUIRED_ROLE_ID?.trim();
+
+            if (!targetGuildId || !targetRoleId) {
+                throw new Error(`System Configuration Error: Server ID/Role ID missing. (Expected Role: ${targetRoleId})`);
             }
 
-            const memberResponse = await fetch(`https://discord.com/api/users/@me/guilds/${REQUIRED_GUILD_ID}/member`, {
+            const memberResponse = await fetch(`https://discord.com/api/users/@me/guilds/${targetGuildId}/member`, {
                 headers: {
                     Authorization: `${tokenType} ${accessToken}`,
                 },
@@ -89,9 +93,13 @@ export const AuthProvider = ({ children }) => {
             const memberData = await memberResponse.json();
             const roles = memberData.roles || [];
 
+            console.log("Debug Role Check:");
+            console.log("Current User Roles:", roles);
+            console.log("Expected Role ID:", targetRoleId);
+
             // Strict comparison
-            if (!roles.includes(REQUIRED_ROLE_ID)) {
-                throw new Error('Access Denied: คุณไม่มี "ยศ" (Role) ที่ได้รับอนุญาต');
+            if (!roles.includes(targetRoleId)) {
+                throw new Error(`Access Denied: คุณไม่มี "ยศ" (Role) ที่ได้รับอนุญาต.\nRequired: ${targetRoleId}\nYours: ${JSON.stringify(roles)}`);
             }
 
             // 3. Success
