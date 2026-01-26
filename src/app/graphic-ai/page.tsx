@@ -119,7 +119,7 @@ export default function GraphicAIPage() {
                                 return (
                                     <motion.div
                                         key={work.id}
-                                        className={`break-inside-avoid bg-bg-tertiary rounded-[20px] overflow-hidden border border-white/5 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl group cursor-pointer ${work.featured ? 'border-primary shadow-[0_0_20px_rgba(99,102,241,0.2)]' : ''}`}
+                                        className={`relative break-inside-avoid bg-bg-tertiary rounded-[20px] overflow-hidden border border-white/5 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl group cursor-pointer ${work.featured ? 'border-primary shadow-[0_0_20px_rgba(99,102,241,0.2)]' : ''}`}
                                         variants={itemVariants}
                                         onClick={() => setSelectedImage(work)}
                                     >
