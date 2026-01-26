@@ -218,7 +218,7 @@ export default function GraphicAIPage() {
                                 <div className="w-10 h-1 bg-primary rounded-full mb-6"></div>
                                 <p className="text-text-secondary leading-relaxed mb-8 text-base md:text-lg">{selectedImage.description}</p>
 
-                                <div className="mt-auto">
+                                <div className="mt-6">
                                     <h4 className="text-sm font-bold text-text-tertiary uppercase tracking-wider mb-3">Technologies</h4>
                                     <div className="flex flex-wrap gap-2">
                                         {selectedImage.tech && selectedImage.tech.map((tech, techIndex) => {
