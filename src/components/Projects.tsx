@@ -105,7 +105,7 @@ const Projects = ({ limit }: ProjectsProps) => {
                 <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-8 md:gap-12 items-start">
                     {/* Left Sidebar: Profile Card */}
                     <motion.div
-                        className="bg-white dark:bg-[#1e293b] rounded-[24px] p-6 md:p-8 shadow-xl border border-gray-100 dark:border-white/5 relative lg:sticky lg:top-24"
+                        className="glass-panel rounded-[24px] p-6 md:p-8 relative lg:sticky lg:top-24"
                         initial={{ opacity: 0, x: -50 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ duration: 0.5 }}
@@ -201,7 +201,7 @@ const Projects = ({ limit }: ProjectsProps) => {
                                 return (
                                     <motion.div
                                         key={project.title || index}
-                                        className={`bg-white dark:bg-bg-tertiary rounded-[16px] overflow-hidden border border-slate-200 dark:border-white/5 transition-all duration-300 hover:shadow-xl dark:hover:shadow-2xl group flex flex-col h-full`}
+                                        className={`glass-panel rounded-[16px] overflow-hidden transition-all duration-300 hover:shadow-glow-primary group flex flex-col h-full`}
                                         variants={itemVariants}
                                     >
                                         <div
@@ -284,7 +284,7 @@ const Projects = ({ limit }: ProjectsProps) => {
                                                     return (
                                                         <span
                                                             key={i}
-                                                            className="text-xs font-medium px-2.5 py-1 rounded-md bg-slate-100 dark:bg-white/5 text-text-secondary border border-slate-200 dark:border-white/5"
+                                                            className="text-xs font-medium px-2.5 py-1 rounded-md bg-white/5 text-text-secondary border border-white/5"
                                                             style={style}
                                                         >
                                                             {techName}
@@ -340,7 +340,7 @@ const Projects = ({ limit }: ProjectsProps) => {
                             initial={{ scale: 0.9, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}
                             exit={{ scale: 0.9, opacity: 0 }}
-                            className="bg-white dark:bg-[#1e293b] w-full max-w-[400px] rounded-2xl p-6 shadow-2xl relative"
+                            className="glass-panel w-full max-w-[400px] rounded-2xl p-6 relative"
                             onClick={e => e.stopPropagation()}
                         >
                             <div className="flex justify-between items-center mb-6">
@@ -358,7 +358,7 @@ const Projects = ({ limit }: ProjectsProps) => {
                                     href="https://facebook.com/sharer/sharer.php?u=https://facebook.com/sarat.peetaro"
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="flex items-center gap-4 p-3 rounded-xl border border-gray-200 dark:border-white/10 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors group"
+                                    className="flex items-center gap-4 p-3 rounded-xl border border-white/10 hover:bg-white/5 transition-colors group"
                                 >
                                     <div className="w-10 h-10 rounded-full bg-[#1877F2]/10 flex items-center justify-center text-[#1877F2] group-hover:bg-[#1877F2] group-hover:text-white transition-colors">
                                         <FaFacebook className="text-xl" />
@@ -370,7 +370,7 @@ const Projects = ({ limit }: ProjectsProps) => {
                                     href="https://instagram.com"
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="flex items-center gap-4 p-3 rounded-xl border border-gray-200 dark:border-white/10 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors group"
+                                    className="flex items-center gap-4 p-3 rounded-xl border border-white/10 hover:bg-white/5 transition-colors group"
                                 >
                                     <div className="w-10 h-10 rounded-full bg-[#E4405F]/10 flex items-center justify-center text-[#E4405F] group-hover:bg-[#E4405F] group-hover:text-white transition-colors">
                                         <FaInstagram className="text-xl" />
@@ -382,7 +382,7 @@ const Projects = ({ limit }: ProjectsProps) => {
                                     href="https://line.me"
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="flex items-center gap-4 p-3 rounded-xl border border-gray-200 dark:border-white/10 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors group"
+                                    className="flex items-center gap-4 p-3 rounded-xl border border-white/10 hover:bg-white/5 transition-colors group"
                                 >
                                     <div className="w-10 h-10 rounded-full bg-[#00C300]/10 flex items-center justify-center text-[#00C300] group-hover:bg-[#00C300] group-hover:text-white transition-colors">
                                         <SiLine className="text-xl" />
@@ -393,7 +393,7 @@ const Projects = ({ limit }: ProjectsProps) => {
 
                             <div>
                                 <p className="text-sm font-medium text-text-secondary mb-2">Page link</p>
-                                <div className="flex items-center gap-2 bg-gray-100 dark:bg-white/5 p-2 rounded-xl border border-transparent focus-within:border-primary/50 transition-colors">
+                                <div className="flex items-center gap-2 bg-white/5 p-2 rounded-xl border border-transparent focus-within:border-primary/50 transition-colors">
                                     <div className="p-2 text-text-secondary">
                                         <FaLink />
                                     </div>
@@ -405,7 +405,7 @@ const Projects = ({ limit }: ProjectsProps) => {
                                     />
                                     <button
                                         onClick={handleCopyLink}
-                                        className="p-2 text-text-primary hover:text-primary rounded-lg hover:bg-white dark:hover:bg-white/10 transition-all flex items-center gap-2"
+                                        className="p-2 text-text-primary hover:text-primary rounded-lg hover:bg-white/10 transition-all flex items-center gap-2"
                                     >
                                         {copySuccess ? <span className="text-xs text-emerald-500 font-bold">Copied!</span> : <FaCopy />}
                                     </button>
