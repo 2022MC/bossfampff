@@ -117,7 +117,7 @@ const Projects = ({ limit }: ProjectsProps) => {
                             <div className="relative w-32 h-32 mx-auto lg:mx-0">
                                 <div className="w-full h-full rounded-full overflow-hidden border-4 border-white dark:border-[#1e293b] shadow-lg">
                                     <img
-                                        src="https://scontent.fbkk7-3.fna.fbcdn.net/v/t39.30808-6/591834656_2727646697568544_2737661402911912305_n.jpg?_nc_cat=107&ccb=1-7&_nc_sid=6ee11a&_nc_eui2=AeHl79uEHD0cvSpC5D6Ko5zbM5R0j879GBgzlHSPzv0YGIsFiZpPl5daxGSQ67fLWL--ixKLXJXmdJVxmnrXfoSt&_nc_ohc=T9CAbKOPVYYQ7kNvwGFk23H&_nc_oc=AdmlFcskAfutTfGBq50ABQjmAY6RKyElnc-E-Mk-BJanUscKvnYKHkv6_S07gSxjzqU&_nc_zt=23&_nc_ht=scontent.fbkk7-3.fna&_nc_gid=LS3wB3nuO6Ie9lBmZjdE6w&oh=00_AfoFHWP80VvQVS1CPMD03etcA6fIk2oz2vV5g8GfgzR1pg&oe=697CBBD3"
+                                        src="/Profile.jpg"
                                         alt="Profile"
                                         className="w-full h-full object-cover"
                                     />
@@ -202,7 +202,7 @@ const Projects = ({ limit }: ProjectsProps) => {
                                         {/* Featured Badge */}
                                         {project.featured && (
                                             <div className="absolute top-3 left-3 z-20 bg-yellow-500 text-black text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider shadow-lg flex items-center gap-1">
-                                                <FaStar className="text-[10px]" /> Featured
+                                                <FaStar className="text-[10px]" /> ผลงานเด่น
                                             </div>
                                         )}
 
@@ -266,7 +266,7 @@ const Projects = ({ limit }: ProjectsProps) => {
                                             className="p-5 flex flex-col flex-grow cursor-pointer"
                                             onClick={() => setSelectedProject(project)}
                                         >
-                                            <h3 className={`font-bold text-lg mb-2 line-clamp-1 transition-colors ${project.featured ? 'text-yellow-400' : 'text-text-primary group-hover:text-primary'} `}>
+                                            <h3 className={`font-bold text-lg mb-2 line-clamp-1 transition-colors text-text-primary group-hover:text-primary`}>
                                                 {project.title}
                                             </h3>
                                             <div className="text-text-secondary text-sm mb-4 line-clamp-2 leading-relaxed">

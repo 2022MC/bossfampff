@@ -166,7 +166,7 @@ const ProjectModal = ({ project, onClose }: ProjectModalProps) => {
                             <div className="border-b border-white/5 pb-6">
                                 <span className="font-outfit text-sm text-[#818cf8] uppercase tracking-[2px] font-semibold mb-2 block">{project.category || 'SERIES'}</span>
                                 <h2 className="font-outfit text-[2rem] md:text-[2.5rem] font-bold text-white leading-[1.1] mb-4">{project.title}</h2>
-                                {project.featured && <span className="inline-block bg-yellow-500/10 border border-yellow-500/50 text-yellow-500 text-[0.7rem] font-bold py-1.5 px-3 rounded-md uppercase tracking-wider">Featured Project</span>}
+                                {project.featured && <span className="inline-block bg-yellow-500/10 border border-yellow-500/50 text-yellow-500 text-[0.7rem] font-bold py-1.5 px-3 rounded-md uppercase tracking-wider">ผลงานเด่น</span>}
                             </div>
 
                             {/* Description Content */}

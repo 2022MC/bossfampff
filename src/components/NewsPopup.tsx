@@ -14,11 +14,6 @@ const NewsPopup = () => {
             type: 'image',
             src: '/Fix Color.png',
             id: 1
-        },
-        {
-            type: 'youtube',
-            url: 'https://www.youtube.com/watch?v=wbGSggqwy8A',
-            id: 2
         }
     ];
 
@@ -50,18 +45,6 @@ const NewsPopup = () => {
     const prevSlide = (e: React.MouseEvent) => {
         e.stopPropagation();
         setCurrentIndex((prev) => (prev - 1 + newsItems.length) % newsItems.length);
-    };
-
-    const getYouTubeEmbedUrl = (url: string) => {
-        let videoId = '';
-
-        if (url.includes('youtube.com/watch?v=')) {
-            videoId = url.split('v=')[1].split('&')[0];
-        } else if (url.includes('youtu.be/')) {
-            videoId = url.split('youtu.be/')[1].split('?')[0];
-        }
-
-        return `https://www.youtube.com/embed/${videoId}`;
     };
 
     return (
@@ -113,24 +96,11 @@ const NewsPopup = () => {
                             )}
 
                             <div className="w-full h-auto block overflow-hidden rounded-xl">
-                                {newsItems[currentIndex].type === 'image' ? (
-                                    <img
-                                        src={newsItems[currentIndex].src}
-                                        alt="ข่าวสาร"
-                                        className="w-full h-auto block object-contain"
-                                    />
-                                ) : (
-                                    <div className="relative pb-[56.25%] h-0 overflow-hidden bg-black">
-                                        <iframe
-                                            src={getYouTubeEmbedUrl(newsItems[currentIndex].url!)}
-                                            title="YouTube video player"
-                                            className="absolute top-0 left-0 w-full h-full"
-                                            frameBorder="0"
-                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                            allowFullScreen
-                                        ></iframe>
-                                    </div>
-                                )}
+                                <img
+                                    src={newsItems[currentIndex].src}
+                                    alt="ข่าวสาร"
+                                    className="w-full h-auto block object-contain"
+                                />
                             </div>
                         </div>
                     </motion.div>
