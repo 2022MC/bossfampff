@@ -21,6 +21,7 @@ interface CategoryData {
     type: 'Video' | 'Graphic' | 'All';
     order: number;
     visible: boolean;
+    parentId?: string;
 }
 
 export default function AdminPage() {
@@ -49,7 +50,7 @@ function AdminContent() {
     const [categories, setCategories] = useState<CategoryData[]>([]);
     const [showCategoryForm, setShowCategoryForm] = useState(false);
     const [editingCategoryId, setEditingCategoryId] = useState<string | null>(null);
-    const [categoryForm, setCategoryForm] = useState<CategoryData>({ name: '', slug: '', icon: '📁', color: '#06b6d4', type: 'All', order: 0, visible: true });
+    const [categoryForm, setCategoryForm] = useState<CategoryData>({ name: '', slug: '', icon: '📁', color: '#06b6d4', type: 'All', order: 0, visible: true, parentId: '' });
     const [showCategorySection, setShowCategorySection] = useState(false);
     const CATEGORY_ICONS = ['📁', '🎥', '🎨', '🤖', '📸', '🎬', '🎵', '💻', '📱', '🎮', '✏️', '🖼️', '📐', '🔧', '⭐'];
 
@@ -141,9 +142,12 @@ function AdminContent() {
     const generateSlug = (name: string) => name.toLowerCase().replace(/[^a-z0-9ก-๙]+/g, '-').replace(/^-|-$/g, '') || 'untitled';
 
     const resetCategoryForm = () => {
-        setCategoryForm({ name: '', slug: '', icon: '📁', color: '#06b6d4', type: 'All', order: categories.length, visible: true });
+        setCategoryForm({ name: '', slug: '', icon: '📁', color: '#06b6d4', type: 'All', order: categories.length, visible: true, parentId: '' });
         setEditingCategoryId(null); setShowCategoryForm(false);
     };
+
+    const parentCategories = categories.filter(c => !c.parentId);
+    const getChildren = (parentId: string) => categories.filter(c => c.parentId === parentId);
 
     const handleSaveCategory = async () => {
         if (!firebaseUser) { showNotification('กรุณายืนยันตัวตนก่อน', 'warning'); handleFirebaseLogin(); return; }
@@ -466,22 +470,41 @@ function AdminContent() {
                                 className="overflow-hidden"
                             >
                                 <div className="px-5 md:px-6 pb-6" style={{ borderTop: '1px solid var(--glass-border)' }}>
-                                    {/* Category List */}
+                                    {/* Category List - Hierarchical */}
                                     <div className="mt-5 flex flex-col gap-2 mb-5">
                                         {categories.length === 0 ? (
                                             <p className="text-sm text-center py-6" style={{ color: 'var(--text-tertiary)' }}>ยังไม่มีหมวดหมู่</p>
-                                        ) : categories.map(cat => (
-                                            <div key={cat.id} className="flex items-center gap-3 p-3 rounded-xl transition-all duration-200" style={{ background: 'var(--bg-secondary)', border: '1px solid var(--glass-border)' }}>
-                                                <span className="text-xl">{cat.icon}</span>
-                                                <div className="flex-1 min-w-0">
-                                                    <div className="font-semibold text-sm truncate" style={{ color: 'var(--text-primary)' }}>{cat.name}</div>
-                                                    <div className="text-[10px] font-mono" style={{ color: 'var(--text-tertiary)' }}>/{cat.slug} · {cat.type}</div>
+                                        ) : parentCategories.map(parent => (
+                                            <div key={parent.id}>
+                                                {/* Parent Category */}
+                                                <div className="flex items-center gap-3 p-3 rounded-xl transition-all duration-200" style={{ background: 'var(--bg-secondary)', border: '1px solid var(--glass-border)' }}>
+                                                    <span className="text-xl">{parent.icon}</span>
+                                                    <div className="flex-1 min-w-0">
+                                                        <div className="font-semibold text-sm truncate" style={{ color: 'var(--text-primary)' }}>{parent.name}</div>
+                                                        <div className="text-[10px] font-mono" style={{ color: 'var(--text-tertiary)' }}>/{parent.slug} · {parent.type} · {getChildren(parent.id!).length} ย่อย</div>
+                                                    </div>
+                                                    <button onClick={() => handleToggleCategoryVisibility(parent)} className="w-7 h-7 rounded-lg flex items-center justify-center cursor-pointer transition-all duration-200 border-none text-xs" style={{ background: parent.visible ? 'rgba(16,185,129,0.1)' : 'rgba(239,68,68,0.1)', color: parent.visible ? '#10b981' : '#ef4444' }}>
+                                                        {parent.visible ? <FaEye /> : <FaEyeSlash />}
+                                                    </button>
+                                                    <button onClick={() => handleEditCategory(parent)} className="w-7 h-7 rounded-lg flex items-center justify-center cursor-pointer transition-all duration-200 border-none text-xs" style={{ background: 'rgba(6,182,212,0.1)', color: '#06b6d4' }}><FaEdit /></button>
+                                                    <button onClick={() => handleDeleteCategory(parent.id!)} className="w-7 h-7 rounded-lg flex items-center justify-center cursor-pointer transition-all duration-200 border-none text-xs" style={{ background: 'rgba(239,68,68,0.1)', color: '#ef4444' }}><FaTrash /></button>
                                                 </div>
-                                                <button onClick={() => handleToggleCategoryVisibility(cat)} className="w-7 h-7 rounded-lg flex items-center justify-center cursor-pointer transition-all duration-200 border-none text-xs" style={{ background: cat.visible ? 'rgba(16,185,129,0.1)' : 'rgba(239,68,68,0.1)', color: cat.visible ? '#10b981' : '#ef4444' }}>
-                                                    {cat.visible ? <FaEye /> : <FaEyeSlash />}
-                                                </button>
-                                                <button onClick={() => handleEditCategory(cat)} className="w-7 h-7 rounded-lg flex items-center justify-center cursor-pointer transition-all duration-200 border-none text-xs" style={{ background: 'rgba(6,182,212,0.1)', color: '#06b6d4' }}><FaEdit /></button>
-                                                <button onClick={() => handleDeleteCategory(cat.id!)} className="w-7 h-7 rounded-lg flex items-center justify-center cursor-pointer transition-all duration-200 border-none text-xs" style={{ background: 'rgba(239,68,68,0.1)', color: '#ef4444' }}><FaTrash /></button>
+                                                {/* Sub-categories */}
+                                                {getChildren(parent.id!).map(child => (
+                                                    <div key={child.id} className="flex items-center gap-3 p-3 rounded-xl transition-all duration-200 ml-8 mt-1" style={{ background: 'rgba(6,182,212,0.03)', border: '1px solid var(--glass-border)' }}>
+                                                        <span className="text-xs" style={{ color: 'var(--text-tertiary)' }}>└</span>
+                                                        <span className="text-lg">{child.icon}</span>
+                                                        <div className="flex-1 min-w-0">
+                                                            <div className="font-medium text-sm truncate" style={{ color: 'var(--text-primary)' }}>{child.name}</div>
+                                                            <div className="text-[10px] font-mono" style={{ color: 'var(--text-tertiary)' }}>/{child.slug}</div>
+                                                        </div>
+                                                        <button onClick={() => handleToggleCategoryVisibility(child)} className="w-7 h-7 rounded-lg flex items-center justify-center cursor-pointer transition-all duration-200 border-none text-xs" style={{ background: child.visible ? 'rgba(16,185,129,0.1)' : 'rgba(239,68,68,0.1)', color: child.visible ? '#10b981' : '#ef4444' }}>
+                                                            {child.visible ? <FaEye /> : <FaEyeSlash />}
+                                                        </button>
+                                                        <button onClick={() => handleEditCategory(child)} className="w-7 h-7 rounded-lg flex items-center justify-center cursor-pointer transition-all duration-200 border-none text-xs" style={{ background: 'rgba(6,182,212,0.1)', color: '#06b6d4' }}><FaEdit /></button>
+                                                        <button onClick={() => handleDeleteCategory(child.id!)} className="w-7 h-7 rounded-lg flex items-center justify-center cursor-pointer transition-all duration-200 border-none text-xs" style={{ background: 'rgba(239,68,68,0.1)', color: '#ef4444' }}><FaTrash /></button>
+                                                    </div>
+                                                ))}
                                             </div>
                                         ))}
                                     </div>
@@ -505,6 +528,15 @@ function AdminContent() {
                                                         <option value="All">All</option>
                                                         <option value="Video">Video</option>
                                                         <option value="Graphic">Graphic</option>
+                                                    </select>
+                                                </div>
+                                                <div className="flex flex-col gap-1">
+                                                    <label className="text-[10px] uppercase tracking-[2px] font-bold" style={{ color: 'var(--text-tertiary)' }}>หมวดหมู่หลัก (Parent)</label>
+                                                    <select value={categoryForm.parentId || ''} onChange={(e) => setCategoryForm({ ...categoryForm, parentId: e.target.value || undefined })} className={inputStyle}>
+                                                        <option value="">-- ไม่มี (เป็นหมวดหมู่หลัก) --</option>
+                                                        {parentCategories.filter(c => c.id !== editingCategoryId).map(cat => (
+                                                            <option key={cat.id} value={cat.id}>{cat.icon} {cat.name}</option>
+                                                        ))}
                                                     </select>
                                                 </div>
                                                 <div className="flex flex-col gap-1">

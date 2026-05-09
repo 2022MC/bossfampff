@@ -17,6 +17,7 @@ interface CategoryData {
     type: 'Video' | 'Graphic' | 'All';
     order: number;
     visible: boolean;
+    parentId?: string;
 }
 
 const Navbar = () => {
@@ -100,13 +101,25 @@ const Navbar = () => {
         { name: 'Contact', href: '#contact' },
     ];
 
-    // Build dynamic projects items from categories
-    const projectsItems = categories.map(cat => ({
-        name: `${cat.icon} ${cat.name}`,
-        href: `/projects/${cat.slug}`,
-        isRoute: true,
-        color: cat.color,
-    }));
+    // Build hierarchical projects menu from categories
+    const parentCats = categories.filter(c => !c.parentId);
+    const getChildCats = (pid: string) => categories.filter(c => c.parentId === pid);
+
+    // Build flat list with headers for desktop dropdown
+    const projectsItems: { name: string; href: string; color: string; isHeader?: boolean }[] = [];
+    parentCats.forEach(parent => {
+        const children = getChildCats(parent.id!);
+        if (children.length > 0) {
+            // Parent as header, children as links
+            projectsItems.push({ name: `${parent.icon} ${parent.name}`, href: '', color: parent.color, isHeader: true });
+            children.forEach(child => {
+                projectsItems.push({ name: `${child.icon} ${child.name}`, href: `/projects/${child.slug}`, color: child.color || parent.color });
+            });
+        } else {
+            // Standalone category (no children) - link directly
+            projectsItems.push({ name: `${parent.icon} ${parent.name}`, href: `/projects/${parent.slug}`, color: parent.color });
+        }
+    });
 
     const handleLinkClick = (e: React.MouseEvent, href: string) => {
         closeMenu();
@@ -201,18 +214,21 @@ const Navbar = () => {
                                 boxShadow: '0 20px 40px rgba(0, 0, 0, 0.4), 0 0 20px rgba(6, 182, 212, 0.05)'
                             }}>
                                 {projectsItems.map((item, index) => (
-                                    <li key={index}>
-                                        <Link
-                                            href={item.href}
-                                            onClick={closeMenu}
-                                            className="block w-full text-left px-4 py-2.5 rounded-lg text-sm transition-all duration-200 hover:bg-primary/10"
-                                            style={{color: 'var(--text-secondary)'}}
-                                            onMouseEnter={(e) => { e.currentTarget.style.color = item.color || '#06b6d4'; }}
-                                            onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--text-secondary)'; }}
-                                        >
-                                            {item.name}
-                                        </Link>
-                                    </li>
+                                    item.isHeader ? (
+                                        <li key={index} className="px-4 pt-3 pb-1">
+                                            <span className="text-[10px] uppercase tracking-[2px] font-bold" style={{ color: item.color || 'var(--text-tertiary)' }}>{item.name}</span>
+                                        </li>
+                                    ) : (
+                                        <li key={index}>
+                                            <Link href={item.href} onClick={closeMenu}
+                                                className="block w-full text-left px-4 py-2.5 rounded-lg text-sm transition-all duration-200 hover:bg-primary/10"
+                                                style={{color: 'var(--text-secondary)'}}
+                                                onMouseEnter={(e) => { e.currentTarget.style.color = item.color || '#06b6d4'; }}
+                                                onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--text-secondary)'; }}>
+                                                {item.name}
+                                            </Link>
+                                        </li>
+                                    )
                                 ))}
                             </ul>
                         </li>
@@ -302,11 +318,19 @@ const Navbar = () => {
                         <div style={{ width: '64px', height: '1px', margin: '8px 0', background: 'var(--glass-border)' }}></div>
 
                         {projectsItems.map((item, index) => (
-                            <Link
-                                key={index}
-                                href={item.href}
-                                onClick={closeMenu}
-                                style={{
+                            item.isHeader ? (
+                                <div key={index} style={{
+                                    color: item.color || 'var(--text-tertiary)',
+                                    fontSize: '13px',
+                                    fontWeight: 700,
+                                    padding: '12px 24px 4px',
+                                    textTransform: 'uppercase' as const,
+                                    letterSpacing: '2px',
+                                }}>
+                                    {item.name}
+                                </div>
+                            ) : (
+                                <Link key={index} href={item.href} onClick={closeMenu} style={{
                                     color: 'var(--text-tertiary)',
                                     fontSize: '18px',
                                     fontWeight: 500,
@@ -314,10 +338,10 @@ const Navbar = () => {
                                     borderRadius: '12px',
                                     transition: 'all 0.3s',
                                     textDecoration: 'none',
-                                }}
-                            >
-                                {item.name}
-                            </Link>
+                                }}>
+                                    {item.name}
+                                </Link>
+                            )
                         ))}
                     </>
                 )}
