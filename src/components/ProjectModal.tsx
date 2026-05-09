@@ -2,7 +2,7 @@
 
 import React, { useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { FaTimes, FaGithub, FaExternalLinkAlt, FaCalendar, FaUser, FaTools, FaPlay } from 'react-icons/fa';
+import { FaTimes, FaExternalLinkAlt, FaCalendar, FaUser, FaTools, FaPlay } from 'react-icons/fa';
 
 export interface ProjectData {
     id?: string;
@@ -19,6 +19,7 @@ export interface ProjectData {
     year?: string | number;
     tech?: (string | { name: string; color?: string })[];
     demo?: string;
+    group?: string;
     order?: number;
     createdAt?: number;
     [key: string]: any;
@@ -32,12 +33,11 @@ interface ProjectModalProps {
 const ProjectModal = ({ project, onClose }: ProjectModalProps) => {
     const [isPlaying, setIsPlaying] = React.useState(false);
 
-    // Prevent scrolling when modal is open
     useEffect(() => {
         document.body.style.overflow = 'hidden';
         return () => {
             document.body.style.overflow = 'unset';
-            setIsPlaying(false); // Reset on close/unmount
+            setIsPlaying(false);
         };
     }, []);
 
@@ -59,13 +59,11 @@ const ProjectModal = ({ project, onClose }: ProjectModalProps) => {
         exit: { y: 50, opacity: 0, scale: 0.95 }
     };
 
-    // Helper to get embed URL
     const getEmbedUrl = (url?: string) => {
         if (!url) return null;
         const youtubeRegex = /(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)/;
         const youtubeMatch = url.match(youtubeRegex);
         if (youtubeMatch) return `https://www.youtube.com/embed/${youtubeMatch[1]}?autoplay=1`;
-
         if (url.includes('facebook.com')) {
             const encodedUrl = encodeURIComponent(url);
             return `https://www.facebook.com/plugins/video.php?href=${encodedUrl}&show_text=false&width=560&autoplay=1`;
@@ -85,7 +83,8 @@ const ProjectModal = ({ project, onClose }: ProjectModalProps) => {
 
     return (
         <motion.div
-            className="fixed inset-0 bg-black/80 backdrop-blur-md z-[10000] flex justify-center items-center p-4 md:p-6"
+            className="fixed inset-0 z-[10000] flex justify-center items-center p-4 md:p-6"
+            style={{background: 'rgba(2, 10, 24, 0.85)', backdropFilter: 'blur(12px)'}}
             variants={backdropVariants}
             initial="hidden"
             animate="visible"
@@ -93,7 +92,12 @@ const ProjectModal = ({ project, onClose }: ProjectModalProps) => {
             onClick={onClose}
         >
             <motion.div
-                className="bg-[#0B1120] text-text-primary w-full max-w-[1280px] h-[90vh] md:h-auto md:max-h-[90vh] rounded-[24px] shadow-2xl flex flex-col relative border border-white/10 overflow-hidden"
+                className="w-full max-w-[1280px] h-[90vh] md:h-auto md:max-h-[90vh] rounded-3xl shadow-2xl flex flex-col relative overflow-hidden"
+                style={{
+                    backgroundColor: 'var(--bg-tertiary)',
+                    color: 'var(--text-primary)',
+                    border: '1px solid var(--glass-border)'
+                }}
                 variants={modalVariants}
                 initial="hidden"
                 animate="visible"
@@ -102,22 +106,29 @@ const ProjectModal = ({ project, onClose }: ProjectModalProps) => {
             >
                 {/* Close Button */}
                 <button
-                    className="absolute top-4 right-4 z-50 bg-black/40 border border-white/10 backdrop-blur-md text-white w-10 h-10 rounded-full flex items-center justify-center cursor-pointer transition-all duration-200 hover:bg-white/10 hover:rotate-90"
+                    className="absolute top-4 right-4 z-50 w-10 h-10 rounded-xl flex items-center justify-center cursor-pointer transition-all duration-200 text-white border-none"
+                    style={{background: 'rgba(0,0,0,0.3)', backdropFilter: 'blur(8px)'}}
                     onClick={onClose}
+                    onMouseEnter={(e) => {
+                        e.currentTarget.style.background = 'rgba(6, 182, 212, 0.3)';
+                        e.currentTarget.style.transform = 'rotate(90deg)';
+                    }}
+                    onMouseLeave={(e) => {
+                        e.currentTarget.style.background = 'rgba(0,0,0,0.3)';
+                        e.currentTarget.style.transform = 'rotate(0deg)';
+                    }}
                 >
                     <FaTimes />
                 </button>
 
-                {/* Scrollable Content Area */}
-                <div className="flex-1 overflow-y-auto w-full custom-scrollbar">
-                    <div className="grid grid-cols-1 lg:grid-cols-[1fr_350px] gap-8 p-6 md:p-10">
-                        {/* LEFT COLUMN: Video & Main Content */}
+                {/* Scrollable Content */}
+                <div className="flex-1 overflow-y-auto w-full">
+                    <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-8 p-6 md:p-10">
+                        {/* LEFT: Video & Content */}
                         <div className="flex flex-col gap-6">
-                            {/* Video / Image Player */}
-                            <div className="w-full bg-black rounded-xl overflow-hidden shadow-2xl border border-white/5 relative group" style={{ aspectRatio: '16/9' }}>
+                            {/* Video player */}
+                            <div className="w-full rounded-2xl overflow-hidden shadow-2xl relative" style={{ aspectRatio: '16/9', border: '1px solid var(--glass-border)' }}>
                                 {project.type === 'Video' && embedUrl ? (
-                                    // Special handle for Facebook: Render iframe directly to avoid black screen / missing thumbnail issues
-                                    // For YouTube/Others: Use the clean Click-to-Play overlay
                                     (project.videoUrl?.includes('facebook.com') || isPlaying) ? (
                                         <iframe
                                             src={embedUrl}
@@ -135,7 +146,7 @@ const ProjectModal = ({ project, onClose }: ProjectModalProps) => {
                                             <img
                                                 src={thumbnail || 'https://via.placeholder.com/800x450?text=No+Preview'}
                                                 alt={project.title}
-                                                className="w-full h-full object-cover opacity-90 transition-opacity duration-300 group-hover:opacity-100"
+                                                className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity duration-300"
                                                 onError={(e) => {
                                                     const target = e.target as HTMLImageElement;
                                                     target.onerror = null;
@@ -148,10 +159,9 @@ const ProjectModal = ({ project, onClose }: ProjectModalProps) => {
                                                 }}
                                             />
                                             <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors duration-300"></div>
-
-                                            {/* Custom Play Button Overlay */}
                                             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                                                <div className="w-20 h-20 rounded-full bg-white/20 backdrop-blur-md border border-white/40 flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-hover:bg-white/30 shadow-2xl">
+                                                <div className="w-20 h-20 rounded-full backdrop-blur-md flex items-center justify-center transition-all duration-300 group-hover:scale-110 shadow-2xl"
+                                                     style={{background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.3)'}}>
                                                     <FaPlay className="text-white text-3xl ml-1 drop-shadow-lg" />
                                                 </div>
                                             </div>
@@ -162,32 +172,39 @@ const ProjectModal = ({ project, onClose }: ProjectModalProps) => {
                                 )}
                             </div>
 
-                            {/* Title & Header */}
-                            <div className="border-b border-white/5 pb-6">
-                                <span className="font-outfit text-sm text-[#818cf8] uppercase tracking-[2px] font-semibold mb-2 block">{project.category || 'SERIES'}</span>
-                                <h2 className="font-outfit text-[2rem] md:text-[2.5rem] font-bold text-white leading-[1.1] mb-4">{project.title}</h2>
-                                {project.featured && <span className="inline-block bg-yellow-500/10 border border-yellow-500/50 text-yellow-500 text-[0.7rem] font-bold py-1.5 px-3 rounded-md uppercase tracking-wider">ผลงานเด่น</span>}
+                            {/* Title */}
+                            <div className="pb-6" style={{borderBottom: '1px solid var(--glass-border)'}}>
+                                <span className="text-xs uppercase tracking-[2px] font-semibold mb-2 block" style={{color: '#06b6d4'}}>{project.category || 'SERIES'}</span>
+                                <h2 className="font-space text-2xl md:text-3xl font-bold leading-[1.15] mb-3" style={{color: 'var(--text-primary)'}}>{project.title}</h2>
+                                {project.featured && (
+                                    <span className="inline-block text-[11px] font-bold py-1 px-3 rounded-md uppercase tracking-wider"
+                                          style={{background: 'rgba(245, 158, 11, 0.1)', border: '1px solid rgba(245, 158, 11, 0.3)', color: '#f59e0b'}}>
+                                        ผลงานเด่น
+                                    </span>
+                                )}
                             </div>
 
-                            {/* Description Content */}
-                            <div className="text-base text-gray-400 leading-relaxed space-y-6">
+                            {/* Description */}
+                            <div className="space-y-6">
                                 <section>
-                                    <h3 className="font-outfit text-xl text-white mb-3 font-semibold">About the Project</h3>
-                                    <p>{project.description || "Video editor and colorist for this project, checking the visual tone and pacing."}</p>
+                                    <h3 className="text-lg font-semibold mb-3" style={{color: 'var(--text-primary)'}}>About the Project</h3>
+                                    <p className="text-sm leading-relaxed" style={{color: 'var(--text-secondary)'}}>
+                                        {project.description || "Video editor and colorist for this project, checking the visual tone and pacing."}
+                                    </p>
                                 </section>
 
                                 {(project.challenge || project.solution) && (
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                         {project.challenge && (
                                             <section>
-                                                <h3 className="font-outfit text-lg text-white mb-2 font-semibold">The Challenge</h3>
-                                                <p className="text-sm">{project.challenge}</p>
+                                                <h3 className="text-base font-semibold mb-2" style={{color: 'var(--text-primary)'}}>The Challenge</h3>
+                                                <p className="text-sm leading-relaxed" style={{color: 'var(--text-secondary)'}}>{project.challenge}</p>
                                             </section>
                                         )}
                                         {project.solution && (
                                             <section>
-                                                <h3 className="font-outfit text-lg text-white mb-2 font-semibold">The Solution</h3>
-                                                <p className="text-sm">{project.solution}</p>
+                                                <h3 className="text-base font-semibold mb-2" style={{color: 'var(--text-primary)'}}>The Solution</h3>
+                                                <p className="text-sm leading-relaxed" style={{color: 'var(--text-secondary)'}}>{project.solution}</p>
                                             </section>
                                         )}
                                     </div>
@@ -195,76 +212,84 @@ const ProjectModal = ({ project, onClose }: ProjectModalProps) => {
                             </div>
                         </div>
 
-                        {/* RIGHT COLUMN: Sidebar (Actions, Meta, Tags) */}
-                        <div className="flex flex-col gap-5 h-fit lg:sticky lg:top-0">
-                            {/* Action Buttons */}
+                        {/* RIGHT: Sidebar */}
+                        <div className="flex flex-col gap-4 h-fit lg:sticky lg:top-0">
+                            {/* Actions */}
                             <div className="flex flex-col gap-3">
                                 {project.videoUrl && project.type === 'Video' && (
-                                    <a href={project.videoUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 py-3.5 px-6 rounded-xl font-bold text-base transition-all duration-200 bg-[#5865F2] text-white hover:bg-[#4752c4] hover:shadow-lg no-underline shadow-[0_4px_14px_0_rgba(88,101,242,0.39)]">
-                                        <FaExternalLinkAlt className="text-sm" /> Watch on Platform
+                                    <a href={project.videoUrl} target="_blank" rel="noopener noreferrer"
+                                       className="flex items-center justify-center gap-2 py-3.5 px-6 rounded-2xl font-bold text-sm transition-all duration-200 text-white no-underline hover:-translate-y-0.5"
+                                       style={{background: 'linear-gradient(135deg, #06b6d4, #3b82f6)', boxShadow: '0 4px 14px rgba(6, 182, 212, 0.3)'}}>
+                                        <FaExternalLinkAlt className="text-xs" /> Watch on Platform
                                     </a>
                                 )}
                                 {project.demo && project.type !== 'Video' && (
-                                    <a href={project.demo} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 py-3.5 px-6 rounded-xl font-bold text-base transition-all duration-200 bg-[#5865F2] text-white hover:bg-[#4752c4] hover:shadow-lg no-underline shadow-[0_4px_14px_0_rgba(88,101,242,0.39)]">
-                                        <FaExternalLinkAlt className="text-sm" /> Live Demo
+                                    <a href={project.demo} target="_blank" rel="noopener noreferrer"
+                                       className="flex items-center justify-center gap-2 py-3.5 px-6 rounded-2xl font-bold text-sm transition-all duration-200 text-white no-underline hover:-translate-y-0.5"
+                                       style={{background: 'linear-gradient(135deg, #06b6d4, #3b82f6)', boxShadow: '0 4px 14px rgba(6, 182, 212, 0.3)'}}>
+                                        <FaExternalLinkAlt className="text-xs" /> Live Demo
                                     </a>
                                 )}
                             </div>
 
-                            {/* Client & Year Card */}
-                            <div className="bg-[#111827]/50 rounded-2xl border border-white/5 p-5 backdrop-blur-sm">
+                            {/* Client & Year */}
+                            <div className="rounded-2xl p-5 backdrop-blur-sm" style={{background: 'rgba(6, 182, 212, 0.04)', border: '1px solid var(--glass-border)'}}>
                                 <div className="space-y-4">
                                     <div className="flex items-start gap-4">
-                                        <div className="p-2.5 rounded-lg bg-[#5865F2]/20 text-[#5865F2]">
-                                            <FaUser className="text-lg" />
+                                        <div className="p-2.5 rounded-xl" style={{background: 'rgba(6, 182, 212, 0.1)', color: '#06b6d4'}}>
+                                            <FaUser className="text-base" />
                                         </div>
                                         <div>
-                                            <span className="block text-[10px] text-gray-500 uppercase tracking-wider font-bold mb-0.5">CLIENT</span>
-                                            <span className="block text-base text-white font-medium">{project.client || "Personal Project"}</span>
+                                            <span className="block text-[10px] uppercase tracking-wider font-bold mb-0.5" style={{color: 'var(--text-tertiary)'}}>CLIENT</span>
+                                            <span className="block text-sm font-medium" style={{color: 'var(--text-primary)'}}>{project.client || "Personal Project"}</span>
                                         </div>
                                     </div>
-                                    <div className="h-px bg-white/5 w-full" />
+                                    <div className="h-px w-full" style={{background: 'var(--glass-border)'}} />
                                     <div className="flex items-start gap-4">
-                                        <div className="p-2.5 rounded-lg bg-[#5865F2]/20 text-[#5865F2]">
-                                            <FaCalendar className="text-lg" />
+                                        <div className="p-2.5 rounded-xl" style={{background: 'rgba(6, 182, 212, 0.1)', color: '#06b6d4'}}>
+                                            <FaCalendar className="text-base" />
                                         </div>
                                         <div>
-                                            <span className="block text-[10px] text-gray-500 uppercase tracking-wider font-bold mb-0.5">YEAR</span>
-                                            <span className="block text-base text-white font-medium">{project.year || new Date().getFullYear()}</span>
+                                            <span className="block text-[10px] uppercase tracking-wider font-bold mb-0.5" style={{color: 'var(--text-tertiary)'}}>YEAR</span>
+                                            <span className="block text-sm font-medium" style={{color: 'var(--text-primary)'}}>{project.year || new Date().getFullYear()}</span>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
-                            {/* Role / Position Tags */}
-                            <div className="bg-[#111827]/50 rounded-2xl border border-white/5 p-5 backdrop-blur-sm">
-                                <h3 className="font-outfit text-sm text-[#A78BFA] mb-3 font-bold flex items-center gap-2">
-                                    <FaTools className="text-xs" /> ตำแหน่งที่ทำ
+                            {/* Tech Tags */}
+                            <div className="rounded-2xl p-5 backdrop-blur-sm" style={{background: 'rgba(6, 182, 212, 0.04)', border: '1px solid var(--glass-border)'}}>
+                                <h3 className="text-xs font-bold flex items-center gap-2 mb-3" style={{color: '#06b6d4'}}>
+                                    <FaTools className="text-[10px]" /> ตำแหน่งที่ทำ
                                 </h3>
                                 <div className="flex flex-wrap gap-2">
                                     {project.tech && project.tech.map((t, i) => {
                                         const techName = typeof t === 'string' ? t : t.name;
                                         return (
-                                            <span key={i} className="bg-[#1F2937] text-gray-300 py-1.5 px-3 rounded-lg text-xs border border-white/5 font-medium">
+                                            <span key={i} className="py-1.5 px-3 rounded-lg text-xs font-medium"
+                                                  style={{background: 'rgba(6, 182, 212, 0.08)', color: 'var(--text-secondary)', border: '1px solid var(--glass-border)'}}>
                                                 {techName}
                                             </span>
                                         );
                                     })}
                                     {(!project.tech || project.tech.length === 0) && (
-                                        <span className="bg-[#1F2937] text-gray-300 py-1.5 px-3 rounded-lg text-xs border border-white/5 font-medium">Editor</span>
+                                        <span className="py-1.5 px-3 rounded-lg text-xs font-medium"
+                                              style={{background: 'rgba(6, 182, 212, 0.08)', color: 'var(--text-secondary)', border: '1px solid var(--glass-border)'}}>
+                                            Editor
+                                        </span>
                                     )}
                                 </div>
                             </div>
 
                             {/* Copyright */}
-                            <div className="bg-[#111827]/30 rounded-2xl border border-white/5 p-5 backdrop-blur-sm mt-auto">
-                                <h3 className="font-outfit text-xs text-gray-500 mb-2 font-bold uppercase tracking-wider">
+                            <div className="rounded-2xl p-5 backdrop-blur-sm mt-auto" style={{background: 'rgba(6, 182, 212, 0.02)', border: '1px solid var(--glass-border)'}}>
+                                <h3 className="text-[10px] font-bold uppercase tracking-wider mb-2" style={{color: 'var(--text-tertiary)'}}>
                                     หมายเหตุ / ลิขสิทธิ์
                                 </h3>
-                                <p className="text-[10px] text-gray-600 leading-relaxed font-medium">
+                                <p className="text-[10px] leading-relaxed font-medium" style={{color: 'var(--text-tertiary)'}}>
                                     © {new Date().getFullYear()} BossFam. All rights reserved.
                                     <br />
-                                    ผลงานนี้จัดทำขึ้นเพื่อการศึกษาหรือแฟ้มสะสมผลงานเท่านั้น ห้ามนำไปใช้ในเชิงพาณิชย์โดยไม่ได้รับอนุญาต
+                                    ผลงานนี้จัดทำขึ้นเพื่อการศึกษาหรือแฟ้มสะสมผลงานเท่านั้น
                                 </p>
                             </div>
                         </div>

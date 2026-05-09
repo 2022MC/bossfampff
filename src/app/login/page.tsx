@@ -12,34 +12,63 @@ export default function LoginPage() {
 
     useEffect(() => {
         const pass = searchParams.get('pass');
-
-        // Secret Key Logic: Check if pass === 'bossfampf'
-        // If not, redirect to Home immediately.
         if (pass !== 'bossfampf') {
             router.push('/');
         }
     }, [searchParams, router]);
 
     return (
-        <div className="min-h-screen flex flex-col theme-bg-primary relative overflow-hidden transition-colors duration-300">
-            {/* Background Orbs */}
-            <div className="absolute -top-[10%] -left-[10%] w-[50vw] h-[50vw] bg-[radial-gradient(circle,rgba(99,102,241,0.2)_0%,transparent_60%)] blur-[80px] z-[1] animate-float-orb"></div>
-            <div className="absolute -bottom-[10%] -right-[10%] w-[50vw] h-[50vw] bg-[radial-gradient(circle,rgba(168,85,247,0.2)_0%,transparent_60%)] blur-[80px] z-[1] animate-float-orb [animation-direction:reverse]"></div>
+        <div className="min-h-screen flex flex-col relative overflow-hidden transition-colors duration-300"
+             style={{backgroundColor: 'var(--bg-primary)'}}>
+            {/* Background Mesh */}
+            <div className="absolute -top-[10%] -left-[10%] w-[50vw] h-[50vw] blur-[80px] z-[1] animate-mesh-float"
+                 style={{background: 'radial-gradient(circle, rgba(6, 182, 212, 0.15) 0%, transparent 60%)'}}></div>
+            <div className="absolute -bottom-[10%] -right-[10%] w-[50vw] h-[50vw] blur-[80px] z-[1] animate-mesh-float [animation-direction:reverse]"
+                 style={{background: 'radial-gradient(circle, rgba(20, 184, 166, 0.15) 0%, transparent 60%)'}}></div>
+            
+            {/* Grid Pattern */}
+            <div className="absolute inset-0 opacity-[0.02] z-[1]"
+                 style={{
+                     backgroundImage: 'linear-gradient(rgba(6, 182, 212, 0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(6, 182, 212, 0.5) 1px, transparent 1px)',
+                     backgroundSize: '60px 60px'
+                 }}></div>
 
             <div className="flex-1 flex items-center justify-center p-8 mt-20 relative z-[2]">
-                <div className="glass-panel backdrop-blur-[20px] p-14 rounded-[24px] w-full max-w-[440px] shadow-[0_25px_50px_-12px_rgba(0,0,0,0.25)] dark:shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)] flex flex-col items-center transition-all duration-300 hover:-translate-y-1 hover:border-primary/30">
-                    <h2 className="text-center mb-6 font-space text-[2.5rem] font-bold bg-gradient-text text-transparent bg-clip-text">
+                <div className="bento-card !p-12 w-full max-w-[440px] flex flex-col items-center relative overflow-hidden">
+                    {/* Gradient accent at top */}
+                    <div className="absolute top-0 left-0 right-0 h-px"
+                         style={{background: 'linear-gradient(90deg, transparent, rgba(6, 182, 212, 0.5), transparent)'}}></div>
+
+                    <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-6"
+                         style={{background: 'linear-gradient(135deg, rgba(6, 182, 212, 0.15), rgba(20, 184, 166, 0.15))', border: '1px solid rgba(6, 182, 212, 0.2)'}}>
+                        <span className="text-2xl">🔐</span>
+                    </div>
+
+                    <h2 className="text-center mb-4 font-space text-3xl font-bold bg-clip-text text-transparent"
+                        style={{backgroundImage: 'linear-gradient(135deg, #22d3ee, #2dd4bf)'}}>
                         Admin Access
                     </h2>
-                    <p className="text-center theme-text-secondary mb-10 leading-[1.6] text-[1.05rem]">
+                    <p className="text-center mb-10 leading-[1.6] text-sm" style={{color: 'var(--text-secondary)'}}>
                         Please login with Discord to continue.<br />You must have the required role to access.
                     </p>
 
                     <button
                         onClick={loginWithDiscord}
-                        className="w-full p-4 bg-[#5865F2] text-white border-none rounded-xl text-[1.1rem] font-semibold cursor-pointer flex items-center justify-center gap-3 transition-all duration-300 shadow-[0_4px_15px_rgba(88,101,242,0.4)] hover:bg-[#4752c4] hover:-translate-y-0.5 hover:shadow-[0_8px_25px_rgba(88,101,242,0.5)] active:translate-y-0"
+                        className="w-full py-4 border-none rounded-2xl text-base font-semibold cursor-pointer flex items-center justify-center gap-3 transition-all duration-300 text-white hover:-translate-y-0.5"
+                        style={{
+                            background: '#5865F2',
+                            boxShadow: '0 4px 15px rgba(88, 101, 242, 0.3)'
+                        }}
+                        onMouseEnter={(e) => {
+                            e.currentTarget.style.background = '#4752c4';
+                            e.currentTarget.style.boxShadow = '0 8px 25px rgba(88, 101, 242, 0.4)';
+                        }}
+                        onMouseLeave={(e) => {
+                            e.currentTarget.style.background = '#5865F2';
+                            e.currentTarget.style.boxShadow = '0 4px 15px rgba(88, 101, 242, 0.3)';
+                        }}
                     >
-                        <FaDiscord className="text-[1.5rem]" /> Login with Discord
+                        <FaDiscord className="text-xl" /> Login with Discord
                     </button>
                 </div>
             </div>

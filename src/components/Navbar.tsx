@@ -1,14 +1,29 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { FaBars, FaTimes, FaChevronDown } from 'react-icons/fa';
+import { db } from '@/lib/firebase';
+import { collection, query, getDocs } from 'firebase/firestore';
+
+interface CategoryData {
+    id?: string;
+    name: string;
+    slug: string;
+    icon: string;
+    color: string;
+    type: 'Video' | 'Graphic' | 'All';
+    order: number;
+    visible: boolean;
+}
 
 const Navbar = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isProjectsOpen, setIsProjectsOpen] = useState(false);
     const [scrollY, setScrollY] = useState(0);
+    const [categories, setCategories] = useState<CategoryData[]>([]);
     const dropdownRef = useRef<HTMLLIElement>(null);
     const pathname = usePathname();
     const router = useRouter();
@@ -17,12 +32,25 @@ const Navbar = () => {
         const handleScroll = () => {
             setScrollY(window.scrollY);
         };
-
-        // Initial set
         setScrollY(window.scrollY);
-
         window.addEventListener('scroll', handleScroll);
         return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
+
+    // Load categories from Firestore
+    useEffect(() => {
+        const loadCategories = async () => {
+            try {
+                const q = query(collection(db, "categories"));
+                const snap = await getDocs(q);
+                const cats = snap.docs.map(d => ({ id: d.id, ...d.data() })) as CategoryData[];
+                cats.sort((a, b) => (a.order ?? 999) - (b.order ?? 999));
+                setCategories(cats.filter(c => c.visible));
+            } catch (error) {
+                console.error("Error loading categories:", error);
+            }
+        };
+        loadCategories();
     }, []);
 
     const toggleMenu = () => {
@@ -39,22 +67,31 @@ const Navbar = () => {
         setIsProjectsOpen(!isProjectsOpen);
     };
 
-    // Close dropdown when clicking outside
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
                 setIsProjectsOpen(false);
             }
         };
-
         if (isProjectsOpen) {
             document.addEventListener('mousedown', handleClickOutside);
         }
-
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
         };
     }, [isProjectsOpen]);
+
+    // Lock body scroll when mobile menu is open
+    useEffect(() => {
+        if (isMenuOpen) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = '';
+        }
+        return () => {
+            document.body.style.overflow = '';
+        };
+    }, [isMenuOpen]);
 
     const navItems = [
         { name: 'Home', href: '#home' },
@@ -63,143 +100,231 @@ const Navbar = () => {
         { name: 'Contact', href: '#contact' },
     ];
 
-    const projectsItems = [
-        { name: 'Video Projects', href: '/projects', isRoute: true },
-        { name: 'Graphic & AI', href: '/graphic-ai', isRoute: true },
-    ];
+    // Build dynamic projects items from categories
+    const projectsItems = categories.map(cat => ({
+        name: `${cat.icon} ${cat.name}`,
+        href: `/projects/${cat.slug}`,
+        isRoute: true,
+        color: cat.color,
+    }));
 
     const handleLinkClick = (e: React.MouseEvent, href: string) => {
         closeMenu();
-
         if (href.startsWith('#')) {
             e.preventDefault();
             const targetId = href.replace('#', '');
-
             if (pathname === '/') {
-                // If on home page, scroll to element
                 const element = document.getElementById(targetId);
                 if (element) {
                     element.scrollIntoView({ behavior: 'smooth' });
-                    // Optional: Update URL hash without reload
                     window.history.pushState(null, '', href);
                 } else {
-                    // Fallback if element not found (e.g. top of page)
                     if (targetId === 'home') window.scrollTo({ top: 0, behavior: 'smooth' });
                 }
             } else {
-                // If on other page, navigate to home with hash
                 router.push(`/${href}`);
             }
         }
     };
 
+    const isScrolled = scrollY > 50;
+
     return (
-        <nav className={`fixed top-0 left-0 w-full z-[1000] transition-all duration-400 ease-in-out ${scrollY > 50 ? 'py-2' : 'py-5'}`}>
+        <>
+        <nav className={`fixed top-0 left-0 w-full z-[1000] transition-all duration-500 ease-out ${isScrolled ? 'py-2' : 'py-4'}`}>
             <div
                 className={`
-          flex justify-between items-center px-6 h-[70px] rounded-full transition-all duration-400 ease-out
-          ${scrollY > 50
-                        ? 'mx-5 w-[calc(100%-40px)] lg:w-full lg:max-w-[1240px] lg:mx-auto glass-panel'
-                        : 'max-w-[1240px] mx-auto bg-transparent border border-transparent'}
-        `}
+                    flex justify-between items-center px-6 h-[64px] rounded-2xl transition-all duration-500 ease-out
+                    ${isScrolled
+                        ? 'mx-4 w-[calc(100%-32px)] lg:w-full lg:max-w-[1200px] lg:mx-auto backdrop-blur-2xl border shadow-lg'
+                        : 'max-w-[1200px] mx-auto bg-transparent border border-transparent'}
+                `}
+                style={isScrolled ? {
+                    background: 'rgba(2, 10, 24, 0.75)',
+                    borderColor: 'rgba(6, 182, 212, 0.1)',
+                    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3), inset 0 0 0 1px rgba(6, 182, 212, 0.05)'
+                } : {}}
             >
                 {/* Logo */}
                 <div className="flex items-center">
-                    <Link href="/" className="font-space text-2xl font-bold theme-text-primary flex items-center gap-2 transition-colors duration-300">
-                        <span className="w-2.5 h-2.5 bg-primary rounded-full shadow-[0_0_10px_rgba(99,102,241,0.5)] block"></span>
-                        Portfolio
+                    <Link href="/" className="font-space text-xl font-bold flex items-center gap-2.5 transition-all duration-300 group" style={{color: 'var(--text-primary)'}}>
+                        <span className="relative w-8 h-8 rounded-lg flex items-center justify-center overflow-hidden"
+                              style={{background: 'linear-gradient(135deg, #06b6d4, #14b8a6)'}}>
+                            <span className="text-white text-sm font-black">B</span>
+                            <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        </span>
+                        <span className="hidden sm:inline">Portfolio</span>
                     </Link>
                 </div>
 
                 {/* Desktop Menu */}
-                <ul className="hidden md:flex items-center gap-6 list-none">
+                <ul className="hidden md:flex items-center gap-1 list-none">
                     {navItems.map((item, index) => (
                         <li key={index}>
                             <a
                                 href={item.href}
                                 onClick={(e) => handleLinkClick(e, item.href)}
-                                className="theme-text-secondary font-medium text-[15px] hover:text-primary dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 px-4 py-2 rounded-full transition-all cursor-pointer"
+                                className="relative font-medium text-sm px-4 py-2 rounded-xl transition-all duration-300 cursor-pointer hover:bg-white/5"
+                                style={{color: 'var(--text-secondary)'}}
+                                onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--text-primary)')}
+                                onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--text-secondary)')}
                             >
                                 {item.name}
                             </a>
                         </li>
                     ))}
 
-                    <li className="relative group" ref={dropdownRef}>
-                        <button
-                            onClick={toggleProjects}
-                            className="flex items-center gap-1 cursor-pointer theme-text-secondary font-medium text-[15px] hover:text-primary dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 px-4 py-2 rounded-full transition-all bg-transparent border-none outline-none"
-                        >
-                            Projects
-                            <FaChevronDown className={`text-[10px] transition-transform duration-300 ${isProjectsOpen ? 'rotate-180' : ''}`} />
-                        </button>
+                    {projectsItems.length > 0 && (
+                        <li className="relative group" ref={dropdownRef}>
+                            <button
+                                onClick={toggleProjects}
+                                className="flex items-center gap-1.5 cursor-pointer font-medium text-sm px-4 py-2 rounded-xl transition-all duration-300 bg-transparent border-none outline-none hover:bg-white/5"
+                                style={{color: 'var(--text-secondary)'}}
+                                onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--text-primary)')}
+                                onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--text-secondary)')}
+                            >
+                                Projects
+                                <FaChevronDown className={`text-[9px] transition-transform duration-300 ${isProjectsOpen ? 'rotate-180' : ''}`} />
+                            </button>
 
-                        {/* Dropdown Menu */}
-                        <ul className={`
-              absolute top-[calc(100%+10px)] left-1/2 -translate-x-1/2 
-              glass-panel p-2 rounded-xl 
-              min-w-[180px] list-none
-              transition-all duration-300 ease-in-out origin-top
-              ${isProjectsOpen ? 'opacity-100 visible translate-y-0' : 'opacity-0 invisible -translate-y-2'}
-            `}>
-                            {projectsItems.map((item, index) => (
-                                <li key={index}>
-                                    <Link
-                                        href={item.href}
-                                        onClick={closeMenu}
-                                        className="block w-full text-left px-4 py-2.5 rounded-lg theme-text-secondary hover:text-white hover:bg-primary transition-colors"
-                                    >
-                                        {item.name}
-                                    </Link>
-                                </li>
-                            ))}
-                        </ul>
-                    </li>
-
+                            <ul className={`
+                                absolute top-[calc(100%+8px)] left-1/2 -translate-x-1/2 
+                                p-1.5 rounded-xl 
+                                min-w-[220px] list-none
+                                transition-all duration-300 ease-in-out origin-top
+                                backdrop-blur-2xl
+                                ${isProjectsOpen ? 'opacity-100 visible translate-y-0' : 'opacity-0 invisible -translate-y-2'}
+                            `}
+                            style={{
+                                background: 'rgba(8, 20, 40, 0.9)',
+                                border: '1px solid rgba(6, 182, 212, 0.15)',
+                                boxShadow: '0 20px 40px rgba(0, 0, 0, 0.4), 0 0 20px rgba(6, 182, 212, 0.05)'
+                            }}>
+                                {projectsItems.map((item, index) => (
+                                    <li key={index}>
+                                        <Link
+                                            href={item.href}
+                                            onClick={closeMenu}
+                                            className="block w-full text-left px-4 py-2.5 rounded-lg text-sm transition-all duration-200 hover:bg-primary/10"
+                                            style={{color: 'var(--text-secondary)'}}
+                                            onMouseEnter={(e) => { e.currentTarget.style.color = item.color || '#06b6d4'; }}
+                                            onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--text-secondary)'; }}
+                                        >
+                                            {item.name}
+                                        </Link>
+                                    </li>
+                                ))}
+                            </ul>
+                        </li>
+                    )}
                 </ul>
 
-                {/* Mobile: Theme Toggle + Menu Toggle */}
-                <div className="md:hidden flex items-center gap-3">
-                    <div className="text-2xl theme-text-primary cursor-pointer" onClick={toggleMenu}>
-                        {isMenuOpen ? <FaTimes /> : <FaBars />}
-                    </div>
+                {/* Mobile: Menu Toggle */}
+                <div className="md:hidden flex items-center" style={{ zIndex: 10001 }}>
+                    <button
+                        className="w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300 cursor-pointer border-none"
+                        onClick={toggleMenu}
+                        style={{
+                            color: 'var(--text-primary)',
+                            background: isMenuOpen ? 'rgba(6, 182, 212, 0.1)' : 'transparent'
+                        }}
+                    >
+                        {isMenuOpen ? <FaTimes className="text-lg" /> : <FaBars className="text-lg" />}
+                    </button>
                 </div>
+            </div>
+        </nav>
 
-                {/* Mobile Menu Overlay */}
-                <div className={`
-          fixed top-[80px] left-5 right-5 
-          glass-panel
-          p-6 rounded-3xl flex flex-col gap-4 
-          transition-all duration-300 cubic-bezier(0.4, 0, 0.2, 1) origin-top
-          ${isMenuOpen ? 'opacity-100 visible translate-y-0' : 'opacity-0 invisible -translate-y-5'}
-        `}>
-                    {navItems.map((item, index) => (
-                        <a
-                            key={index}
-                            href={item.href}
-                            onClick={(e) => handleLinkClick(e, item.href)}
-                            className="block text-center p-3 rounded-lg theme-text-secondary hover:text-primary dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 cursor-pointer"
-                        >
-                            {item.name}
-                        </a>
-                    ))}
+        {/* Mobile Menu Overlay - rendered via Portal directly into document.body */}
+        {isMenuOpen && typeof document !== 'undefined' && createPortal(
+            <div
+                id="mobile-menu-overlay"
+                style={{
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    width: '100vw',
+                    height: '100vh',
+                    background: '#020a18',
+                    zIndex: 99999,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px',
+                    padding: '32px',
+                }}
+            >
+                {/* Close button */}
+                <button
+                    onClick={closeMenu}
+                    style={{
+                        position: 'absolute',
+                        top: '24px',
+                        right: '24px',
+                        width: '40px',
+                        height: '40px',
+                        borderRadius: '12px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        cursor: 'pointer',
+                        border: 'none',
+                        color: 'var(--text-primary)',
+                        background: 'rgba(6, 182, 212, 0.1)',
+                        transition: 'all 0.3s',
+                    }}
+                >
+                    <FaTimes style={{ fontSize: '18px' }} />
+                </button>
 
-                    <div className="theme-bg-secondary/30 rounded-lg overflow-hidden">
-                        <div className="p-3 text-center theme-text-secondary font-medium border-b border-[var(--glass-border)]">Projects</div>
+                {navItems.map((item, index) => (
+                    <a
+                        key={index}
+                        href={item.href}
+                        onClick={(e) => handleLinkClick(e, item.href)}
+                        style={{
+                            color: 'var(--text-secondary)',
+                            fontSize: '24px',
+                            fontWeight: 600,
+                            padding: '12px 32px',
+                            borderRadius: '16px',
+                            transition: 'all 0.3s',
+                            textDecoration: 'none',
+                        }}
+                    >
+                        {item.name}
+                    </a>
+                ))}
+
+                {projectsItems.length > 0 && (
+                    <>
+                        <div style={{ width: '64px', height: '1px', margin: '8px 0', background: 'var(--glass-border)' }}></div>
+
                         {projectsItems.map((item, index) => (
                             <Link
                                 key={index}
                                 href={item.href}
                                 onClick={closeMenu}
-                                className="block text-center p-3 theme-text-secondary hover:text-primary hover:bg-black/5 dark:hover:bg-white/5"
+                                style={{
+                                    color: 'var(--text-tertiary)',
+                                    fontSize: '18px',
+                                    fontWeight: 500,
+                                    padding: '8px 24px',
+                                    borderRadius: '12px',
+                                    transition: 'all 0.3s',
+                                    textDecoration: 'none',
+                                }}
                             >
                                 {item.name}
                             </Link>
                         ))}
-                    </div>
-                </div>
-            </div>
-        </nav>
+                    </>
+                )}
+            </div>,
+            document.body
+        )}
+        </>
     );
 };
 

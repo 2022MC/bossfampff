@@ -1,7 +1,6 @@
 "use client";
 
 import React from 'react';
-import Link from 'next/link';
 import { motion } from 'framer-motion';
 
 const Banner = () => {
@@ -34,9 +33,10 @@ const Banner = () => {
                     transition={{ duration: 1, delay: 0.3, ease: 'easeOut' }}
                 >
                     <h2
-                        className="font-space text-[clamp(18px,3vw,36px)] font-bold tracking-[0.12em] uppercase text-white/90 mb-4"
+                        className="font-space text-[clamp(18px,3vw,36px)] font-bold tracking-[0.12em] uppercase mb-4"
                         style={{
-                            textShadow: '0 2px 20px rgba(0,0,0,0.6), 0 0 40px rgba(99,102,241,0.3)',
+                            color: 'rgba(255,255,255,0.9)',
+                            textShadow: '0 2px 20px rgba(0,0,0,0.6), 0 0 40px rgba(6, 182, 212, 0.3)',
                         }}
                     >
                         Typographic Style
@@ -45,13 +45,28 @@ const Banner = () => {
                         href="https://www.tiktok.com/@_bosskung_/video/7606368411404274951"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold text-white bg-white/10 border border-white/20 backdrop-blur-md cursor-pointer transition-all duration-300 hover:bg-primary hover:border-primary hover:shadow-glow-primary hover:-translate-y-0.5"
+                        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white cursor-pointer transition-all duration-300 hover:-translate-y-0.5"
+                        style={{
+                            background: 'rgba(255,255,255,0.1)',
+                            border: '1px solid rgba(255,255,255,0.2)',
+                            backdropFilter: 'blur(10px)',
+                        }}
+                        onMouseEnter={(e) => {
+                            e.currentTarget.style.background = 'rgba(6, 182, 212, 0.8)';
+                            e.currentTarget.style.borderColor = 'rgba(6, 182, 212, 0.9)';
+                            e.currentTarget.style.boxShadow = '0 0 20px rgba(6, 182, 212, 0.4)';
+                        }}
+                        onMouseLeave={(e) => {
+                            e.currentTarget.style.background = 'rgba(255,255,255,0.1)';
+                            e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)';
+                            e.currentTarget.style.boxShadow = 'none';
+                        }}
                     >
                         ดูผลงาน →
                     </a>
                 </motion.div>
 
-                {/* Top gradient fade — blends into Navbar */}
+                {/* Top gradient fade */}
                 <div
                     className="absolute top-0 left-0 w-full h-[80px] z-[1] pointer-events-none"
                     style={{
@@ -59,7 +74,7 @@ const Banner = () => {
                     }}
                 />
 
-                {/* Bottom gradient fade — blends into next section */}
+                {/* Bottom gradient fade */}
                 <div
                     className="absolute bottom-0 left-0 w-full h-[120px] z-[1] pointer-events-none"
                     style={{
@@ -67,7 +82,7 @@ const Banner = () => {
                     }}
                 />
 
-                {/* Subtle side vignette */}
+                {/* Side vignette */}
                 <div
                     className="absolute inset-0 z-[1] pointer-events-none"
                     style={{
