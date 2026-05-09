@@ -22,7 +22,7 @@ interface CategoryData {
 
 export default function CategoryPage() {
     const params = useParams();
-    const slug = params.slug as string;
+    const slug = decodeURIComponent(params.slug as string);
     const [category, setCategory] = useState<CategoryData | null>(null);
     const [works, setWorks] = useState<ProjectData[]>([]);
     const [loading, setLoading] = useState(true);
