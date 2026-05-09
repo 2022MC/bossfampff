@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaTimes, FaPlay, FaStar } from 'react-icons/fa';
+import { FaTimes, FaPlay, FaStar, FaMapMarkerAlt, FaEnvelope, FaFacebook } from 'react-icons/fa';
 import { useParams } from 'next/navigation';
 import { db } from '@/lib/firebase';
 import { collection, query, where, getDocs } from 'firebase/firestore';
@@ -29,6 +29,7 @@ export default function CategoryPage() {
     const [selectedProject, setSelectedProject] = useState<ProjectData | null>(null);
     const [selectedImage, setSelectedImage] = useState<ProjectData | null>(null);
     const [visibleCount, setVisibleCount] = useState(8);
+    const [isBioExpanded, setIsBioExpanded] = useState(false);
 
     useEffect(() => { loadCategoryAndWorks(); }, [slug]);
 
@@ -187,14 +188,49 @@ export default function CategoryPage() {
         <div style={{backgroundColor: 'var(--bg-primary)'}}>
             <Banner />
             <section className="py-[80px] md:py-[100px] px-4 md:px-5 relative min-h-screen">
+                <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                    <div className="absolute top-0 right-0 w-1/2 h-1/2 z-0" style={{background: 'radial-gradient(circle at 100% 0%, rgba(6, 182, 212, 0.06) 0%, transparent 60%)'}}></div>
+                </div>
                 <div className="max-w-[1280px] mx-auto relative z-1">
-                    <motion.div className="text-center mb-12" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-                        <span className="text-4xl mb-3 block">{category.icon}</span>
-                        <h1 className="text-2xl md:text-3xl font-bold mb-2" style={{color: 'var(--text-primary)'}}>{category.name}</h1>
-                        <p className="text-sm" style={{color: 'var(--text-secondary)'}}>{works.length} ผลงาน</p>
-                    </motion.div>
+                    <div className="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-8 md:gap-12 items-start">
+                        {/* Left Sidebar: Profile Card */}
+                        <motion.div className="bento-card !p-7 relative lg:sticky lg:top-24" initial={{ opacity: 0, x: -50 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }}>
+                            <div className="relative mb-6">
+                                <div className="relative w-28 h-28 mx-auto lg:mx-0">
+                                    <div className="w-full h-full rounded-full overflow-hidden shadow-lg p-[2px]" style={{background: 'linear-gradient(135deg, #06b6d4, #14b8a6, #3b82f6)'}}>
+                                        <div className="w-full h-full rounded-full overflow-hidden" style={{background: 'var(--bg-tertiary)'}}>
+                                            <img src="/Profile.jpg" alt="Profile" className="w-full h-full object-cover" />
+                                        </div>
+                                    </div>
+                                    <div className="absolute bottom-1.5 right-1.5 w-5 h-5 rounded-full flex items-center justify-center" style={{ background: '#10b981', border: '3px solid var(--bg-tertiary)' }}></div>
+                                </div>
+                            </div>
+                            <h2 className="text-xl font-bold mb-1 text-center lg:text-left" style={{color: 'var(--text-primary)'}}>BossFam</h2>
+                            <div className="flex items-center justify-center lg:justify-start gap-2 mb-4 text-xs font-medium" style={{color: 'var(--text-tertiary)'}}>
+                                <FaMapMarkerAlt /><span>Bangkok Thailand</span>
+                            </div>
+                            <p className="text-sm mb-5 leading-relaxed text-center lg:text-left" style={{color: 'var(--text-secondary)'}}>
+                                he/him<br /><br />
+                                Base in Bangkok TH Editor, Beginner Colorist Service ...
+                                {!isBioExpanded && <span className="cursor-pointer hover:underline ml-1 font-medium" style={{color: '#06b6d4'}} onClick={() => setIsBioExpanded(true)}>Read more</span>}
+                                {isBioExpanded && <span><br />Short Film , Music Video , Content Online , Youtube , Tiktok/Reel<br /><span className="cursor-pointer hover:underline mt-2 inline-block font-medium" style={{color: '#06b6d4'}} onClick={() => setIsBioExpanded(false)}>Show less</span></span>}
+                            </p>
+                            <div className="flex flex-col gap-3 mb-6 items-center lg:items-start">
+                                <a href="mailto:nathasit.mac@gmail.com" className="flex items-center gap-3 text-sm font-medium transition-colors duration-200" style={{color: 'var(--text-primary)'}} onMouseEnter={(e) => (e.currentTarget.style.color = '#06b6d4')} onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--text-primary)')}>
+                                    <FaEnvelope className="text-base" /><span>nathasit.mac@gmail.com</span>
+                                </a>
+                                <a href="https://www.facebook.com/nathasit.opachalermpan.2025/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-sm font-medium transition-colors duration-200" style={{color: 'var(--text-primary)'}} onMouseEnter={(e) => (e.currentTarget.style.color = '#06b6d4')} onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--text-primary)')}>
+                                    <FaFacebook className="text-base" /><span>Nathasit Opachalermpan</span>
+                                </a>
+                            </div>
+                        </motion.div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {/* Right Content */}
+                        <div>
+                            <div className="flex items-center justify-between mb-8">
+                                <h2 className="text-xl font-bold" style={{color: 'var(--text-primary)'}}>{works.length} {category.type === 'Video' ? 'videos' : 'ผลงาน'}</h2>
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {displayedWorks.map((project, index) => {
                             const embedUrl = getEmbedUrl(project.videoUrl);
                             const hasVideo = embedUrl !== null;
@@ -243,12 +279,14 @@ export default function CategoryPage() {
                         })}
                     </div>
 
-                    {visibleCount < works.length && (
-                        <div className="mt-14 flex justify-center">
-                            <button onClick={() => setVisibleCount(p => p + 4)} className="inline-flex items-center gap-2 px-8 py-3.5 rounded-2xl font-semibold transition-all duration-300 hover:-translate-y-1 cursor-pointer border-none"
-                                style={{color: 'var(--text-primary)', border: '1px solid var(--glass-border)', background: 'transparent'}}>Load more</button>
+                            {visibleCount < works.length && (
+                                <div className="mt-14 flex justify-center">
+                                    <button onClick={() => setVisibleCount(p => p + 4)} className="inline-flex items-center gap-2 px-8 py-3.5 rounded-2xl font-semibold transition-all duration-300 hover:-translate-y-1 cursor-pointer border-none"
+                                        style={{color: 'var(--text-primary)', border: '1px solid var(--glass-border)', background: 'transparent'}}>Load more</button>
+                                </div>
+                            )}
                         </div>
-                    )}
+                    </div>
                 </div>
             </section>
 
