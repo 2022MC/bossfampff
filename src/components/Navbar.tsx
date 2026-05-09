@@ -25,6 +25,7 @@ const Navbar = () => {
     const [isProjectsOpen, setIsProjectsOpen] = useState(false);
     const [scrollY, setScrollY] = useState(0);
     const [categories, setCategories] = useState<CategoryData[]>([]);
+    const [hoveredParent, setHoveredParent] = useState<string | null>(null);
     const dropdownRef = useRef<HTMLLIElement>(null);
     const pathname = usePathname();
     const router = useRouter();
@@ -105,22 +106,6 @@ const Navbar = () => {
     const parentCats = categories.filter(c => !c.parentId);
     const getChildCats = (pid: string) => categories.filter(c => c.parentId === pid);
 
-    // Build flat list with headers for desktop dropdown
-    const projectsItems: { name: string; href: string; color: string; isHeader?: boolean }[] = [];
-    parentCats.forEach(parent => {
-        const children = getChildCats(parent.id!);
-        if (children.length > 0) {
-            // Parent as header, children as links
-            projectsItems.push({ name: `${parent.icon} ${parent.name}`, href: '', color: parent.color, isHeader: true });
-            children.forEach(child => {
-                projectsItems.push({ name: `${child.icon} ${child.name}`, href: `/projects/${child.slug}`, color: child.color || parent.color });
-            });
-        } else {
-            // Standalone category (no children) - link directly
-            projectsItems.push({ name: `${parent.icon} ${parent.name}`, href: `/projects/${parent.slug}`, color: parent.color });
-        }
-    });
-
     const handleLinkClick = (e: React.MouseEvent, href: string) => {
         closeMenu();
         if (href.startsWith('#')) {
@@ -187,8 +172,9 @@ const Navbar = () => {
                         </li>
                     ))}
 
-                    {projectsItems.length > 0 && (
-                        <li className="relative group" ref={dropdownRef}>
+                    {parentCats.length > 0 && (
+                        <li className="relative" ref={dropdownRef}
+                            onMouseLeave={() => setHoveredParent(null)}>
                             <button
                                 onClick={toggleProjects}
                                 className="flex items-center gap-1.5 cursor-pointer font-medium text-sm px-4 py-2 rounded-xl transition-all duration-300 bg-transparent border-none outline-none hover:bg-white/5"
@@ -203,33 +189,72 @@ const Navbar = () => {
                             <ul className={`
                                 absolute top-[calc(100%+8px)] left-1/2 -translate-x-1/2 
                                 p-1.5 rounded-xl 
-                                min-w-[220px] list-none
+                                min-w-[200px] list-none
                                 transition-all duration-300 ease-in-out origin-top
                                 backdrop-blur-2xl
                                 ${isProjectsOpen ? 'opacity-100 visible translate-y-0' : 'opacity-0 invisible -translate-y-2'}
                             `}
                             style={{
-                                background: 'rgba(8, 20, 40, 0.9)',
+                                background: 'rgba(8, 20, 40, 0.95)',
                                 border: '1px solid rgba(6, 182, 212, 0.15)',
-                                boxShadow: '0 20px 40px rgba(0, 0, 0, 0.4), 0 0 20px rgba(6, 182, 212, 0.05)'
+                                boxShadow: '0 20px 40px rgba(0, 0, 0, 0.4)'
                             }}>
-                                {projectsItems.map((item, index) => (
-                                    item.isHeader ? (
-                                        <li key={index} className="px-4 pt-3 pb-1">
-                                            <span className="text-[10px] uppercase tracking-[2px] font-bold" style={{ color: item.color || 'var(--text-tertiary)' }}>{item.name}</span>
+                                {parentCats.map(parent => {
+                                    const children = getChildCats(parent.id!);
+                                    const hasChildren = children.length > 0;
+                                    return (
+                                        <li key={parent.id} className="relative"
+                                            onMouseEnter={() => hasChildren && setHoveredParent(parent.id!)}
+                                        >
+                                            {hasChildren ? (
+                                                <div
+                                                    className="flex items-center justify-between w-full text-left px-4 py-2.5 rounded-lg text-sm transition-all duration-200 cursor-default"
+                                                    style={{ color: hoveredParent === parent.id ? parent.color || '#06b6d4' : 'var(--text-secondary)', background: hoveredParent === parent.id ? 'rgba(6,182,212,0.06)' : 'transparent' }}
+                                                >
+                                                    <span>{parent.icon} {parent.name}</span>
+                                                    <FaChevronDown className="text-[8px] -rotate-90" />
+                                                </div>
+                                            ) : (
+                                                <Link href={`/projects/${parent.slug}`} onClick={closeMenu}
+                                                    className="block w-full text-left px-4 py-2.5 rounded-lg text-sm transition-all duration-200"
+                                                    style={{color: 'var(--text-secondary)'}}
+                                                    onMouseEnter={(e) => { e.currentTarget.style.color = parent.color || '#06b6d4'; setHoveredParent(null); }}
+                                                    onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--text-secondary)'; }}>
+                                                    {parent.icon} {parent.name}
+                                                </Link>
+                                            )}
+
+                                            {/* Flyout submenu */}
+                                            {hasChildren && (
+                                                <ul className={`
+                                                    absolute left-full top-0 ml-1.5
+                                                    p-1.5 rounded-xl 
+                                                    min-w-[200px] list-none
+                                                    transition-all duration-200 ease-in-out origin-left
+                                                    backdrop-blur-2xl
+                                                    ${hoveredParent === parent.id ? 'opacity-100 visible translate-x-0' : 'opacity-0 invisible -translate-x-2 pointer-events-none'}
+                                                `}
+                                                style={{
+                                                    background: 'rgba(8, 20, 40, 0.95)',
+                                                    border: '1px solid rgba(6, 182, 212, 0.15)',
+                                                    boxShadow: '0 20px 40px rgba(0, 0, 0, 0.4)'
+                                                }}>
+                                                    {children.map(child => (
+                                                        <li key={child.id}>
+                                                            <Link href={`/projects/${child.slug}`} onClick={closeMenu}
+                                                                className="block w-full text-left px-4 py-2.5 rounded-lg text-sm transition-all duration-200"
+                                                                style={{color: 'var(--text-secondary)'}}
+                                                                onMouseEnter={(e) => { e.currentTarget.style.color = child.color || parent.color || '#06b6d4'; }}
+                                                                onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--text-secondary)'; }}>
+                                                                {child.icon} {child.name}
+                                                            </Link>
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            )}
                                         </li>
-                                    ) : (
-                                        <li key={index}>
-                                            <Link href={item.href} onClick={closeMenu}
-                                                className="block w-full text-left px-4 py-2.5 rounded-lg text-sm transition-all duration-200 hover:bg-primary/10"
-                                                style={{color: 'var(--text-secondary)'}}
-                                                onMouseEnter={(e) => { e.currentTarget.style.color = item.color || '#06b6d4'; }}
-                                                onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--text-secondary)'; }}>
-                                                {item.name}
-                                            </Link>
-                                        </li>
-                                    )
-                                ))}
+                                    );
+                                })}
                             </ul>
                         </li>
                     )}
@@ -313,36 +338,58 @@ const Navbar = () => {
                     </a>
                 ))}
 
-                {projectsItems.length > 0 && (
+                {parentCats.length > 0 && (
                     <>
                         <div style={{ width: '64px', height: '1px', margin: '8px 0', background: 'var(--glass-border)' }}></div>
 
-                        {projectsItems.map((item, index) => (
-                            item.isHeader ? (
-                                <div key={index} style={{
-                                    color: item.color || 'var(--text-tertiary)',
-                                    fontSize: '13px',
-                                    fontWeight: 700,
-                                    padding: '12px 24px 4px',
-                                    textTransform: 'uppercase' as const,
-                                    letterSpacing: '2px',
-                                }}>
-                                    {item.name}
+                        {parentCats.map(parent => {
+                            const children = getChildCats(parent.id!);
+                            return (
+                                <div key={parent.id}>
+                                    {children.length > 0 ? (
+                                        <>
+                                            <div style={{
+                                                color: parent.color || 'var(--text-tertiary)',
+                                                fontSize: '13px',
+                                                fontWeight: 700,
+                                                padding: '12px 24px 4px',
+                                                textTransform: 'uppercase' as const,
+                                                letterSpacing: '2px',
+                                            }}>
+                                                {parent.icon} {parent.name}
+                                            </div>
+                                            {children.map(child => (
+                                                <Link key={child.id} href={`/projects/${child.slug}`} onClick={closeMenu} style={{
+                                                    color: 'var(--text-tertiary)',
+                                                    fontSize: '18px',
+                                                    fontWeight: 500,
+                                                    padding: '8px 32px',
+                                                    borderRadius: '12px',
+                                                    transition: 'all 0.3s',
+                                                    textDecoration: 'none',
+                                                    display: 'block',
+                                                }}>
+                                                    {child.icon} {child.name}
+                                                </Link>
+                                            ))}
+                                        </>
+                                    ) : (
+                                        <Link href={`/projects/${parent.slug}`} onClick={closeMenu} style={{
+                                            color: 'var(--text-tertiary)',
+                                            fontSize: '18px',
+                                            fontWeight: 500,
+                                            padding: '8px 24px',
+                                            borderRadius: '12px',
+                                            transition: 'all 0.3s',
+                                            textDecoration: 'none',
+                                            display: 'block',
+                                        }}>
+                                            {parent.icon} {parent.name}
+                                        </Link>
+                                    )}
                                 </div>
-                            ) : (
-                                <Link key={index} href={item.href} onClick={closeMenu} style={{
-                                    color: 'var(--text-tertiary)',
-                                    fontSize: '18px',
-                                    fontWeight: 500,
-                                    padding: '8px 24px',
-                                    borderRadius: '12px',
-                                    transition: 'all 0.3s',
-                                    textDecoration: 'none',
-                                }}>
-                                    {item.name}
-                                </Link>
-                            )
-                        ))}
+                            );
+                        })}
                     </>
                 )}
             </div>,
