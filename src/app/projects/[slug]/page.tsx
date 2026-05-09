@@ -41,7 +41,13 @@ export default function CategoryPage() {
             const cat = cats.find(c => c.slug === slug);
             setCategory(cat || null);
 
-            const worksSnap = await getDocs(query(collection(db, "works"), where("group", "==", slug)));
+            // If type is 'All', fetch ALL video works; otherwise filter by group slug
+            let worksSnap;
+            if (cat?.type === 'All') {
+                worksSnap = await getDocs(query(collection(db, "works"), where("type", "==", "Video")));
+            } else {
+                worksSnap = await getDocs(query(collection(db, "works"), where("group", "==", slug)));
+            }
             const loaded = worksSnap.docs.map(d => ({ id: d.id, ...d.data() })) as ProjectData[];
             loaded.sort((a, b) => {
                 const oA = a.order !== undefined ? a.order : 999999;
