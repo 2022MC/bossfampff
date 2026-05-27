@@ -2,7 +2,8 @@
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { FaEnvelope, FaPhone, FaMapMarkerAlt, FaPaperPlane } from 'react-icons/fa';
+import { FaEnvelope, FaPhone, FaMapMarkerAlt, FaPaperPlane, FaFacebook, FaInstagram } from 'react-icons/fa';
+import { FaLine } from 'react-icons/fa6';
 import { useNotification } from '@/context/NotificationContext';
 import { sendDiscordWebhook } from '@/utils/discordWebhook';
 
@@ -63,6 +64,27 @@ const Contact = () => {
             content: 'Bangkok, Thailand',
             link: '#',
             color: '#3b82f6'
+        },
+        {
+            icon: <FaLine />,
+            title: 'Line',
+            content: '@bosszaza1852',
+            link: 'https://line.me/ti/p/@bosszaza1852',
+            color: '#06C755'
+        },
+        {
+            icon: <FaFacebook />,
+            title: 'Facebook',
+            content: 'Nathasit Opachalermpan',
+            link: 'https://www.facebook.com/nathasit.opachalermpan.2025/',
+            color: '#1877F2'
+        },
+        {
+            icon: <FaInstagram />,
+            title: 'Instagram',
+            content: '@bosskung.cc',
+            link: 'https://www.instagram.com/bosskung.cc/',
+            color: '#E4405F'
         }
     ];
 
@@ -89,9 +111,9 @@ const Contact = () => {
     const inputClasses = "w-full px-5 py-4 rounded-2xl text-base transition-all duration-300 outline-none font-sans";
 
     return (
-        <section id="contact" className="py-[100px] px-5 relative" style={{backgroundColor: 'var(--bg-secondary)'}}>
+        <section id="contact" className="py-[100px] px-5 relative" style={{ backgroundColor: 'var(--bg-secondary)' }}>
             <div className="absolute top-0 left-0 w-1/2 h-1/2 pointer-events-none opacity-30"
-                 style={{background: 'radial-gradient(circle at 0% 0%, rgba(59, 130, 246, 0.06) 0%, transparent 50%)'}}></div>
+                style={{ background: 'radial-gradient(circle at 0% 0%, rgba(59, 130, 246, 0.06) 0%, transparent 50%)' }}></div>
 
             <motion.div
                 className="max-w-[1200px] mx-auto relative z-[1]"
@@ -101,11 +123,11 @@ const Contact = () => {
                 viewport={{ once: true, amount: 0.15 }}
             >
                 <motion.div className="mb-16" variants={itemVariants}>
-                    <h2 className="font-space text-3xl md:text-4xl font-bold flex items-baseline gap-3" style={{color: 'var(--text-primary)'}}>
-                        <span className="font-mono text-lg" style={{color: '#06b6d4'}}>04.</span>
+                    <h2 className="font-space text-3xl md:text-4xl font-bold flex items-baseline gap-3" style={{ color: 'var(--text-primary)' }}>
+                        <span className="font-mono text-lg" style={{ color: '#06b6d4' }}>04.</span>
                         ติดต่อผม
                     </h2>
-                    <p className="text-base mt-3 max-w-[500px]" style={{color: 'var(--text-secondary)'}}>
+                    <p className="text-base mt-3 max-w-[500px]" style={{ color: 'var(--text-secondary)' }}>
                         มีโปรเจกต์ที่น่าสนใจ? มาแลกเปลี่ยนความคิดเห็นกันเลย!
                     </p>
                 </motion.div>
@@ -121,15 +143,15 @@ const Contact = () => {
                                 whileHover={{ x: 6 }}
                             >
                                 <div className="w-12 h-12 rounded-xl flex items-center justify-center text-lg shrink-0 transition-all duration-300"
-                                     style={{
-                                         color: info.color,
-                                         background: `${info.color}12`
-                                     }}>
+                                    style={{
+                                        color: info.color,
+                                        background: `${info.color}12`
+                                    }}>
                                     {info.icon}
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                    <h4 className="font-space text-sm font-semibold mb-0.5" style={{color: 'var(--text-primary)'}}>{info.title}</h4>
-                                    <p className="text-sm truncate" style={{color: 'var(--text-secondary)'}}>{info.content}</p>
+                                    <h4 className="font-space text-sm font-semibold mb-0.5" style={{ color: 'var(--text-primary)' }}>{info.title}</h4>
+                                    <p className="text-sm truncate" style={{ color: 'var(--text-secondary)' }}>{info.content}</p>
                                 </div>
                             </motion.a>
                         ))}

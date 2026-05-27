@@ -18,6 +18,7 @@ interface CategoryData {
     type: 'Video' | 'Graphic' | 'All';
     order: number;
     visible: boolean;
+    parentId?: string;
 }
 
 export default function CategoryPage() {
@@ -41,9 +42,10 @@ export default function CategoryPage() {
             const cat = cats.find(c => c.slug === slug);
             setCategory(cat || null);
 
-            // If type is 'All', fetch ALL video works; otherwise filter by group slug
+            // Sub-categories always filter by group slug
+            // Only parent categories (no parentId) with type 'All' fetch all video works
             let worksSnap;
-            if (cat?.type === 'All') {
+            if (cat?.type === 'All' && !cat?.parentId) {
                 worksSnap = await getDocs(query(collection(db, "works"), where("type", "==", "Video")));
             } else {
                 worksSnap = await getDocs(query(collection(db, "works"), where("group", "==", slug)));
@@ -71,6 +73,20 @@ export default function CategoryPage() {
         const ytId = getYoutubeId(url);
         if (ytId) return `https://www.youtube.com/embed/${ytId}`;
         if (url.includes('facebook.com')) return `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=false&width=560`;
+        const tiktokId = getTikTokId(url);
+        if (tiktokId) return `https://www.tiktok.com/embed/v2/${tiktokId}`;
+        return null;
+    };
+
+    const getTikTokId = (url?: string) => {
+        if (!url) return null;
+        const tiktokRegex = /tiktok\.com\/@[^/]+\/video\/(\d+)/;
+        const match = url.match(tiktokRegex);
+        if (match) return match[1];
+        if (url.includes('tiktok.com')) {
+            const idMatch = url.match(/(\d{15,})/);
+            return idMatch ? idMatch[1] : null;
+        }
         return null;
     };
 
@@ -247,9 +263,26 @@ export default function CategoryPage() {
                                         <div className="absolute top-3 left-3 z-20 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider shadow-lg flex items-center gap-1"
                                             style={{background: 'linear-gradient(135deg, #f59e0b, #f97316)', color: '#000'}}><FaStar className="text-[9px]" /> ผลงานเด่น</div>
                                     )}
-                                    <div className="relative w-full aspect-video bg-black overflow-hidden cursor-pointer" onClick={() => !project.videoUrl?.includes('facebook.com') && setSelectedProject(project)}>
+                                    <div className="relative w-full aspect-video bg-black overflow-hidden cursor-pointer" onClick={() => setSelectedProject(project)}>
                                         {hasVideo ? (
-                                            project.videoUrl?.includes('facebook.com') ? (
+                                            project.videoUrl?.includes('tiktok.com') ? (
+                                                <div className="w-full h-full relative group">
+                                                    <img src={project.image || 'https://via.placeholder.com/800x450?text=TikTok+Video'}
+                                                        alt={project.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                                                    <div className="absolute inset-0 bg-black/20 group-hover:bg-black/30 transition-colors duration-300" />
+                                                    <div className="absolute inset-0 flex flex-col items-center justify-center z-10 pointer-events-none gap-2">
+                                                        <div className="w-14 h-14 rounded-full backdrop-blur-md flex items-center justify-center transition-all duration-300 group-hover:scale-110 shadow-lg"
+                                                            style={{background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.3)'}}>
+                                                            <FaPlay className="text-white text-lg ml-0.5" />
+                                                        </div>
+                                                        <div className="flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-semibold text-white backdrop-blur-sm"
+                                                            style={{background: 'rgba(0,0,0,0.4)'}}>
+                                                            <svg viewBox="0 0 48 48" fill="currentColor" className="w-3 h-3"><path d="M38.4 21.68V16c-3.54 0-6.56-1.56-8.64-4.06V27.8a11.8 11.8 0 1 1-8.18-11.24v6.18a5.84 5.84 0 1 0 2.22 4.58V0h5.96c0 .5.04 1 .14 1.48A8.64 8.64 0 0 0 38.4 9.52v6.18" /></svg>
+                                                            TikTok
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            ) : project.videoUrl?.includes('facebook.com') ? (
                                                 <iframe src={embedUrl || ''} title={project.title} frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen className="absolute inset-0 w-full h-full" />
                                             ) : (
                                                 <div className="w-full h-full relative group">

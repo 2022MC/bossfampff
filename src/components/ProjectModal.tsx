@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { FaTimes, FaExternalLinkAlt, FaCalendar, FaUser, FaTools, FaPlay } from 'react-icons/fa';
+import { FaTimes, FaExternalLinkAlt, FaCalendar, FaUser, FaTools, FaPlay, FaTiktok } from 'react-icons/fa';
 
 export interface ProjectData {
     id?: string;
@@ -68,6 +68,8 @@ const ProjectModal = ({ project, onClose }: ProjectModalProps) => {
             const encodedUrl = encodeURIComponent(url);
             return `https://www.facebook.com/plugins/video.php?href=${encodedUrl}&show_text=false&width=560&autoplay=1`;
         }
+        const tiktokId = getTikTokId(url);
+        if (tiktokId) return `https://www.tiktok.com/embed/v2/${tiktokId}`;
         return null;
     };
 
@@ -77,6 +79,22 @@ const ProjectModal = ({ project, onClose }: ProjectModalProps) => {
         const youtubeMatch = url.match(youtubeRegex);
         return youtubeMatch ? youtubeMatch[1] : null;
     };
+
+    const getTikTokId = (url?: string) => {
+        if (!url) return null;
+        // Match patterns like: tiktok.com/@user/video/1234567890
+        const tiktokRegex = /tiktok\.com\/@[^/]+\/video\/(\d+)/;
+        const match = url.match(tiktokRegex);
+        if (match) return match[1];
+        // Match short URL: vm.tiktok.com/XXXXX
+        if (url.includes('tiktok.com')) {
+            const idMatch = url.match(/(\d{15,})/); // TikTok IDs are long numeric strings
+            return idMatch ? idMatch[1] : null;
+        }
+        return null;
+    };
+
+    const isTikTok = project.videoUrl?.includes('tiktok.com') || false;
 
     const embedUrl = project.type === 'Video' ? getEmbedUrl(project.videoUrl) : null;
     const thumbnail = project.image || (project.type === 'Video' && getYoutubeId(project.videoUrl) ? `https://img.youtube.com/vi/${getYoutubeId(project.videoUrl)}/maxresdefault.jpg` : null);
@@ -129,7 +147,32 @@ const ProjectModal = ({ project, onClose }: ProjectModalProps) => {
                             {/* Video player */}
                             <div className="w-full rounded-2xl overflow-hidden shadow-2xl relative" style={{ aspectRatio: '16/9', border: '1px solid var(--glass-border)' }}>
                                 {project.type === 'Video' && embedUrl ? (
-                                    (project.videoUrl?.includes('facebook.com') || isPlaying) ? (
+                                    isTikTok ? (
+                                        <a
+                                            href={project.videoUrl}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="absolute inset-0 w-full h-full cursor-pointer group block"
+                                        >
+                                            <img
+                                                src={project.image || 'https://via.placeholder.com/800x450?text=TikTok+Video'}
+                                                alt={project.title}
+                                                className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-all duration-500 group-hover:scale-105"
+                                            />
+                                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-black/10 group-hover:from-black/40 group-hover:via-transparent group-hover:to-transparent transition-all duration-300"></div>
+                                            <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none gap-3">
+                                                <div className="w-20 h-20 rounded-full backdrop-blur-md flex items-center justify-center transition-all duration-300 group-hover:scale-110 shadow-2xl"
+                                                     style={{background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.3)'}}>
+                                                    <FaPlay className="text-white text-3xl ml-1 drop-shadow-lg" />
+                                                </div>
+                                                <div className="flex items-center gap-2 px-4 py-2 rounded-full backdrop-blur-sm"
+                                                     style={{background: 'rgba(0,0,0,0.4)'}}>
+                                                    <FaTiktok className="text-white text-sm" />
+                                                    <span className="text-white text-xs font-semibold">Watch on TikTok</span>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    ) : (project.videoUrl?.includes('facebook.com') || isPlaying) ? (
                                         <iframe
                                             src={embedUrl}
                                             title={project.title}

@@ -3,6 +3,7 @@ import { Outfit, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import MaintenanceGuard from "@/components/MaintenanceGuard";
 import { Providers } from "./providers";
 
 const outfit = Outfit({
@@ -31,11 +32,14 @@ export default function RootLayout({
         className={`${outfit.variable} ${spaceGrotesk.variable} antialiased`}
       >
         <Providers>
-          <Navbar />
-          {children}
-          <Footer />
+          <MaintenanceGuard>
+            <Navbar />
+            {children}
+            <Footer />
+          </MaintenanceGuard>
         </Providers>
       </body>
     </html>
   );
 }
+

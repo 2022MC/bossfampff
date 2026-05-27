@@ -2,11 +2,11 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, Reorder, AnimatePresence, useDragControls } from 'framer-motion';
-import { FaPlus, FaEdit, FaTrash, FaSave, FaTimes, FaUpload, FaSignOutAlt, FaBars, FaLayerGroup, FaEye, FaEyeSlash, FaChevronDown, FaChevronUp } from 'react-icons/fa';
+import { FaPlus, FaEdit, FaTrash, FaSave, FaTimes, FaUpload, FaSignOutAlt, FaBars, FaLayerGroup, FaEye, FaEyeSlash, FaChevronDown, FaChevronUp, FaArrowUp, FaArrowDown, FaTools, FaExclamationTriangle } from 'react-icons/fa';
 import { useAuth } from '@/context/AuthContext';
 import { useNotification } from '@/context/NotificationContext';
 import { db, auth } from '@/lib/firebase';
-import { collection, addDoc, updateDoc, deleteDoc, doc, getDocs, query, orderBy } from 'firebase/firestore';
+import { collection, addDoc, updateDoc, deleteDoc, doc, getDocs, getDoc, setDoc, query, orderBy } from 'firebase/firestore';
 import { GoogleAuthProvider, signInWithPopup, signOut, User } from 'firebase/auth';
 import { SketchPicker } from 'react-color';
 import AdminGuard from '@/components/AdminGuard';
@@ -52,7 +52,15 @@ function AdminContent() {
     const [editingCategoryId, setEditingCategoryId] = useState<string | null>(null);
     const [categoryForm, setCategoryForm] = useState<CategoryData>({ name: '', slug: '', icon: '📁', color: '#06b6d4', type: 'All', order: 0, visible: true, parentId: '' });
     const [showCategorySection, setShowCategorySection] = useState(false);
+    const [hasUnsavedCategoryChanges, setHasUnsavedCategoryChanges] = useState(false);
     const CATEGORY_ICONS = ['📁', '🎥', '🎨', '🤖', '📸', '🎬', '🎵', '💻', '📱', '🎮', '✏️', '🖼️', '📐', '🔧', '⭐'];
+
+    // Maintenance states
+    const [maintenanceEnabled, setMaintenanceEnabled] = useState(false);
+    const [maintenanceMessage, setMaintenanceMessage] = useState('');
+    const [maintenanceEstimatedEnd, setMaintenanceEstimatedEnd] = useState('');
+    const [showMaintenanceSection, setShowMaintenanceSection] = useState(false);
+    const [maintenanceLoading, setMaintenanceLoading] = useState(false);
 
     const handleReorder = (newOrder: ProjectData[]) => {
         setWorks(newOrder);
@@ -127,7 +135,58 @@ function AdminContent() {
         }
     }, [showNotification]);
 
-    useEffect(() => { loadWorks(); loadCategories(); }, [loadWorks]);
+    useEffect(() => { loadWorks(); loadCategories(); loadMaintenance(); }, [loadWorks]);
+
+    // Maintenance functions
+    const loadMaintenance = async () => {
+        try {
+            const snap = await getDoc(doc(db, 'settings', 'maintenance'));
+            if (snap.exists()) {
+                const data = snap.data();
+                setMaintenanceEnabled(data.enabled ?? false);
+                setMaintenanceMessage(data.message ?? '');
+                setMaintenanceEstimatedEnd(data.estimatedEnd ?? '');
+            }
+        } catch (error) {
+            console.error('Error loading maintenance:', error);
+        }
+    };
+
+    const handleToggleMaintenance = async () => {
+        if (!firebaseUser) { showNotification('กรุณายืนยันตัวตนก่อน', 'warning'); handleFirebaseLogin(); return; }
+        setMaintenanceLoading(true);
+        try {
+            const newState = !maintenanceEnabled;
+            await setDoc(doc(db, 'settings', 'maintenance'), {
+                enabled: newState,
+                message: maintenanceMessage,
+                estimatedEnd: maintenanceEstimatedEnd,
+            });
+            setMaintenanceEnabled(newState);
+            showNotification(newState ? '🔧 เปิดโหมดปรับปรุงเว็บไซต์แล้ว' : '✅ ปิดโหมดปรับปรุงเว็บไซต์แล้ว', newState ? 'warning' : 'success');
+        } catch (error: any) {
+            showNotification('อัปเดตไม่สำเร็จ: ' + error.message, 'error');
+        } finally {
+            setMaintenanceLoading(false);
+        }
+    };
+
+    const handleSaveMaintenanceSettings = async () => {
+        if (!firebaseUser) { showNotification('กรุณายืนยันตัวตนก่อน', 'warning'); handleFirebaseLogin(); return; }
+        setMaintenanceLoading(true);
+        try {
+            await setDoc(doc(db, 'settings', 'maintenance'), {
+                enabled: maintenanceEnabled,
+                message: maintenanceMessage,
+                estimatedEnd: maintenanceEstimatedEnd,
+            });
+            showNotification('บันทึกการตั้งค่าปรับปรุงเรียบร้อยแล้ว', 'success');
+        } catch (error: any) {
+            showNotification('บันทึกไม่สำเร็จ: ' + error.message, 'error');
+        } finally {
+            setMaintenanceLoading(false);
+        }
+    };
 
     const loadCategories = async () => {
         try {
@@ -148,6 +207,53 @@ function AdminContent() {
 
     const parentCategories = categories.filter(c => !c.parentId);
     const getChildren = (parentId: string) => categories.filter(c => c.parentId === parentId);
+
+    const moveCategoryInList = (catId: string, direction: 'up' | 'down', isChild: boolean, parentId?: string) => {
+        const updated = [...categories];
+        if (isChild && parentId) {
+            // Move within children of a specific parent
+            const children = updated.filter(c => c.parentId === parentId).sort((a, b) => (a.order ?? 999) - (b.order ?? 999));
+            const idx = children.findIndex(c => c.id === catId);
+            if ((direction === 'up' && idx <= 0) || (direction === 'down' && idx >= children.length - 1)) return;
+            const swapIdx = direction === 'up' ? idx - 1 : idx + 1;
+            // Swap orders
+            const catA = updated.find(c => c.id === children[idx].id)!;
+            const catB = updated.find(c => c.id === children[swapIdx].id)!;
+            const tmpOrder = catA.order;
+            catA.order = catB.order;
+            catB.order = tmpOrder;
+        } else {
+            // Move parent categories
+            const parents = updated.filter(c => !c.parentId).sort((a, b) => (a.order ?? 999) - (b.order ?? 999));
+            const idx = parents.findIndex(c => c.id === catId);
+            if ((direction === 'up' && idx <= 0) || (direction === 'down' && idx >= parents.length - 1)) return;
+            const swapIdx = direction === 'up' ? idx - 1 : idx + 1;
+            const catA = updated.find(c => c.id === parents[idx].id)!;
+            const catB = updated.find(c => c.id === parents[swapIdx].id)!;
+            const tmpOrder = catA.order;
+            catA.order = catB.order;
+            catB.order = tmpOrder;
+        }
+        updated.sort((a, b) => (a.order ?? 999) - (b.order ?? 999));
+        setCategories(updated);
+        setHasUnsavedCategoryChanges(true);
+    };
+
+    const handleSaveCategoryOrder = async () => {
+        if (!firebaseUser) { showNotification('กรุณายืนยันตัวตนก่อน', 'warning'); handleFirebaseLogin(); return; }
+        setIsLoading(true);
+        try {
+            const updates = categories.map((cat, index) => {
+                const catRef = doc(db, 'categories', cat.id!);
+                return updateDoc(catRef, { order: index });
+            });
+            await Promise.all(updates);
+            setHasUnsavedCategoryChanges(false);
+            showNotification('บันทึกลำดับหมวดหมู่เรียบร้อยแล้ว', 'success');
+        } catch (err: any) {
+            showNotification('บันทึกลำดับไม่สำเร็จ: ' + err.message, 'error');
+        } finally { setIsLoading(false); }
+    };
 
     const handleSaveCategory = async () => {
         if (!firebaseUser) { showNotification('กรุณายืนยันตัวตนก่อน', 'warning'); handleFirebaseLogin(); return; }
@@ -416,6 +522,117 @@ function AdminContent() {
                     </div>
                 </div>
 
+                {/* Maintenance Warning Banner */}
+                {maintenanceEnabled && (
+                    <div className="mb-6 p-4 rounded-2xl flex items-center gap-4 animate-pulse"
+                        style={{ background: 'rgba(245, 158, 11, 0.08)', border: '1px solid rgba(245, 158, 11, 0.25)' }}>
+                        <FaExclamationTriangle className="text-xl shrink-0" style={{ color: '#f59e0b' }} />
+                        <div className="flex-1">
+                            <span className="text-sm font-bold" style={{ color: '#f59e0b' }}>⚠️ โหมดปรับปรุงเว็บไซต์กำลังเปิดอยู่</span>
+                            <p className="text-xs mt-0.5" style={{ color: 'var(--text-tertiary)' }}>ผู้เยี่ยมชมทั่วไปจะเห็นหน้าแจ้งปรับปรุง คุณเห็นเว็บปกติเพราะเป็น Admin</p>
+                        </div>
+                    </div>
+                )}
+
+                {/* Maintenance Mode Section */}
+                <div className="bento-card !p-0 mb-8 overflow-hidden">
+                    <button
+                        className="w-full flex items-center justify-between p-5 md:p-6 cursor-pointer border-none transition-all duration-300"
+                        style={{ background: 'transparent', color: 'var(--text-primary)' }}
+                        onClick={() => setShowMaintenanceSection(!showMaintenanceSection)}
+                    >
+                        <div className="flex items-center gap-3">
+                            <span className="w-9 h-9 rounded-xl flex items-center justify-center text-base" style={{ background: maintenanceEnabled ? 'rgba(245, 158, 11, 0.1)' : 'rgba(16, 185, 129, 0.1)', color: maintenanceEnabled ? '#f59e0b' : '#10b981' }}><FaTools /></span>
+                            <div className="text-left">
+                                <h2 className="font-space text-base font-bold" style={{ color: 'var(--text-primary)' }}>โหมดปรับปรุงเว็บไซต์</h2>
+                                <p className="text-xs mt-0.5" style={{ color: maintenanceEnabled ? '#f59e0b' : 'var(--text-tertiary)' }}>
+                                    {maintenanceEnabled ? '🔧 กำลังเปิดอยู่ — ผู้เยี่ยมชมจะเห็นหน้าแจ้งปรับปรุง' : '✅ ปิดอยู่ — เว็บไซต์ทำงานปกติ'}
+                                </p>
+                            </div>
+                        </div>
+                        {showMaintenanceSection ? <FaChevronUp className="text-sm" style={{ color: 'var(--text-tertiary)' }} /> : <FaChevronDown className="text-sm" style={{ color: 'var(--text-tertiary)' }} />}
+                    </button>
+
+                    <AnimatePresence>
+                        {showMaintenanceSection && (
+                            <motion.div
+                                initial={{ height: 0, opacity: 0 }}
+                                animate={{ height: 'auto', opacity: 1 }}
+                                exit={{ height: 0, opacity: 0 }}
+                                transition={{ duration: 0.3 }}
+                                className="overflow-hidden"
+                            >
+                                <div className="px-5 md:px-6 pb-6" style={{ borderTop: '1px solid var(--glass-border)' }}>
+                                    {/* Toggle Switch */}
+                                    <div className="mt-5 flex items-center justify-between p-4 rounded-xl" style={{ background: 'var(--bg-secondary)', border: '1px solid var(--glass-border)' }}>
+                                        <div className="flex items-center gap-3">
+                                            <span className="text-2xl">{maintenanceEnabled ? '🔧' : '🌐'}</span>
+                                            <div>
+                                                <p className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>
+                                                    {maintenanceEnabled ? 'โหมดปรับปรุง: เปิด' : 'โหมดปรับปรุง: ปิด'}
+                                                </p>
+                                                <p className="text-xs" style={{ color: 'var(--text-tertiary)' }}>
+                                                    {maintenanceEnabled ? 'คลิกเพื่อเปิดเว็บไซต์กลับมาใช้งาน' : 'คลิกเพื่อปิดเว็บไซต์ชั่วคราว'}
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <button
+                                            onClick={handleToggleMaintenance}
+                                            disabled={maintenanceLoading}
+                                            className="relative w-14 h-7 rounded-full cursor-pointer transition-all duration-300 border-none"
+                                            style={{
+                                                background: maintenanceEnabled ? 'linear-gradient(135deg, #f59e0b, #f97316)' : 'rgba(100,116,139,0.3)',
+                                                boxShadow: maintenanceEnabled ? '0 0 15px rgba(245, 158, 11, 0.3)' : 'none',
+                                            }}
+                                        >
+                                            <span
+                                                className="absolute top-0.5 w-6 h-6 rounded-full transition-all duration-300"
+                                                style={{
+                                                    background: '#fff',
+                                                    left: maintenanceEnabled ? 'calc(100% - 26px)' : '2px',
+                                                    boxShadow: '0 2px 6px rgba(0,0,0,0.2)',
+                                                }}
+                                            />
+                                        </button>
+                                    </div>
+
+                                    {/* Settings */}
+                                    <div className="mt-4 flex flex-col gap-4">
+                                        <div className="flex flex-col gap-1">
+                                            <label className="text-[10px] uppercase tracking-[2px] font-bold pl-1" style={{ color: 'var(--text-tertiary)' }}>ข้อความแจ้งผู้เยี่ยมชม</label>
+                                            <textarea
+                                                value={maintenanceMessage}
+                                                onChange={(e) => setMaintenanceMessage(e.target.value)}
+                                                placeholder="เว็บไซต์กำลังอยู่ในระหว่างการปรับปรุง..."
+                                                rows={3}
+                                                className="admin-input resize-y min-h-[80px]"
+                                            />
+                                        </div>
+                                        <div className="flex flex-col gap-1">
+                                            <label className="text-[10px] uppercase tracking-[2px] font-bold pl-1" style={{ color: 'var(--text-tertiary)' }}>คาดว่าจะกลับมาใช้งานได้</label>
+                                            <input
+                                                type="text"
+                                                value={maintenanceEstimatedEnd}
+                                                onChange={(e) => setMaintenanceEstimatedEnd(e.target.value)}
+                                                placeholder="เช่น 27 พ.ค. 2026 เวลา 12:00 น."
+                                                className="admin-input"
+                                            />
+                                        </div>
+                                        <button
+                                            onClick={handleSaveMaintenanceSettings}
+                                            disabled={maintenanceLoading}
+                                            className="flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-semibold cursor-pointer transition-all duration-300 text-white border-none w-full"
+                                            style={{ background: 'linear-gradient(135deg, #f59e0b, #f97316)', boxShadow: '0 0 15px rgba(245, 158, 11, 0.2)' }}
+                                        >
+                                            <FaSave /> บันทึกการตั้งค่า
+                                        </button>
+                                    </div>
+                                </div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+                </div>
+
                 {/* Action Bar */}
                 <div className="flex justify-end gap-3 mb-6">
                     <button
@@ -470,14 +687,43 @@ function AdminContent() {
                                 className="overflow-hidden"
                             >
                                 <div className="px-5 md:px-6 pb-6" style={{ borderTop: '1px solid var(--glass-border)' }}>
+                                    {/* Save Category Order Button */}
+                                    {hasUnsavedCategoryChanges && (
+                                        <div className="mt-4 mb-2">
+                                            <button
+                                                onClick={handleSaveCategoryOrder}
+                                                disabled={isLoading}
+                                                className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold cursor-pointer transition-all duration-300 text-white border-none animate-pulse"
+                                                style={{ background: 'linear-gradient(135deg, #f59e0b, #f97316)', boxShadow: '0 0 20px rgba(245, 158, 11, 0.3)' }}
+                                            >
+                                                <FaSave /> บันทึกลำดับหมวดหมู่ (ยังไม่บันทึก)
+                                            </button>
+                                        </div>
+                                    )}
+
                                     {/* Category List - Hierarchical */}
                                     <div className="mt-5 flex flex-col gap-2 mb-5">
                                         {categories.length === 0 ? (
                                             <p className="text-sm text-center py-6" style={{ color: 'var(--text-tertiary)' }}>ยังไม่มีหมวดหมู่</p>
-                                        ) : parentCategories.map(parent => (
+                                        ) : parentCategories.map((parent, pIdx) => (
                                             <div key={parent.id}>
                                                 {/* Parent Category */}
                                                 <div className="flex items-center gap-3 p-3 rounded-xl transition-all duration-200" style={{ background: 'var(--bg-secondary)', border: '1px solid var(--glass-border)' }}>
+                                                    {/* Reorder Arrows */}
+                                                    <div className="flex flex-col gap-0.5">
+                                                        <button onClick={() => moveCategoryInList(parent.id!, 'up', false)}
+                                                            disabled={pIdx === 0}
+                                                            className="w-5 h-5 rounded flex items-center justify-center cursor-pointer transition-all duration-200 border-none text-[8px] disabled:opacity-20 disabled:cursor-not-allowed"
+                                                            style={{ background: 'rgba(139,92,246,0.1)', color: '#8b5cf6' }}>
+                                                            <FaArrowUp />
+                                                        </button>
+                                                        <button onClick={() => moveCategoryInList(parent.id!, 'down', false)}
+                                                            disabled={pIdx === parentCategories.length - 1}
+                                                            className="w-5 h-5 rounded flex items-center justify-center cursor-pointer transition-all duration-200 border-none text-[8px] disabled:opacity-20 disabled:cursor-not-allowed"
+                                                            style={{ background: 'rgba(139,92,246,0.1)', color: '#8b5cf6' }}>
+                                                            <FaArrowDown />
+                                                        </button>
+                                                    </div>
                                                     <span className="text-xl">{parent.icon}</span>
                                                     <div className="flex-1 min-w-0">
                                                         <div className="font-semibold text-sm truncate" style={{ color: 'var(--text-primary)' }}>{parent.name}</div>
@@ -490,21 +736,39 @@ function AdminContent() {
                                                     <button onClick={() => handleDeleteCategory(parent.id!)} className="w-7 h-7 rounded-lg flex items-center justify-center cursor-pointer transition-all duration-200 border-none text-xs" style={{ background: 'rgba(239,68,68,0.1)', color: '#ef4444' }}><FaTrash /></button>
                                                 </div>
                                                 {/* Sub-categories */}
-                                                {getChildren(parent.id!).map(child => (
-                                                    <div key={child.id} className="flex items-center gap-3 p-3 rounded-xl transition-all duration-200 ml-8 mt-1" style={{ background: 'rgba(6,182,212,0.03)', border: '1px solid var(--glass-border)' }}>
-                                                        <span className="text-xs" style={{ color: 'var(--text-tertiary)' }}>└</span>
-                                                        <span className="text-lg">{child.icon}</span>
-                                                        <div className="flex-1 min-w-0">
-                                                            <div className="font-medium text-sm truncate" style={{ color: 'var(--text-primary)' }}>{child.name}</div>
-                                                            <div className="text-[10px] font-mono" style={{ color: 'var(--text-tertiary)' }}>/{child.slug}</div>
+                                                {(() => {
+                                                    const children = getChildren(parent.id!);
+                                                    return children.map((child, cIdx) => (
+                                                        <div key={child.id} className="flex items-center gap-3 p-3 rounded-xl transition-all duration-200 ml-8 mt-1" style={{ background: 'rgba(6,182,212,0.03)', border: '1px solid var(--glass-border)' }}>
+                                                            {/* Reorder Arrows for children */}
+                                                            <div className="flex flex-col gap-0.5">
+                                                                <button onClick={() => moveCategoryInList(child.id!, 'up', true, parent.id!)}
+                                                                    disabled={cIdx === 0}
+                                                                    className="w-5 h-5 rounded flex items-center justify-center cursor-pointer transition-all duration-200 border-none text-[8px] disabled:opacity-20 disabled:cursor-not-allowed"
+                                                                    style={{ background: 'rgba(139,92,246,0.08)', color: '#a78bfa' }}>
+                                                                    <FaArrowUp />
+                                                                </button>
+                                                                <button onClick={() => moveCategoryInList(child.id!, 'down', true, parent.id!)}
+                                                                    disabled={cIdx === children.length - 1}
+                                                                    className="w-5 h-5 rounded flex items-center justify-center cursor-pointer transition-all duration-200 border-none text-[8px] disabled:opacity-20 disabled:cursor-not-allowed"
+                                                                    style={{ background: 'rgba(139,92,246,0.08)', color: '#a78bfa' }}>
+                                                                    <FaArrowDown />
+                                                                </button>
+                                                            </div>
+                                                            <span className="text-xs" style={{ color: 'var(--text-tertiary)' }}>└</span>
+                                                            <span className="text-lg">{child.icon}</span>
+                                                            <div className="flex-1 min-w-0">
+                                                                <div className="font-medium text-sm truncate" style={{ color: 'var(--text-primary)' }}>{child.name}</div>
+                                                                <div className="text-[10px] font-mono" style={{ color: 'var(--text-tertiary)' }}>/{child.slug}</div>
+                                                            </div>
+                                                            <button onClick={() => handleToggleCategoryVisibility(child)} className="w-7 h-7 rounded-lg flex items-center justify-center cursor-pointer transition-all duration-200 border-none text-xs" style={{ background: child.visible ? 'rgba(16,185,129,0.1)' : 'rgba(239,68,68,0.1)', color: child.visible ? '#10b981' : '#ef4444' }}>
+                                                                {child.visible ? <FaEye /> : <FaEyeSlash />}
+                                                            </button>
+                                                            <button onClick={() => handleEditCategory(child)} className="w-7 h-7 rounded-lg flex items-center justify-center cursor-pointer transition-all duration-200 border-none text-xs" style={{ background: 'rgba(6,182,212,0.1)', color: '#06b6d4' }}><FaEdit /></button>
+                                                            <button onClick={() => handleDeleteCategory(child.id!)} className="w-7 h-7 rounded-lg flex items-center justify-center cursor-pointer transition-all duration-200 border-none text-xs" style={{ background: 'rgba(239,68,68,0.1)', color: '#ef4444' }}><FaTrash /></button>
                                                         </div>
-                                                        <button onClick={() => handleToggleCategoryVisibility(child)} className="w-7 h-7 rounded-lg flex items-center justify-center cursor-pointer transition-all duration-200 border-none text-xs" style={{ background: child.visible ? 'rgba(16,185,129,0.1)' : 'rgba(239,68,68,0.1)', color: child.visible ? '#10b981' : '#ef4444' }}>
-                                                            {child.visible ? <FaEye /> : <FaEyeSlash />}
-                                                        </button>
-                                                        <button onClick={() => handleEditCategory(child)} className="w-7 h-7 rounded-lg flex items-center justify-center cursor-pointer transition-all duration-200 border-none text-xs" style={{ background: 'rgba(6,182,212,0.1)', color: '#06b6d4' }}><FaEdit /></button>
-                                                        <button onClick={() => handleDeleteCategory(child.id!)} className="w-7 h-7 rounded-lg flex items-center justify-center cursor-pointer transition-all duration-200 border-none text-xs" style={{ background: 'rgba(239,68,68,0.1)', color: '#ef4444' }}><FaTrash /></button>
-                                                    </div>
-                                                ))}
+                                                    ));
+                                                })()}
                                             </div>
                                         ))}
                                     </div>
