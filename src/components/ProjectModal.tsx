@@ -102,7 +102,7 @@ const ProjectModal = ({ project, onClose }: ProjectModalProps) => {
     return (
         <motion.div
             className="fixed inset-0 z-[10000] flex justify-center items-center p-4 md:p-6"
-            style={{background: 'rgba(2, 10, 24, 0.85)', backdropFilter: 'blur(12px)'}}
+            style={{background: 'rgba(15, 23, 42, 0.5)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)'}}
             variants={backdropVariants}
             initial="hidden"
             animate="visible"
@@ -112,9 +112,10 @@ const ProjectModal = ({ project, onClose }: ProjectModalProps) => {
             <motion.div
                 className="w-full max-w-[1280px] h-[90vh] md:h-auto md:max-h-[90vh] rounded-3xl shadow-2xl flex flex-col relative overflow-hidden"
                 style={{
-                    backgroundColor: 'var(--bg-tertiary)',
+                    backgroundColor: '#ffffff',
                     color: 'var(--text-primary)',
-                    border: '1px solid var(--glass-border)'
+                    border: '1px solid rgba(255, 255, 255, 0.95)',
+                    boxShadow: '0 30px 70px -15px rgba(15, 23, 42, 0.3)'
                 }}
                 variants={modalVariants}
                 initial="hidden"
@@ -124,15 +125,23 @@ const ProjectModal = ({ project, onClose }: ProjectModalProps) => {
             >
                 {/* Close Button */}
                 <button
-                    className="absolute top-4 right-4 z-50 w-10 h-10 rounded-xl flex items-center justify-center cursor-pointer transition-all duration-200 text-white border-none"
-                    style={{background: 'rgba(0,0,0,0.3)', backdropFilter: 'blur(8px)'}}
+                    className="absolute top-4 right-4 z-50 w-10 h-10 rounded-xl flex items-center justify-center cursor-pointer transition-all duration-200"
+                    style={{
+                        background: 'rgba(255, 255, 255, 0.85)',
+                        backdropFilter: 'blur(8px)',
+                        color: '#0f172a',
+                        border: '1px solid rgba(203, 213, 225, 0.8)',
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.06)'
+                    }}
                     onClick={onClose}
                     onMouseEnter={(e) => {
-                        e.currentTarget.style.background = 'rgba(6, 182, 212, 0.3)';
+                        e.currentTarget.style.background = 'rgba(2, 132, 199, 0.1)';
+                        e.currentTarget.style.color = '#0284c7';
                         e.currentTarget.style.transform = 'rotate(90deg)';
                     }}
                     onMouseLeave={(e) => {
-                        e.currentTarget.style.background = 'rgba(0,0,0,0.3)';
+                        e.currentTarget.style.background = 'rgba(255, 255, 255, 0.85)';
+                        e.currentTarget.style.color = '#0f172a';
                         e.currentTarget.style.transform = 'rotate(0deg)';
                     }}
                 >
@@ -216,12 +225,12 @@ const ProjectModal = ({ project, onClose }: ProjectModalProps) => {
                             </div>
 
                             {/* Title */}
-                            <div className="pb-6" style={{borderBottom: '1px solid var(--glass-border)'}}>
-                                <span className="text-xs uppercase tracking-[2px] font-semibold mb-2 block" style={{color: '#06b6d4'}}>{project.category || 'SERIES'}</span>
+                            <div className="pb-6" style={{borderBottom: '1px solid var(--border-color)'}}>
+                                <span className="text-xs uppercase tracking-[2px] font-bold mb-2 block" style={{color: '#0284c7'}}>{project.category || 'SERIES'}</span>
                                 <h2 className="font-space text-2xl md:text-3xl font-bold leading-[1.15] mb-3" style={{color: 'var(--text-primary)'}}>{project.title}</h2>
                                 {project.featured && (
                                     <span className="inline-block text-[11px] font-bold py-1 px-3 rounded-md uppercase tracking-wider"
-                                          style={{background: 'rgba(245, 158, 11, 0.1)', border: '1px solid rgba(245, 158, 11, 0.3)', color: '#f59e0b'}}>
+                                          style={{background: 'rgba(245, 158, 11, 0.1)', border: '1px solid rgba(245, 158, 11, 0.3)', color: '#d97706'}}>
                                         ผลงานเด่น
                                     </span>
                                 )}
@@ -262,47 +271,47 @@ const ProjectModal = ({ project, onClose }: ProjectModalProps) => {
                                 {project.videoUrl && project.type === 'Video' && (
                                     <a href={project.videoUrl} target="_blank" rel="noopener noreferrer"
                                        className="flex items-center justify-center gap-2 py-3.5 px-6 rounded-2xl font-bold text-sm transition-all duration-200 text-white no-underline hover:-translate-y-0.5"
-                                       style={{background: 'linear-gradient(135deg, #06b6d4, #3b82f6)', boxShadow: '0 4px 14px rgba(6, 182, 212, 0.3)'}}>
+                                       style={{background: 'linear-gradient(135deg, #0284c7, #2563eb)', boxShadow: '0 6px 20px rgba(2, 132, 199, 0.3)'}}>
                                         <FaExternalLinkAlt className="text-xs" /> Watch on Platform
                                     </a>
                                 )}
                                 {project.demo && project.type !== 'Video' && (
                                     <a href={project.demo} target="_blank" rel="noopener noreferrer"
                                        className="flex items-center justify-center gap-2 py-3.5 px-6 rounded-2xl font-bold text-sm transition-all duration-200 text-white no-underline hover:-translate-y-0.5"
-                                       style={{background: 'linear-gradient(135deg, #06b6d4, #3b82f6)', boxShadow: '0 4px 14px rgba(6, 182, 212, 0.3)'}}>
+                                       style={{background: 'linear-gradient(135deg, #0284c7, #2563eb)', boxShadow: '0 6px 20px rgba(2, 132, 199, 0.3)'}}>
                                         <FaExternalLinkAlt className="text-xs" /> Live Demo
                                     </a>
                                 )}
                             </div>
 
                             {/* Client & Year */}
-                            <div className="rounded-2xl p-5 backdrop-blur-sm" style={{background: 'rgba(6, 182, 212, 0.04)', border: '1px solid var(--glass-border)'}}>
+                            <div className="rounded-2xl p-5 backdrop-blur-sm" style={{background: 'rgba(241, 245, 249, 0.7)', border: '1px solid rgba(226, 232, 240, 0.8)'}}>
                                 <div className="space-y-4">
                                     <div className="flex items-start gap-4">
-                                        <div className="p-2.5 rounded-xl" style={{background: 'rgba(6, 182, 212, 0.1)', color: '#06b6d4'}}>
+                                        <div className="p-2.5 rounded-xl" style={{background: 'rgba(2, 132, 199, 0.1)', color: '#0284c7'}}>
                                             <FaUser className="text-base" />
                                         </div>
                                         <div>
                                             <span className="block text-[10px] uppercase tracking-wider font-bold mb-0.5" style={{color: 'var(--text-tertiary)'}}>CLIENT</span>
-                                            <span className="block text-sm font-medium" style={{color: 'var(--text-primary)'}}>{project.client || "Personal Project"}</span>
+                                            <span className="block text-sm font-semibold" style={{color: 'var(--text-primary)'}}>{project.client || "Personal Project"}</span>
                                         </div>
                                     </div>
-                                    <div className="h-px w-full" style={{background: 'var(--glass-border)'}} />
+                                    <div className="h-px w-full" style={{background: 'var(--border-color)'}} />
                                     <div className="flex items-start gap-4">
-                                        <div className="p-2.5 rounded-xl" style={{background: 'rgba(6, 182, 212, 0.1)', color: '#06b6d4'}}>
+                                        <div className="p-2.5 rounded-xl" style={{background: 'rgba(2, 132, 199, 0.1)', color: '#0284c7'}}>
                                             <FaCalendar className="text-base" />
                                         </div>
                                         <div>
                                             <span className="block text-[10px] uppercase tracking-wider font-bold mb-0.5" style={{color: 'var(--text-tertiary)'}}>YEAR</span>
-                                            <span className="block text-sm font-medium" style={{color: 'var(--text-primary)'}}>{project.year || new Date().getFullYear()}</span>
+                                            <span className="block text-sm font-semibold" style={{color: 'var(--text-primary)'}}>{project.year || new Date().getFullYear()}</span>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
                             {/* Tech Tags */}
-                            <div className="rounded-2xl p-5 backdrop-blur-sm" style={{background: 'rgba(6, 182, 212, 0.04)', border: '1px solid var(--glass-border)'}}>
-                                <h3 className="text-xs font-bold flex items-center gap-2 mb-3" style={{color: '#06b6d4'}}>
+                            <div className="rounded-2xl p-5 backdrop-blur-sm" style={{background: 'rgba(241, 245, 249, 0.7)', border: '1px solid rgba(226, 232, 240, 0.8)'}}>
+                                <h3 className="text-xs font-bold flex items-center gap-2 mb-3" style={{color: '#0284c7'}}>
                                     <FaTools className="text-[10px]" /> ตำแหน่งที่ทำ
                                 </h3>
                                 <div className="flex flex-wrap gap-2">
@@ -310,14 +319,14 @@ const ProjectModal = ({ project, onClose }: ProjectModalProps) => {
                                         const techName = typeof t === 'string' ? t : t.name;
                                         return (
                                             <span key={i} className="py-1.5 px-3 rounded-lg text-xs font-medium"
-                                                  style={{background: 'rgba(6, 182, 212, 0.08)', color: 'var(--text-secondary)', border: '1px solid var(--glass-border)'}}>
+                                                  style={{background: 'rgba(255, 255, 255, 0.85)', color: 'var(--text-primary)', border: '1px solid rgba(203, 213, 225, 0.7)'}}>
                                                 {techName}
                                             </span>
                                         );
                                     })}
                                     {(!project.tech || project.tech.length === 0) && (
                                         <span className="py-1.5 px-3 rounded-lg text-xs font-medium"
-                                              style={{background: 'rgba(6, 182, 212, 0.08)', color: 'var(--text-secondary)', border: '1px solid var(--glass-border)'}}>
+                                              style={{background: 'rgba(255, 255, 255, 0.85)', color: 'var(--text-primary)', border: '1px solid rgba(203, 213, 225, 0.7)'}}>
                                             Editor
                                         </span>
                                     )}
@@ -325,7 +334,7 @@ const ProjectModal = ({ project, onClose }: ProjectModalProps) => {
                             </div>
 
                             {/* Copyright */}
-                            <div className="rounded-2xl p-5 backdrop-blur-sm mt-auto" style={{background: 'rgba(6, 182, 212, 0.02)', border: '1px solid var(--glass-border)'}}>
+                            <div className="rounded-2xl p-5 backdrop-blur-sm mt-auto" style={{background: 'rgba(241, 245, 249, 0.5)', border: '1px solid rgba(226, 232, 240, 0.8)'}}>
                                 <h3 className="text-[10px] font-bold uppercase tracking-wider mb-2" style={{color: 'var(--text-tertiary)'}}>
                                     หมายเหตุ / ลิขสิทธิ์
                                 </h3>

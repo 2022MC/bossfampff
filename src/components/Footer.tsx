@@ -17,20 +17,21 @@ const Footer = () => {
     return (
         <footer className="border-t pt-16 px-5 pb-8 relative transition-colors duration-300"
             style={{
-                backgroundColor: 'var(--bg-primary)',
+                backgroundColor: 'rgba(255, 255, 255, 0.7)',
+                backdropFilter: 'blur(16px)',
                 borderColor: 'var(--glass-border)'
             }}>
 
             {/* Gradient divider at top */}
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/2 max-w-[400px] h-px"
-                style={{ background: 'linear-gradient(90deg, transparent, rgba(6, 182, 212, 0.3), transparent)' }}></div>
+                style={{ background: 'linear-gradient(90deg, transparent, rgba(2, 132, 199, 0.35), transparent)' }}></div>
 
             <div className="max-w-[1200px] mx-auto">
                 <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr_auto] gap-10 md:gap-16 mb-12">
                     <div className="flex flex-col gap-4">
                         <h3 className="font-space text-2xl font-bold flex items-center gap-2" style={{ color: 'var(--text-primary)' }}>
-                            <span className="w-7 h-7 rounded-lg flex items-center justify-center text-white text-xs font-black"
-                                style={{ background: 'linear-gradient(135deg, #06b6d4, #14b8a6)' }}>B</span>
+                            <span className="w-7 h-7 rounded-lg flex items-center justify-center text-white text-xs font-black shadow-sm"
+                                style={{ background: 'linear-gradient(135deg, #0284c7, #0d9488)' }}>B</span>
                             Portfolio
                         </h3>
                         <p className="text-sm leading-relaxed max-w-[300px]" style={{ color: 'var(--text-secondary)' }}>
@@ -52,7 +53,7 @@ const Footer = () => {
                                 <li key={link.href}>
                                     <a href={link.href} className="text-sm transition-all duration-300 inline-block hover:translate-x-1"
                                         style={{ color: 'var(--text-secondary)' }}
-                                        onMouseEnter={(e) => (e.currentTarget.style.color = '#06b6d4')}
+                                        onMouseEnter={(e) => (e.currentTarget.style.color = '#0284c7')}
                                         onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--text-secondary)')}>
                                         {link.name}
                                     </a>
@@ -70,21 +71,21 @@ const Footer = () => {
                                     href={social.href}
                                     target={social.href.startsWith('http') ? '_blank' : undefined}
                                     rel={social.href.startsWith('http') ? 'noopener noreferrer' : undefined}
-                                    className="w-10 h-10 rounded-xl flex items-center justify-center text-lg transition-all duration-300 hover:-translate-y-1"
+                                    className="w-10 h-10 rounded-xl flex items-center justify-center text-lg transition-all duration-300 hover:-translate-y-1 shadow-sm"
                                     style={{
                                         color: 'var(--text-secondary)',
-                                        background: 'rgba(255,255,255,0.03)',
+                                        background: 'rgba(255, 255, 255, 0.85)',
                                         border: '1px solid var(--glass-border)'
                                     }}
                                     onMouseEnter={(e) => {
-                                        e.currentTarget.style.color = '#06b6d4';
-                                        e.currentTarget.style.borderColor = 'rgba(6, 182, 212, 0.3)';
-                                        e.currentTarget.style.background = 'rgba(6, 182, 212, 0.08)';
+                                        e.currentTarget.style.color = '#0284c7';
+                                        e.currentTarget.style.borderColor = 'rgba(2, 132, 199, 0.4)';
+                                        e.currentTarget.style.background = 'rgba(2, 132, 199, 0.08)';
                                     }}
                                     onMouseLeave={(e) => {
                                         e.currentTarget.style.color = 'var(--text-secondary)';
                                         e.currentTarget.style.borderColor = 'var(--glass-border)';
-                                        e.currentTarget.style.background = 'rgba(255,255,255,0.03)';
+                                        e.currentTarget.style.background = 'rgba(255, 255, 255, 0.85)';
                                     }}
                                     title={social.label}
                                 >
@@ -97,7 +98,7 @@ const Footer = () => {
 
                 <div className="text-center pt-6 border-t" style={{ borderColor: 'var(--glass-border)' }}>
                     <p className="text-xs flex items-center justify-center gap-2" style={{ color: 'var(--text-tertiary)' }}>
-                        © {currentYear} สร้างด้วย <FaHeart className="animate-heartbeat" style={{ color: '#06b6d4' }} /> โดย Boss Entertainment
+                        © {currentYear} สร้างด้วย <FaHeart className="animate-heartbeat" style={{ color: '#0284c7' }} /> โดย Boss Entertainment
                     </p>
                 </div>
             </div>

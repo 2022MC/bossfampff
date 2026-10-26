@@ -36,29 +36,29 @@ const About = () => {
             icon: <FaCut />,
             title: 'Cutting & Editing',
             description: 'กระบวนการนำคลิปวิดีโอหรือภาพที่ถ่ายทำไว้มา "ตัด" ส่วนที่ไม่ต้องการ และ "เรียงลำดับ" ต่อกันอย่างต่อเนื่อง',
-            accent: '#06b6d4'
+            accent: '#0284c7'
         },
         {
             icon: <FaBrain />,
             title: 'Growth Mindset',
             description: 'การมีเป้าหมายชัดเจน ทำงานเป็นระบบ พัฒนาตัวเองสม่ำเสมอ',
-            accent: '#14b8a6'
+            accent: '#0d9488'
         },
         {
             icon: <FaRocket />,
             title: 'One thing at a time',
             description: 'วางแผนและจัดลำดับก่อนลงมือเสมอ มีสมาธิในการทำงานที่กำหนด',
-            accent: '#3b82f6'
+            accent: '#2563eb'
         }
     ];
 
     return (
         <section id="about" className="py-[100px] px-5 relative overflow-hidden"
-                 style={{backgroundColor: 'var(--bg-secondary)'}}>
+                 style={{backgroundColor: 'transparent'}}>
             
             {/* Subtle background decoration */}
-            <div className="absolute top-0 right-0 w-1/2 h-1/2 pointer-events-none opacity-30"
-                 style={{background: 'radial-gradient(circle at 100% 0%, rgba(6, 182, 212, 0.06) 0%, transparent 50%)'}}></div>
+            <div className="absolute top-0 right-0 w-1/2 h-1/2 pointer-events-none opacity-40"
+                 style={{background: 'radial-gradient(circle at 100% 0%, rgba(56, 189, 248, 0.15) 0%, transparent 60%)'}}></div>
 
             <motion.div
                 className="max-w-[1200px] mx-auto relative z-[2]"
@@ -69,7 +69,7 @@ const About = () => {
             >
                 <motion.div className="mb-16" variants={itemVariants}>
                     <h2 className="font-space text-3xl md:text-4xl font-bold flex items-baseline gap-3" style={{color: 'var(--text-primary)'}}>
-                        <span className="font-mono text-lg" style={{color: '#06b6d4'}}>01.</span>
+                        <span className="font-mono text-lg font-bold" style={{color: '#0284c7'}}>01.</span>
                         เกี่ยวกับผม
                     </h2>
                 </motion.div>
@@ -80,7 +80,7 @@ const About = () => {
                     {/* About Text — Large Card */}
                     <motion.div className="lg:col-span-7 bento-card" variants={itemVariants}>
                         <p className="text-base lg:text-lg leading-[1.9]" style={{color: 'var(--text-secondary)'}}>
-                            สวัสดีครับ ผมชื่อ <span style={{color: '#06b6d4'}} className="font-semibold">บอส</span> ผมเป็นคนตัดต่อวิดีโอที่หลงใหลการเล่าเรื่องผ่านภาพและจังหวะ เสียง และอารมณ์ในทุกเฟรม งานของผมเน้นความลื่นไหล เรียบง่าย แต่มีพลัง ผมชอบการทำงานที่ใส่ใจรายละเอียด และพร้อมเรียนรู้เทคนิคใหม่ ๆ เพื่อให้ทุกโปรเจกต์ออกมาดีที่สุด เป้าหมายของผมคือการสร้างวิดีโอที่ทำให้คนดู &ldquo;รู้สึก&rdquo; และเชื่อมต่อกับเรื่องราวได้อย่างแท้จริง
+                            สวัสดีครับ ผมชื่อ <span style={{color: '#0284c7'}} className="font-semibold">บอส</span> ผมเป็นคนตัดต่อวิดีโอที่หลงใหลการเล่าเรื่องผ่านภาพและจังหวะ เสียง และอารมณ์ในทุกเฟรม งานของผมเน้นความลื่นไหล เรียบง่าย แต่มีพลัง ผมชอบการทำงานที่ใส่ใจรายละเอียด และพร้อมเรียนรู้เทคนิคใหม่ ๆ เพื่อให้ทุกโปรเจกต์ออกมาดีที่สุด เป้าหมายของผมคือการสร้างวิดีโอที่ทำให้คนดู &ldquo;รู้สึก&rdquo; และเชื่อมต่อกับเรื่องราวได้อย่างแท้จริง
                         </p>
                     </motion.div>
 
@@ -93,7 +93,7 @@ const About = () => {
                                 variants={itemVariants}
                             >
                                 <div className="font-space text-3xl lg:text-4xl font-bold bg-clip-text text-transparent inline-block mb-1 lg:mb-0 lg:min-w-[80px]"
-                                     style={{backgroundImage: 'linear-gradient(135deg, #22d3ee, #2dd4bf)'}}>
+                                     style={{backgroundImage: 'linear-gradient(135deg, #0284c7, #0d9488)'}}>
                                     {stat.value}
                                 </div>
                                 <div className="text-sm font-medium leading-[1.5] whitespace-pre-line" style={{color: 'var(--text-tertiary)'}}>

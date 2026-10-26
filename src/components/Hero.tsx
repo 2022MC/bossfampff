@@ -52,22 +52,22 @@ const Hero = () => {
         <section id="home" className="relative min-h-screen flex items-center justify-center overflow-hidden pt-[120px] px-5 pb-20 transition-colors duration-300"
             style={{
                 backgroundColor: 'var(--bg-primary)',
-                background: 'radial-gradient(ellipse at 50% 0%, rgba(6, 182, 212, 0.08) 0%, var(--bg-primary) 60%)'
+                background: 'radial-gradient(ellipse at 50% 0%, rgba(56, 189, 248, 0.12) 0%, var(--bg-primary) 70%)'
             }}>
 
             {/* Mesh Gradient Background */}
             <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-                <div className="absolute w-[800px] h-[800px] -top-[20%] -left-[15%] rounded-full blur-[120px] opacity-30 animate-mesh-float"
-                    style={{ background: 'radial-gradient(circle, rgba(6, 182, 212, 0.4) 0%, transparent 70%)' }}></div>
-                <div className="absolute w-[600px] h-[600px] -bottom-[15%] -right-[10%] rounded-full blur-[120px] opacity-25 animate-mesh-float [animation-delay:-5s]"
-                    style={{ background: 'radial-gradient(circle, rgba(20, 184, 166, 0.4) 0%, transparent 70%)' }}></div>
-                <div className="absolute w-[500px] h-[500px] top-[30%] right-[15%] rounded-full blur-[120px] opacity-20 animate-mesh-float [animation-delay:-10s]"
-                    style={{ background: 'radial-gradient(circle, rgba(59, 130, 246, 0.3) 0%, transparent 70%)' }}></div>
+                <div className="absolute w-[800px] h-[800px] -top-[20%] -left-[15%] rounded-full blur-[120px] opacity-40 animate-mesh-float"
+                    style={{ background: 'radial-gradient(circle, rgba(56, 189, 248, 0.25) 0%, transparent 70%)' }}></div>
+                <div className="absolute w-[600px] h-[600px] -bottom-[15%] -right-[10%] rounded-full blur-[120px] opacity-35 animate-mesh-float [animation-delay:-5s]"
+                    style={{ background: 'radial-gradient(circle, rgba(45, 212, 191, 0.22) 0%, transparent 70%)' }}></div>
+                <div className="absolute w-[500px] h-[500px] top-[30%] right-[15%] rounded-full blur-[120px] opacity-30 animate-mesh-float [animation-delay:-10s]"
+                    style={{ background: 'radial-gradient(circle, rgba(129, 140, 248, 0.2) 0%, transparent 70%)' }}></div>
 
                 {/* Grid Pattern Overlay */}
-                <div className="absolute inset-0 opacity-[0.03]"
+                <div className="absolute inset-0 opacity-[0.035]"
                     style={{
-                        backgroundImage: 'linear-gradient(rgba(6, 182, 212, 0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(6, 182, 212, 0.5) 1px, transparent 1px)',
+                        backgroundImage: 'linear-gradient(rgba(2, 132, 199, 0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(2, 132, 199, 0.3) 1px, transparent 1px)',
                         backgroundSize: '60px 60px'
                     }}></div>
 
@@ -85,11 +85,12 @@ const Hero = () => {
                 </motion.div>
 
                 <motion.div className="mb-6" variants={itemVariants}>
-                    <span className="font-space text-[clamp(14px,1.8vw,18px)] font-medium tracking-[3px] uppercase px-5 py-2.5 rounded-full inline-block"
+                    <span className="font-space text-[clamp(14px,1.8vw,18px)] font-semibold tracking-[3px] uppercase px-5 py-2.5 rounded-full inline-block backdrop-blur-md shadow-sm"
                         style={{
-                            color: '#06b6d4',
-                            background: 'rgba(6, 182, 212, 0.08)',
-                            border: '1px solid rgba(6, 182, 212, 0.15)'
+                            color: '#0284c7',
+                            background: 'rgba(255, 255, 255, 0.8)',
+                            border: '1px solid rgba(255, 255, 255, 0.95)',
+                            boxShadow: '0 4px 15px -3px rgba(2, 132, 199, 0.12)'
                         }}>
                         ตัดไวกว่าใจเธอเปลี่ยน
                     </span>
@@ -110,8 +111,8 @@ const Hero = () => {
                             </motion.span>
                         ))}
                     </span>
-                    <span className="block bg-clip-text text-transparent bg-[length:300%_auto] animate-gradient-shift"
-                        style={{ backgroundImage: 'linear-gradient(135deg, #22d3ee 0%, #2dd4bf 25%, #60a5fa 50%, #22d3ee 75%, #2dd4bf 100%)' }}>
+                    <span className="block bg-clip-text text-transparent bg-[length:300%_auto] animate-gradient-shift drop-shadow-sm"
+                        style={{ backgroundImage: 'linear-gradient(135deg, #0284c7 0%, #0d9488 25%, #2563eb 50%, #0284c7 75%, #0d9488 100%)' }}>
                         {splitGraphemes(name2).map((letter, i) => (
                             <motion.span
                                 key={i}
@@ -151,7 +152,7 @@ const Hero = () => {
                 <motion.div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10" variants={itemVariants}>
                     <a href="#about" className="flex flex-col items-center gap-2 no-underline text-xs font-medium tracking-[2px] uppercase transition-all duration-300 group" style={{ color: 'var(--text-tertiary)' }}>
                         <span>เลื่อนลง</span>
-                        <FaArrowDown className="text-base animate-bounce group-hover:text-primary" style={{ color: '#06b6d4' }} />
+                        <FaArrowDown className="text-base animate-bounce group-hover:text-primary" style={{ color: '#0284c7' }} />
                     </a>
                 </motion.div>
             </motion.div>

@@ -47,19 +47,20 @@ const Banner = () => {
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white cursor-pointer transition-all duration-300 hover:-translate-y-0.5"
                         style={{
-                            background: 'rgba(255,255,255,0.1)',
-                            border: '1px solid rgba(255,255,255,0.2)',
-                            backdropFilter: 'blur(10px)',
+                            background: 'rgba(255, 255, 255, 0.25)',
+                            border: '1px solid rgba(255, 255, 255, 0.5)',
+                            backdropFilter: 'blur(12px)',
+                            boxShadow: '0 4px 15px rgba(0, 0, 0, 0.15)'
                         }}
                         onMouseEnter={(e) => {
-                            e.currentTarget.style.background = 'rgba(6, 182, 212, 0.8)';
-                            e.currentTarget.style.borderColor = 'rgba(6, 182, 212, 0.9)';
-                            e.currentTarget.style.boxShadow = '0 0 20px rgba(6, 182, 212, 0.4)';
+                            e.currentTarget.style.background = 'linear-gradient(135deg, #0284c7, #0d9488)';
+                            e.currentTarget.style.borderColor = 'rgba(2, 132, 199, 0.9)';
+                            e.currentTarget.style.boxShadow = '0 8px 25px rgba(2, 132, 199, 0.4)';
                         }}
                         onMouseLeave={(e) => {
-                            e.currentTarget.style.background = 'rgba(255,255,255,0.1)';
-                            e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)';
-                            e.currentTarget.style.boxShadow = 'none';
+                            e.currentTarget.style.background = 'rgba(255, 255, 255, 0.25)';
+                            e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.5)';
+                            e.currentTarget.style.boxShadow = '0 4px 15px rgba(0, 0, 0, 0.15)';
                         }}
                     >
                         ดูผลงาน →

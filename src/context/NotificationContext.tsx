@@ -77,13 +77,13 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
     const getTypeStyles = (type: NotificationType) => {
         switch (type) {
             case 'success':
-                return 'border-green-500/50 bg-green-500/10 text-green-400 shadow-[0_4px_12px_rgba(34,197,94,0.15)]';
+                return 'border-emerald-500/30 bg-emerald-50/95 text-emerald-700 shadow-[0_8px_24px_rgba(16,185,129,0.15)]';
             case 'error':
-                return 'border-red-500/50 bg-red-500/10 text-red-500 shadow-[0_4px_12px_rgba(239,68,68,0.15)]';
+                return 'border-rose-500/30 bg-rose-50/95 text-rose-700 shadow-[0_8px_24px_rgba(244,63,94,0.15)]';
             case 'warning':
-                return 'border-amber-500/50 bg-amber-500/10 text-amber-500 shadow-[0_4px_12px_rgba(245,158,11,0.15)]';
+                return 'border-amber-500/30 bg-amber-50/95 text-amber-700 shadow-[0_8px_24px_rgba(245,158,11,0.15)]';
             default: // info
-                return 'border-blue-500/50 bg-blue-500/10 text-blue-400 shadow-[0_4px_12px_rgba(59,130,246,0.15)]';
+                return 'border-sky-500/30 bg-sky-50/95 text-sky-700 shadow-[0_8px_24px_rgba(2,132,199,0.15)]';
         }
     };
 
@@ -95,7 +95,7 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
                     {notifications.map((notification) => (
                         <motion.div
                             key={notification.id}
-                            className={`pointer-events-auto min-w-[300px] max-w-[400px] p-4 rounded-2xl border backdrop-blur-md flex items-start gap-3 shadow-lg ${getTypeStyles(notification.type)}`}
+                            className={`pointer-events-auto min-w-[300px] max-w-[400px] p-4 rounded-2xl border backdrop-blur-xl flex items-start gap-3 shadow-lg ${getTypeStyles(notification.type)}`}
                             initial={{ opacity: 0, x: 50, scale: 0.9 }}
                             animate={{ opacity: 1, x: 0, scale: 1 }}
                             exit={{ opacity: 0, x: 50, scale: 0.9 }}
@@ -107,7 +107,7 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
                                 {notification.type === 'warning' && <FaExclamationCircle />}
                                 {notification.type === 'info' && <FaInfoCircle />}
                             </div>
-                            <div className="flex-1 text-sm font-medium leading-[1.4] text-text-primary/90">
+                            <div className="flex-1 text-sm font-medium leading-[1.4] text-slate-800">
                                 <p>{notification.message}</p>
                             </div>
                             <button
@@ -125,34 +125,44 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
             <AnimatePresence>
                 {confirmState.isOpen && (
                     <motion.div
-                        className="fixed inset-0 z-[10001] flex items-center justify-center bg-black/60 backdrop-blur-sm p-5"
+                        className="fixed inset-0 z-[10001] flex items-center justify-center bg-slate-900/40 backdrop-blur-md p-5"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                     >
                         <motion.div
-                            className="bg-bg-tertiary border border-glass-border p-8 rounded-[24px] max-w-[400px] w-full text-center shadow-2xl relative overflow-hidden"
+                            className="p-8 rounded-[24px] max-w-[400px] w-full text-center shadow-2xl relative overflow-hidden"
+                            style={{
+                                background: 'rgba(255, 255, 255, 0.92)',
+                                backdropFilter: 'blur(24px) saturate(180%)',
+                                border: '1px solid rgba(255, 255, 255, 0.95)',
+                                boxShadow: '0 25px 60px -15px rgba(15, 23, 42, 0.2)'
+                            }}
                             initial={{ scale: 0.8, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}
                             exit={{ scale: 0.8, opacity: 0 }}
                         >
                             {/* Background decoration */}
-                            <div className="absolute -top-10 -right-10 w-24 h-24 bg-primary/20 blur-[40px] rounded-full pointer-events-none"></div>
+                            <div className="absolute -top-10 -right-10 w-24 h-24 bg-sky-400/20 blur-[40px] rounded-full pointer-events-none"></div>
 
-                            <div className="w-16 h-16 rounded-full bg-primary/10 text-primary text-3xl flex items-center justify-center mx-auto mb-5">
+                            <div className="w-16 h-16 rounded-full bg-sky-50 text-sky-600 border border-sky-100 text-3xl flex items-center justify-center mx-auto mb-5 shadow-sm">
                                 <FaQuestionCircle />
                             </div>
-                            <h3 className="font-space text-xl font-bold text-text-primary mb-3">ยืนยันการทำรายการ</h3>
-                            <p className="text-text-secondary text-base mb-8 leading-relaxed">{confirmState.message}</p>
+                            <h3 className="font-space text-xl font-bold text-slate-900 mb-3">ยืนยันการทำรายการ</h3>
+                            <p className="text-slate-600 text-base mb-8 leading-relaxed">{confirmState.message}</p>
                             <div className="flex gap-4">
                                 <button
-                                    className="flex-1 py-3 px-5 rounded-xl border border-border-color bg-transparent text-text-secondary font-semibold hover:bg-white/5 hover:text-text-primary transition-all duration-200"
+                                    className="flex-1 py-3 px-5 rounded-xl border border-slate-200 bg-white text-slate-700 font-semibold hover:bg-slate-50 transition-all duration-200 shadow-sm cursor-pointer"
                                     onClick={() => confirmState.onCancel && confirmState.onCancel()}
                                 >
                                     ยกเลิก
                                 </button>
                                 <button
-                                    className="flex-1 py-3 px-5 rounded-xl border-none bg-primary text-white font-semibold shadow-glow-primary hover:bg-secondary hover:-translate-y-0.5 transition-all duration-200"
+                                    className="flex-1 py-3 px-5 rounded-xl border-none text-white font-semibold transition-all duration-200 cursor-pointer shadow-md hover:brightness-105"
+                                    style={{
+                                        background: 'linear-gradient(135deg, #0284c7, #0d9488)',
+                                        boxShadow: '0 4px 15px rgba(2, 132, 199, 0.35)'
+                                    }}
                                     onClick={() => confirmState.onConfirm && confirmState.onConfirm()}
                                 >
                                     ยืนยัน

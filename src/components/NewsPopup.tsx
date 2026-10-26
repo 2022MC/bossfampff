@@ -51,8 +51,8 @@ const NewsPopup = () => {
                 <motion.div
                     className="fixed top-0 left-0 w-full h-full z-[9999] flex items-center justify-center p-5"
                     style={{
-                        background: 'rgba(2, 10, 24, 0.85)',
-                        backdropFilter: 'blur(8px)'
+                        background: 'rgba(15, 23, 42, 0.45)',
+                        backdropFilter: 'blur(12px)'
                     }}
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
@@ -61,10 +61,12 @@ const NewsPopup = () => {
                     onClick={handleOverlayClick}
                 >
                     <motion.div
-                        className="relative max-w-[500px] w-4/5 max-h-[80vh] rounded-2xl overflow-hidden md:max-w-[500px] sm:w-[95%]"
+                        className="relative max-w-[500px] w-4/5 max-h-[80vh] rounded-2xl overflow-hidden md:max-w-[500px] sm:w-[95%] p-2"
                         style={{
-                            background: 'transparent',
-                            boxShadow: '0 20px 60px rgba(0, 0, 0, 0.5), 0 0 40px rgba(6, 182, 212, 0.05)'
+                            background: 'rgba(255, 255, 255, 0.85)',
+                            backdropFilter: 'blur(20px)',
+                            border: '1px solid rgba(255, 255, 255, 0.95)',
+                            boxShadow: '0 25px 60px -15px rgba(15, 23, 42, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.9)'
                         }}
                         initial={{ scale: 0.9, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
@@ -73,10 +75,10 @@ const NewsPopup = () => {
                         onClick={(e) => e.stopPropagation()}
                     >
                         <button
-                            className="absolute top-3 right-3 w-10 h-10 rounded-full backdrop-blur-xl text-white text-lg cursor-pointer flex items-center justify-center z-10 transition-all duration-300 hover:rotate-90 hover:scale-110"
+                            className="absolute top-4 right-4 w-9 h-9 rounded-full backdrop-blur-xl text-slate-800 text-sm cursor-pointer flex items-center justify-center z-10 transition-all duration-300 hover:rotate-90 hover:scale-110 shadow-md"
                             style={{
-                                background: 'rgba(0, 0, 0, 0.5)',
-                                border: '1px solid rgba(255,255,255,0.2)'
+                                background: 'rgba(255, 255, 255, 0.9)',
+                                border: '1px solid rgba(203, 213, 225, 0.8)'
                             }}
                             onClick={handleClose}
                         >
@@ -86,13 +88,13 @@ const NewsPopup = () => {
                         <div className="relative w-full h-full">
                             {newsItems.length > 1 && (
                                 <>
-                                    <button className="absolute top-1/2 -translate-y-1/2 w-9 h-9 rounded-full cursor-pointer flex items-center justify-center text-lg z-[5] transition-all duration-300 left-2.5 text-white border-none"
-                                            style={{ background: 'rgba(0,0,0,0.4)' }}
+                                    <button className="absolute top-1/2 -translate-y-1/2 w-9 h-9 rounded-full cursor-pointer flex items-center justify-center text-sm z-[5] transition-all duration-300 left-2.5 text-slate-800 border-none shadow-md"
+                                            style={{ background: 'rgba(255, 255, 255, 0.9)' }}
                                             onClick={prevSlide}>
                                         &#10094;
                                     </button>
-                                    <button className="absolute top-1/2 -translate-y-1/2 w-9 h-9 rounded-full cursor-pointer flex items-center justify-center text-lg z-[5] transition-all duration-300 right-2.5 text-white border-none"
-                                            style={{ background: 'rgba(0,0,0,0.4)' }}
+                                    <button className="absolute top-1/2 -translate-y-1/2 w-9 h-9 rounded-full cursor-pointer flex items-center justify-center text-sm z-[5] transition-all duration-300 right-2.5 text-slate-800 border-none shadow-md"
+                                            style={{ background: 'rgba(255, 255, 255, 0.9)' }}
                                             onClick={nextSlide}>
                                         &#10095;
                                     </button>
@@ -103,7 +105,7 @@ const NewsPopup = () => {
                                                 key={index}
                                                 className={`w-2 h-2 rounded-full cursor-pointer transition-all duration-300 ${index === currentIndex ? 'scale-125' : ''}`}
                                                 style={{
-                                                    background: index === currentIndex ? '#06b6d4' : 'rgba(255,255,255,0.4)'
+                                                    background: index === currentIndex ? '#0284c7' : 'rgba(15, 23, 42, 0.25)'
                                                 }}
                                                 onClick={() => setCurrentIndex(index)}
                                             />

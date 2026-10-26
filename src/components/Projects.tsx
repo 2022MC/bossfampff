@@ -90,11 +90,11 @@ const Projects = ({ limit, group }: ProjectsProps) => {
 
     return (
         <section id="projects" className="py-[80px] md:py-[100px] px-4 md:px-5 relative min-h-screen"
-                 style={{backgroundColor: 'var(--bg-primary)'}}>
+                 style={{backgroundColor: 'transparent'}}>
             {/* Background decoration */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
                 <div className="absolute top-0 right-0 w-1/2 h-1/2 z-0"
-                     style={{background: 'radial-gradient(circle at 100% 0%, rgba(6, 182, 212, 0.06) 0%, transparent 60%)'}}></div>
+                     style={{background: 'radial-gradient(circle at 100% 0%, rgba(56, 189, 248, 0.12) 0%, transparent 60%)'}}></div>
             </div>
 
             <div className="max-w-[1280px] mx-auto relative z-1">
@@ -110,8 +110,8 @@ const Projects = ({ limit, group }: ProjectsProps) => {
                         <div className="relative mb-6">
                             <div className="relative w-28 h-28 mx-auto lg:mx-0">
                                 <div className="w-full h-full rounded-full overflow-hidden shadow-lg p-[2px]"
-                                     style={{background: 'linear-gradient(135deg, #06b6d4, #14b8a6, #3b82f6)'}}>
-                                    <div className="w-full h-full rounded-full overflow-hidden" style={{background: 'var(--bg-tertiary)'}}>
+                                     style={{background: 'linear-gradient(135deg, #0284c7, #0d9488, #2563eb)'}}>
+                                    <div className="w-full h-full rounded-full overflow-hidden" style={{background: '#ffffff'}}>
                                         <img
                                             src="/Profile.jpg"
                                             alt="Profile"
@@ -122,7 +122,7 @@ const Projects = ({ limit, group }: ProjectsProps) => {
                                 <div className="absolute bottom-1.5 right-1.5 w-5 h-5 rounded-full flex items-center justify-center"
                                      style={{
                                          background: '#10b981',
-                                         border: '3px solid var(--bg-tertiary)'
+                                         border: '3px solid #ffffff'
                                      }}></div>
                             </div>
 
@@ -130,7 +130,7 @@ const Projects = ({ limit, group }: ProjectsProps) => {
                                 className="absolute top-0 right-0 p-2 rounded-lg transition-all duration-200 cursor-pointer border-none"
                                 style={{color: 'var(--text-tertiary)', background: 'transparent'}}
                                 onClick={() => setIsShareOpen(true)}
-                                onMouseEnter={(e) => {e.currentTarget.style.color = '#06b6d4'; e.currentTarget.style.background = 'rgba(6,182,212,0.08)';}}
+                                onMouseEnter={(e) => {e.currentTarget.style.color = '#0284c7'; e.currentTarget.style.background = 'rgba(2,132,199,0.08)';}}
                                 onMouseLeave={(e) => {e.currentTarget.style.color = 'var(--text-tertiary)'; e.currentTarget.style.background = 'transparent';}}
                             >
                                 <FaShareAlt />
@@ -149,8 +149,8 @@ const Projects = ({ limit, group }: ProjectsProps) => {
                             Base in Bangkok TH Editor, Beginner Colorist Service ...
                             {!isBioExpanded && (
                                 <span
-                                    className="cursor-pointer hover:underline ml-1 font-medium"
-                                    style={{color: '#06b6d4'}}
+                                    className="cursor-pointer hover:underline ml-1 font-semibold"
+                                    style={{color: '#0284c7'}}
                                     onClick={() => setIsBioExpanded(true)}
                                 >
                                     Read more
@@ -162,8 +162,8 @@ const Projects = ({ limit, group }: ProjectsProps) => {
                                     Short Film , Music Video , Content Online , Youtube , Tiktok/Reel
                                     <br />
                                     <span
-                                        className="cursor-pointer hover:underline mt-2 inline-block font-medium"
-                                        style={{color: '#06b6d4'}}
+                                        className="cursor-pointer hover:underline mt-2 inline-block font-semibold"
+                                        style={{color: '#0284c7'}}
                                         onClick={() => setIsBioExpanded(false)}
                                     >
                                         Show less
@@ -175,16 +175,16 @@ const Projects = ({ limit, group }: ProjectsProps) => {
                         <div className="flex flex-col gap-3 mb-6 items-center lg:items-start">
                             <a href="mailto:nathasit.mac@gmail.com" className="flex items-center gap-3 text-sm font-medium transition-colors duration-200"
                                style={{color: 'var(--text-primary)'}}
-                               onMouseEnter={(e) => (e.currentTarget.style.color = '#06b6d4')}
+                               onMouseEnter={(e) => (e.currentTarget.style.color = '#0284c7')}
                                onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--text-primary)')}>
-                                <FaEnvelope className="text-base" />
+                                <FaEnvelope className="text-base text-sky-600" />
                                 <span>nathasit.mac@gmail.com</span>
                             </a>
                             <a href="https://www.facebook.com/nathasit.opachalermpan.2025/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-sm font-medium transition-colors duration-200"
                                style={{color: 'var(--text-primary)'}}
-                               onMouseEnter={(e) => (e.currentTarget.style.color = '#06b6d4')}
+                               onMouseEnter={(e) => (e.currentTarget.style.color = '#0284c7')}
                                onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--text-primary)')}>
-                                <FaFacebook className="text-base" />
+                                <FaFacebook className="text-base text-blue-600" />
                                 <span>Nathasit Opachalermpan</span>
                             </a>
                         </div>
@@ -300,9 +300,9 @@ const Projects = ({ limit, group }: ProjectsProps) => {
                                                         color: color,
                                                         borderColor: `${color}30`
                                                     } : {
-                                                        backgroundColor: 'rgba(6, 182, 212, 0.08)',
+                                                        backgroundColor: 'rgba(2, 132, 199, 0.08)',
                                                         color: 'var(--text-secondary)',
-                                                        borderColor: 'rgba(6, 182, 212, 0.12)'
+                                                        borderColor: 'rgba(2, 132, 199, 0.18)'
                                                     };
 
                                                     return (
@@ -326,17 +326,19 @@ const Projects = ({ limit, group }: ProjectsProps) => {
                             <div className="mt-14 flex justify-center">
                                 <Link href="/projects" className="inline-flex items-center gap-2 px-8 py-3.5 rounded-2xl font-semibold transition-all duration-300 hover:-translate-y-1 no-underline"
                                       style={{
-                                          color: 'var(--text-primary)',
-                                          border: '1px solid var(--glass-border)',
-                                          background: 'transparent'
+                                          color: '#0284c7',
+                                          border: '1.5px solid rgba(2, 132, 199, 0.35)',
+                                          background: 'rgba(255, 255, 255, 0.8)',
+                                          backdropFilter: 'blur(16px)',
+                                          boxShadow: '0 4px 15px rgba(15, 23, 42, 0.05)'
                                       }}
                                       onMouseEnter={(e) => {
-                                          e.currentTarget.style.borderColor = 'rgba(6, 182, 212, 0.4)';
-                                          e.currentTarget.style.background = 'rgba(6, 182, 212, 0.06)';
+                                          e.currentTarget.style.borderColor = '#0284c7';
+                                          e.currentTarget.style.background = 'rgba(2, 132, 199, 0.08)';
                                       }}
                                       onMouseLeave={(e) => {
-                                          e.currentTarget.style.borderColor = 'var(--glass-border)';
-                                          e.currentTarget.style.background = 'transparent';
+                                          e.currentTarget.style.borderColor = 'rgba(2, 132, 199, 0.35)';
+                                          e.currentTarget.style.background = 'rgba(255, 255, 255, 0.8)';
                                       }}>
                                     ดูผลงานเพิ่มเติม
                                 </Link>
@@ -347,11 +349,21 @@ const Projects = ({ limit, group }: ProjectsProps) => {
                             <div className="mt-14 flex justify-center">
                                 <button
                                     onClick={() => setVisibleCount(prev => prev + 4)}
-                                    className="inline-flex items-center gap-2 px-8 py-3.5 rounded-2xl font-semibold transition-all duration-300 hover:-translate-y-1 cursor-pointer border-none"
+                                    className="inline-flex items-center gap-2 px-8 py-3.5 rounded-2xl font-semibold transition-all duration-300 hover:-translate-y-1 cursor-pointer"
                                     style={{
-                                        color: 'var(--text-primary)',
-                                        border: '1px solid var(--glass-border)',
-                                        background: 'transparent'
+                                        color: '#0284c7',
+                                        border: '1.5px solid rgba(2, 132, 199, 0.35)',
+                                        background: 'rgba(255, 255, 255, 0.8)',
+                                        backdropFilter: 'blur(16px)',
+                                        boxShadow: '0 4px 15px rgba(15, 23, 42, 0.05)'
+                                    }}
+                                    onMouseEnter={(e) => {
+                                        e.currentTarget.style.borderColor = '#0284c7';
+                                        e.currentTarget.style.background = 'rgba(2, 132, 199, 0.08)';
+                                    }}
+                                    onMouseLeave={(e) => {
+                                        e.currentTarget.style.borderColor = 'rgba(2, 132, 199, 0.35)';
+                                        e.currentTarget.style.background = 'rgba(255, 255, 255, 0.8)';
                                     }}
                                 >
                                     Load more
@@ -376,21 +388,21 @@ const Projects = ({ limit, group }: ProjectsProps) => {
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         className="fixed inset-0 z-[100] flex items-center justify-center p-4"
-                        style={{background: 'rgba(2, 10, 24, 0.8)', backdropFilter: 'blur(8px)'}}
+                        style={{background: 'rgba(15, 23, 42, 0.45)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)'}}
                         onClick={() => setIsShareOpen(false)}
                     >
                         <motion.div
                             initial={{ scale: 0.9, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}
                             exit={{ scale: 0.9, opacity: 0 }}
-                            className="bento-card w-full max-w-[400px] !p-6 relative"
+                            className="bento-card w-full max-w-[400px] !p-6 relative !bg-white/95 !shadow-2xl"
                             onClick={e => e.stopPropagation()}
                         >
                             <div className="flex justify-between items-center mb-6">
                                 <h3 className="text-lg font-bold" style={{color: 'var(--text-primary)'}}>Share profile</h3>
                                 <button
                                     onClick={() => setIsShareOpen(false)}
-                                    className="p-2 rounded-lg transition-colors duration-200 cursor-pointer border-none"
+                                    className="p-2 rounded-xl transition-colors duration-200 cursor-pointer border-none hover:bg-slate-100"
                                     style={{color: 'var(--text-tertiary)', background: 'transparent'}}
                                 >
                                     <FaTimes />
@@ -408,24 +420,24 @@ const Projects = ({ limit, group }: ProjectsProps) => {
                                         href={social.href}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="flex items-center gap-4 p-3 rounded-xl transition-all duration-200 group"
-                                        style={{border: '1px solid var(--glass-border)'}}
-                                        onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,0.03)')}
-                                        onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+                                        className="flex items-center gap-4 p-3 rounded-2xl transition-all duration-200 group"
+                                        style={{background: 'rgba(241, 245, 249, 0.6)', border: '1px solid rgba(226, 232, 240, 0.8)'}}
+                                        onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(2, 132, 199, 0.08)')}
+                                        onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(241, 245, 249, 0.6)')}
                                     >
                                         <div className="w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-200"
-                                             style={{color: social.color, background: `${social.color}10`}}>
+                                             style={{color: social.color, background: `${social.color}15`}}>
                                             {social.icon}
                                         </div>
-                                        <span className="font-medium" style={{color: 'var(--text-primary)'}}>{social.name}</span>
+                                        <span className="font-semibold text-sm" style={{color: 'var(--text-primary)'}}>{social.name}</span>
                                     </a>
                                 ))}
                             </div>
 
                             <div>
-                                <p className="text-xs font-medium mb-2" style={{color: 'var(--text-tertiary)'}}>Page link</p>
-                                <div className="flex items-center gap-2 p-2 rounded-xl transition-colors"
-                                     style={{background: 'rgba(255,255,255,0.03)', border: '1px solid var(--glass-border)'}}>
+                                <p className="text-xs font-semibold mb-2" style={{color: 'var(--text-tertiary)'}}>Page link</p>
+                                <div className="flex items-center gap-2 p-2 rounded-2xl transition-colors"
+                                     style={{background: 'rgba(241, 245, 249, 0.6)', border: '1px solid rgba(203, 213, 225, 0.7)'}}>
                                     <div className="p-2" style={{color: 'var(--text-tertiary)'}}><FaLink /></div>
                                     <input
                                         type="text"
@@ -436,7 +448,7 @@ const Projects = ({ limit, group }: ProjectsProps) => {
                                     />
                                     <button
                                         onClick={handleCopyLink}
-                                        className="p-2 rounded-lg transition-all flex items-center gap-2 cursor-pointer border-none"
+                                        className="p-2 rounded-xl transition-all flex items-center gap-2 cursor-pointer border-none hover:bg-slate-200/60"
                                         style={{color: 'var(--text-primary)', background: 'transparent'}}
                                     >
                                         {copySuccess ? <span className="text-xs font-bold" style={{color: '#10b981'}}>Copied!</span> : <FaCopy />}

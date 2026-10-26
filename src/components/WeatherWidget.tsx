@@ -52,9 +52,9 @@ const WeatherWidget = () => {
         if (code >= 1 && code <= 3) return <WiCloudy className="text-2xl text-slate-400" />;
         if (code === 45 || code === 48) return <WiFog className="text-2xl text-slate-300" />;
         if (code >= 51 && code <= 67) return <WiRain className="text-2xl text-cyan-400" />;
-        if (code >= 71 && code <= 77) return <WiSnow className="text-2xl text-white" />;
-        if (code >= 95) return <WiThunderstorm className="text-2xl text-violet-400" />;
-        return <WiDaySunny className="text-2xl text-white" />;
+        if (code >= 71 && code <= 77) return <WiSnow className="text-2xl text-cyan-600" />;
+        if (code >= 95) return <WiThunderstorm className="text-2xl text-violet-500" />;
+        return <WiDaySunny className="text-2xl text-amber-500" />;
     };
 
     if (loading) return null;
@@ -62,10 +62,11 @@ const WeatherWidget = () => {
 
     return (
         <motion.div
-            className="backdrop-blur-xl rounded-full px-4 py-2 inline-flex items-center gap-3 mb-4"
+            className="backdrop-blur-xl rounded-full px-4 py-2 inline-flex items-center gap-3 mb-4 shadow-sm"
             style={{
-                background: 'rgba(6, 182, 212, 0.06)',
-                border: '1px solid rgba(6, 182, 212, 0.12)',
+                background: 'rgba(255, 255, 255, 0.85)',
+                border: '1px solid rgba(255, 255, 255, 0.95)',
+                boxShadow: '0 4px 16px -2px rgba(15, 23, 42, 0.06)'
             }}
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}

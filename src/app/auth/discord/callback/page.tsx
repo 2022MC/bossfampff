@@ -62,19 +62,19 @@ export default function DiscordCallbackPage() {
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-bg-primary text-text-primary">
-            <div className="bg-bg-tertiary p-8 rounded-2xl shadow-xl flex flex-col items-center gap-4 border border-white/5">
+            <div className="bento-card p-8 rounded-2xl shadow-xl flex flex-col items-center gap-4 max-w-[400px] w-full text-center">
                 {error ? (
                     <div className="text-center">
-                        <h2 className="text-xl font-bold text-red-500 mb-2">Access Denied</h2>
-                        <p className="text-text-secondary mb-4">{error}</p>
-                        <button onClick={() => router.push('/login')} className="btn-primary px-4 py-2 rounded-lg bg-primary text-white">
+                        <h2 className="text-xl font-bold text-rose-500 mb-2">Access Denied</h2>
+                        <p className="text-slate-600 mb-4">{error}</p>
+                        <button onClick={() => router.push('/login')} className="btn-primary px-6 py-2.5 rounded-xl text-white cursor-pointer shadow-md">
                             Back to Login
                         </button>
                     </div>
                 ) : (
                     <div className="flex flex-col items-center">
-                        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4"></div>
-                        <h2 className="font-space text-lg">{status}</h2>
+                        <div className="w-10 h-10 border-3 border-sky-500/20 border-t-sky-600 rounded-full animate-spin mb-4"></div>
+                        <h2 className="font-space text-lg text-slate-800">{status}</h2>
                     </div>
                 )}
             </div>

@@ -138,20 +138,22 @@ const Navbar = () => {
                         : 'max-w-[1200px] mx-auto bg-transparent border border-transparent'}
                 `}
                 style={isScrolled ? {
-                    background: 'rgba(2, 10, 24, 0.75)',
-                    borderColor: 'rgba(6, 182, 212, 0.1)',
-                    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3), inset 0 0 0 1px rgba(6, 182, 212, 0.05)'
+                    background: 'rgba(255, 255, 255, 0.75)',
+                    backdropFilter: 'blur(24px) saturate(180%)',
+                    WebkitBackdropFilter: 'blur(24px) saturate(180%)',
+                    borderColor: 'rgba(255, 255, 255, 0.9)',
+                    boxShadow: '0 10px 30px -10px rgba(15, 23, 42, 0.08), 0 0 0 1px rgba(255, 255, 255, 0.9) inset'
                 } : {}}
             >
                 {/* Logo */}
                 <div className="flex items-center">
                     <Link href="/" className="font-space text-xl font-bold flex items-center gap-2.5 transition-all duration-300 group" style={{color: 'var(--text-primary)'}}>
-                        <span className="relative w-8 h-8 rounded-lg flex items-center justify-center overflow-hidden"
-                              style={{background: 'linear-gradient(135deg, #06b6d4, #14b8a6)'}}>
+                        <span className="relative w-8 h-8 rounded-lg flex items-center justify-center overflow-hidden shadow-sm"
+                              style={{background: 'linear-gradient(135deg, #0284c7, #0d9488)'}}>
                             <span className="text-white text-sm font-black">B</span>
                             <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                         </span>
-                        <span className="hidden sm:inline">Portfolio</span>
+                        <span className="hidden sm:inline font-bold tracking-tight">Portfolio</span>
                     </Link>
                 </div>
 
@@ -162,7 +164,7 @@ const Navbar = () => {
                             <a
                                 href={item.href}
                                 onClick={(e) => handleLinkClick(e, item.href)}
-                                className="relative font-medium text-sm px-4 py-2 rounded-xl transition-all duration-300 cursor-pointer hover:bg-white/5"
+                                className="relative font-medium text-sm px-4 py-2 rounded-xl transition-all duration-300 cursor-pointer hover:bg-slate-900/5"
                                 style={{color: 'var(--text-secondary)'}}
                                 onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--text-primary)')}
                                 onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--text-secondary)')}
@@ -177,7 +179,7 @@ const Navbar = () => {
                             onMouseLeave={() => setHoveredParent(null)}>
                             <button
                                 onClick={toggleProjects}
-                                className="flex items-center gap-1.5 cursor-pointer font-medium text-sm px-4 py-2 rounded-xl transition-all duration-300 bg-transparent border-none outline-none hover:bg-white/5"
+                                className="flex items-center gap-1.5 cursor-pointer font-medium text-sm px-4 py-2 rounded-xl transition-all duration-300 bg-transparent border-none outline-none hover:bg-slate-900/5"
                                 style={{color: 'var(--text-secondary)'}}
                                 onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--text-primary)')}
                                 onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--text-secondary)')}
@@ -188,16 +190,18 @@ const Navbar = () => {
 
                             <ul className={`
                                 absolute top-[calc(100%+8px)] left-1/2 -translate-x-1/2 
-                                p-1.5 rounded-xl 
+                                p-1.5 rounded-2xl 
                                 min-w-[200px] list-none
                                 transition-all duration-300 ease-in-out origin-top
                                 backdrop-blur-2xl
                                 ${isProjectsOpen ? 'opacity-100 visible translate-y-0' : 'opacity-0 invisible -translate-y-2'}
                             `}
                             style={{
-                                background: 'rgba(8, 20, 40, 0.95)',
-                                border: '1px solid rgba(6, 182, 212, 0.15)',
-                                boxShadow: '0 20px 40px rgba(0, 0, 0, 0.4)'
+                                background: 'rgba(255, 255, 255, 0.92)',
+                                backdropFilter: 'blur(24px) saturate(180%)',
+                                WebkitBackdropFilter: 'blur(24px) saturate(180%)',
+                                border: '1px solid rgba(255, 255, 255, 0.9)',
+                                boxShadow: '0 20px 40px -10px rgba(15, 23, 42, 0.12), 0 0 0 1px rgba(255, 255, 255, 0.9) inset'
                             }}>
                                 {parentCats.map(parent => {
                                     const children = getChildCats(parent.id!);
@@ -208,18 +212,18 @@ const Navbar = () => {
                                         >
                                             {hasChildren ? (
                                                 <div
-                                                    className="flex items-center justify-between w-full text-left px-4 py-2.5 rounded-lg text-sm transition-all duration-200 cursor-default"
-                                                    style={{ color: hoveredParent === parent.id ? parent.color || '#06b6d4' : 'var(--text-secondary)', background: hoveredParent === parent.id ? 'rgba(6,182,212,0.06)' : 'transparent' }}
+                                                    className="flex items-center justify-between w-full text-left px-4 py-2.5 rounded-xl text-sm transition-all duration-200 cursor-default"
+                                                    style={{ color: hoveredParent === parent.id ? parent.color || '#0284c7' : 'var(--text-secondary)', background: hoveredParent === parent.id ? 'rgba(2,132,199,0.08)' : 'transparent' }}
                                                 >
-                                                    <span>{parent.icon} {parent.name}</span>
+                                                    <span className="font-medium">{parent.icon} {parent.name}</span>
                                                     <FaChevronDown className="text-[8px] -rotate-90" />
                                                 </div>
                                             ) : (
                                                 <Link href={`/projects/${parent.slug}`} onClick={closeMenu}
-                                                    className="block w-full text-left px-4 py-2.5 rounded-lg text-sm transition-all duration-200"
+                                                    className="block w-full text-left px-4 py-2.5 rounded-xl text-sm transition-all duration-200 font-medium"
                                                     style={{color: 'var(--text-secondary)'}}
-                                                    onMouseEnter={(e) => { e.currentTarget.style.color = parent.color || '#06b6d4'; setHoveredParent(null); }}
-                                                    onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--text-secondary)'; }}>
+                                                    onMouseEnter={(e) => { e.currentTarget.style.color = parent.color || '#0284c7'; e.currentTarget.style.background = 'rgba(2,132,199,0.08)'; setHoveredParent(null); }}
+                                                    onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--text-secondary)'; e.currentTarget.style.background = 'transparent'; }}>
                                                     {parent.icon} {parent.name}
                                                 </Link>
                                             )}
@@ -228,24 +232,26 @@ const Navbar = () => {
                                             {hasChildren && (
                                                 <ul className={`
                                                     absolute left-full top-0 ml-1.5
-                                                    p-1.5 rounded-xl 
+                                                    p-1.5 rounded-2xl 
                                                     min-w-[200px] list-none
                                                     transition-all duration-200 ease-in-out origin-left
                                                     backdrop-blur-2xl
                                                     ${hoveredParent === parent.id ? 'opacity-100 visible translate-x-0' : 'opacity-0 invisible -translate-x-2 pointer-events-none'}
                                                 `}
                                                 style={{
-                                                    background: 'rgba(8, 20, 40, 0.95)',
-                                                    border: '1px solid rgba(6, 182, 212, 0.15)',
-                                                    boxShadow: '0 20px 40px rgba(0, 0, 0, 0.4)'
+                                                    background: 'rgba(255, 255, 255, 0.92)',
+                                                    backdropFilter: 'blur(24px) saturate(180%)',
+                                                    WebkitBackdropFilter: 'blur(24px) saturate(180%)',
+                                                    border: '1px solid rgba(255, 255, 255, 0.9)',
+                                                    boxShadow: '0 20px 40px -10px rgba(15, 23, 42, 0.12), 0 0 0 1px rgba(255, 255, 255, 0.9) inset'
                                                 }}>
                                                     {children.map(child => (
                                                         <li key={child.id}>
                                                             <Link href={`/projects/${child.slug}`} onClick={closeMenu}
-                                                                className="block w-full text-left px-4 py-2.5 rounded-lg text-sm transition-all duration-200"
+                                                                className="block w-full text-left px-4 py-2.5 rounded-xl text-sm transition-all duration-200 font-medium"
                                                                 style={{color: 'var(--text-secondary)'}}
-                                                                onMouseEnter={(e) => { e.currentTarget.style.color = child.color || parent.color || '#06b6d4'; }}
-                                                                onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--text-secondary)'; }}>
+                                                                onMouseEnter={(e) => { e.currentTarget.style.color = child.color || parent.color || '#0284c7'; e.currentTarget.style.background = 'rgba(2,132,199,0.08)'; }}
+                                                                onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--text-secondary)'; e.currentTarget.style.background = 'transparent'; }}>
                                                                 {child.icon} {child.name}
                                                             </Link>
                                                         </li>
@@ -267,7 +273,9 @@ const Navbar = () => {
                         onClick={toggleMenu}
                         style={{
                             color: 'var(--text-primary)',
-                            background: isMenuOpen ? 'rgba(6, 182, 212, 0.1)' : 'transparent'
+                            background: isMenuOpen ? 'rgba(2, 132, 199, 0.1)' : 'rgba(255, 255, 255, 0.7)',
+                            border: '1px solid rgba(255, 255, 255, 0.8)',
+                            backdropFilter: 'blur(12px)',
                         }}
                     >
                         {isMenuOpen ? <FaTimes className="text-lg" /> : <FaBars className="text-lg" />}
@@ -286,7 +294,9 @@ const Navbar = () => {
                     left: 0,
                     width: '100vw',
                     height: '100vh',
-                    background: '#020a18',
+                    background: 'rgba(248, 250, 252, 0.96)',
+                    backdropFilter: 'blur(24px) saturate(180%)',
+                    WebkitBackdropFilter: 'blur(24px) saturate(180%)',
                     zIndex: 99999,
                     display: 'flex',
                     flexDirection: 'column',
@@ -303,16 +313,17 @@ const Navbar = () => {
                         position: 'absolute',
                         top: '24px',
                         right: '24px',
-                        width: '40px',
-                        height: '40px',
-                        borderRadius: '12px',
+                        width: '44px',
+                        height: '44px',
+                        borderRadius: '14px',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
                         cursor: 'pointer',
-                        border: 'none',
+                        border: '1px solid rgba(255, 255, 255, 0.9)',
                         color: 'var(--text-primary)',
-                        background: 'rgba(6, 182, 212, 0.1)',
+                        background: 'rgba(255, 255, 255, 0.85)',
+                        boxShadow: '0 4px 15px rgba(15, 23, 42, 0.06)',
                         transition: 'all 0.3s',
                     }}
                 >
@@ -325,9 +336,9 @@ const Navbar = () => {
                         href={item.href}
                         onClick={(e) => handleLinkClick(e, item.href)}
                         style={{
-                            color: 'var(--text-secondary)',
+                            color: 'var(--text-primary)',
                             fontSize: '24px',
-                            fontWeight: 600,
+                            fontWeight: 700,
                             padding: '12px 32px',
                             borderRadius: '16px',
                             transition: 'all 0.3s',

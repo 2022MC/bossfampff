@@ -80,26 +80,26 @@ const Skills = () => {
             </div>
             
             {/* Progress bar */}
-            <div className="w-full h-1.5 rounded-full overflow-hidden" style={{background: 'rgba(255,255,255,0.04)'}}>
+            <div className="w-full h-1.5 rounded-full overflow-hidden" style={{background: 'rgba(15, 23, 42, 0.08)'}}>
                 <motion.div
                     className="h-full rounded-full relative overflow-hidden"
-                    style={{background: `linear-gradient(90deg, ${skill.color}, ${skill.color}88)`}}
+                    style={{background: `linear-gradient(90deg, ${skill.color}, ${skill.color}cc)`}}
                     initial={{ width: 0 }}
                     whileInView={{ width: `${skill.level}%` }}
                     viewport={{ once: true }}
                     transition={{ duration: 1.2, delay: index * 0.05, ease: [0.22, 1, 0.36, 1] as const }}
                 >
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full animate-shimmer"></div>
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/50 to-transparent -translate-x-full animate-shimmer"></div>
                 </motion.div>
             </div>
         </motion.div>
     );
 
     return (
-        <section id="skills" className="py-[100px] px-5 relative" style={{backgroundColor: 'var(--bg-primary)'}}>
+        <section id="skills" className="py-[100px] px-5 relative" style={{backgroundColor: 'transparent'}}>
             {/* Background decoration */}
-            <div className="absolute bottom-0 left-0 w-1/2 h-1/2 pointer-events-none opacity-30"
-                 style={{background: 'radial-gradient(circle at 0% 100%, rgba(20, 184, 166, 0.06) 0%, transparent 50%)'}}></div>
+            <div className="absolute bottom-0 left-0 w-1/2 h-1/2 pointer-events-none opacity-40"
+                 style={{background: 'radial-gradient(circle at 0% 100%, rgba(45, 212, 191, 0.15) 0%, transparent 60%)'}}></div>
 
             <motion.div
                 className="max-w-[1200px] mx-auto relative z-[1]"
@@ -110,7 +110,7 @@ const Skills = () => {
             >
                 <motion.div className="mb-16" variants={itemVariants}>
                     <h2 className="font-space text-3xl md:text-4xl font-bold flex items-baseline gap-3" style={{color: 'var(--text-primary)'}}>
-                        <span className="font-mono text-lg" style={{color: '#06b6d4'}}>02.</span>
+                        <span className="font-mono text-lg font-bold" style={{color: '#0284c7'}}>02.</span>
                         ทักษะและเทคโนโลยี
                     </h2>
                 </motion.div>
@@ -118,7 +118,7 @@ const Skills = () => {
                 {/* Software Skills — Bento Grid */}
                 <motion.div variants={itemVariants} className="mb-8">
                     <h3 className="font-space text-xl font-semibold mb-6 flex items-center gap-3" style={{color: 'var(--text-primary)'}}>
-                        <div className="w-8 h-0.5 rounded-full" style={{background: 'linear-gradient(90deg, #06b6d4, transparent)'}}></div>
+                        <div className="w-8 h-0.5 rounded-full" style={{background: 'linear-gradient(90deg, #0284c7, transparent)'}}></div>
                         Skills
                     </h3>
                 </motion.div>
@@ -131,7 +131,7 @@ const Skills = () => {
                 {/* Equipment Skills */}
                 <motion.div variants={itemVariants} className="mb-8">
                     <h3 className="font-space text-xl font-semibold mb-6 flex items-center gap-3" style={{color: 'var(--text-primary)'}}>
-                        <div className="w-8 h-0.5 rounded-full" style={{background: 'linear-gradient(90deg, #14b8a6, transparent)'}}></div>
+                        <div className="w-8 h-0.5 rounded-full" style={{background: 'linear-gradient(90deg, #0d9488, transparent)'}}></div>
                         ทักษะการใช้อุปกรณ์
                     </h3>
                 </motion.div>

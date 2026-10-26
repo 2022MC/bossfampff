@@ -103,7 +103,7 @@ export default function CategoryPage() {
         return (
             <div className="min-h-screen flex items-center justify-center" style={{backgroundColor: 'var(--bg-primary)'}}>
                 <div className="flex flex-col items-center gap-4">
-                    <svg className="animate-spin h-10 w-10" viewBox="0 0 24 24" style={{color: '#06b6d4'}}>
+                    <svg className="animate-spin h-10 w-10" viewBox="0 0 24 24" style={{color: '#0284c7'}}>
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                     </svg>
@@ -144,9 +144,9 @@ export default function CategoryPage() {
                     ) : (
                         <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-4 space-y-4">
                             {works.map((work) => (
-                                <motion.div key={work.id} className={`relative break-inside-avoid bento-card !p-0 overflow-hidden group cursor-pointer ${work.featured ? 'ring-1 ring-cyan-500/30' : ''}`}
+                                <motion.div key={work.id} className={`relative break-inside-avoid bento-card !p-0 overflow-hidden group cursor-pointer ${work.featured ? 'ring-2 ring-sky-500/40' : ''}`}
                                     initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} onClick={() => setSelectedImage(work)}>
-                                    <div className="relative w-full overflow-hidden" style={{ aspectRatio: (work.size?.aspectRatio || '4/3').replace('/', '/'), background: 'rgba(0,0,0,0.2)' }}>
+                                    <div className="relative w-full overflow-hidden" style={{ aspectRatio: (work.size?.aspectRatio || '4/3').replace('/', '/'), background: 'rgba(0,0,0,0.05)' }}>
                                         <img src={work.image} alt={work.title} loading="lazy" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                                         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-5">
                                             <div className="inline-block text-white text-[10px] font-bold px-2.5 py-1 rounded-md backdrop-blur-sm self-start" style={{background: `${category.color}cc`}}>{work.category}</div>
@@ -159,11 +159,11 @@ export default function CategoryPage() {
                                             {work.tech?.map((t, i) => {
                                                 const n = typeof t === 'string' ? t : t.name;
                                                 const c = typeof t === 'object' ? t.color : undefined;
-                                                return <span key={i} className="text-[9px] font-semibold px-2 py-0.5 rounded border" style={c ? { color: c, backgroundColor: `${c}15`, borderColor: `${c}30` } : { color: 'var(--text-tertiary)', backgroundColor: 'rgba(6,182,212,0.06)', borderColor: 'var(--glass-border)' }}>{n}</span>;
+                                                return <span key={i} className="text-[9px] font-semibold px-2 py-0.5 rounded border shadow-sm" style={c ? { color: c, backgroundColor: `${c}12`, borderColor: `${c}25` } : { color: 'var(--text-secondary)', backgroundColor: 'rgba(2,132,199,0.06)', borderColor: 'var(--glass-border)' }}>{n}</span>;
                                             })}
                                         </div>
                                     </div>
-                                    {work.featured && <div className="absolute top-3 left-3 text-[10px] font-bold px-2 py-1 rounded shadow-lg z-10 flex items-center gap-1" style={{background: 'linear-gradient(135deg, #f59e0b, #f97316)', color: '#000'}}>✨ ผลงานเด่น</div>}
+                                    {work.featured && <div className="absolute top-3 left-3 text-[10px] font-bold px-2.5 py-1 rounded-full shadow-md z-10 flex items-center gap-1 text-white" style={{background: 'linear-gradient(135deg, #0284c7, #0d9488)'}}>✨ ผลงานเด่น</div>}
                                 </motion.div>
                             ))}
                         </div>
@@ -173,16 +173,16 @@ export default function CategoryPage() {
                 <AnimatePresence>
                     {selectedImage && (
                         <motion.div className="fixed inset-0 z-[2000] flex items-center justify-center p-5 cursor-zoom-out"
-                            style={{background: 'rgba(2, 10, 24, 0.92)', backdropFilter: 'blur(12px)'}}
+                            style={{background: 'rgba(15, 23, 42, 0.55)', backdropFilter: 'blur(16px)'}}
                             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setSelectedImage(null)}>
                             <motion.div className="relative max-w-[1200px] w-full rounded-3xl overflow-hidden shadow-2xl flex flex-col md:flex-row max-h-[90vh] cursor-default"
-                                style={{backgroundColor: 'var(--bg-tertiary)'}} initial={{ scale: 0.95 }} animate={{ scale: 1 }} exit={{ scale: 0.95 }} onClick={(e) => e.stopPropagation()}>
-                                <button className="absolute top-4 right-4 z-10 w-10 h-10 rounded-xl flex items-center justify-center cursor-pointer text-white border-none"
-                                    style={{background: 'rgba(0,0,0,0.4)'}} onClick={() => setSelectedImage(null)}><FaTimes size={18} /></button>
-                                <div className="w-full md:w-2/3 flex items-center justify-center overflow-hidden" style={{background: '#000'}}>
+                                style={{backgroundColor: '#ffffff', border: '1px solid rgba(255, 255, 255, 0.95)', boxShadow: '0 25px 60px -15px rgba(15, 23, 42, 0.25)'}} initial={{ scale: 0.95 }} animate={{ scale: 1 }} exit={{ scale: 0.95 }} onClick={(e) => e.stopPropagation()}>
+                                <button className="absolute top-4 right-4 z-10 w-9 h-9 rounded-full flex items-center justify-center cursor-pointer text-slate-800 border-none shadow-md transition-all duration-200 hover:scale-110"
+                                    style={{background: 'rgba(255, 255, 255, 0.9)', border: '1px solid rgba(203, 213, 225, 0.8)'}} onClick={() => setSelectedImage(null)}><FaTimes size={16} /></button>
+                                <div className="w-full md:w-2/3 flex items-center justify-center overflow-hidden" style={{background: '#0f172a'}}>
                                     {selectedImage.image && <img src={selectedImage.image} alt={selectedImage.title || ''} className="w-full h-full object-contain max-h-[50vh] md:max-h-[90vh]" />}
                                 </div>
-                                <div className="w-full md:w-1/3 p-6 md:p-8 flex flex-col overflow-y-auto max-h-[40vh] md:max-h-[90vh]" style={{background: 'var(--bg-secondary)', borderLeft: '1px solid var(--glass-border)'}}>
+                                <div className="w-full md:w-1/3 p-6 md:p-8 flex flex-col overflow-y-auto max-h-[40vh] md:max-h-[90vh]" style={{background: 'rgba(248, 250, 252, 0.95)', borderLeft: '1px solid var(--glass-border)'}}>
                                     <h3 className="font-space text-xl md:text-2xl font-bold mb-3" style={{color: 'var(--text-primary)'}}>{selectedImage.title}</h3>
                                     <div className="w-8 h-0.5 rounded-full mb-5" style={{background: category.color}} />
                                     <p className="leading-relaxed mb-6 text-sm" style={{color: 'var(--text-secondary)'}}>{selectedImage.description}</p>
@@ -192,7 +192,7 @@ export default function CategoryPage() {
                                             {selectedImage.tech?.map((t, i) => {
                                                 const n = typeof t === 'string' ? t : t.name;
                                                 const c = typeof t === 'object' ? t.color : undefined;
-                                                return <span key={i} className="px-3 py-1.5 rounded-lg text-xs font-medium border" style={c ? { color: c, backgroundColor: `${c}15`, borderColor: `${c}30` } : { color: 'var(--text-secondary)', backgroundColor: 'rgba(6,182,212,0.06)', borderColor: 'var(--glass-border)' }}>{n}</span>;
+                                                return <span key={i} className="px-3 py-1.5 rounded-lg text-xs font-medium border shadow-sm" style={c ? { color: c, backgroundColor: `${c}12`, borderColor: `${c}25` } : { color: 'var(--text-secondary)', backgroundColor: 'rgba(2,132,199,0.06)', borderColor: 'var(--glass-border)' }}>{n}</span>;
                                             })}
                                         </div>
                                     </div>
@@ -211,20 +211,20 @@ export default function CategoryPage() {
             <Banner />
             <section className="py-[80px] md:py-[100px] px-4 md:px-5 relative min-h-screen">
                 <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                    <div className="absolute top-0 right-0 w-1/2 h-1/2 z-0" style={{background: 'radial-gradient(circle at 100% 0%, rgba(6, 182, 212, 0.06) 0%, transparent 60%)'}}></div>
+                    <div className="absolute top-0 right-0 w-1/2 h-1/2 z-0" style={{background: 'radial-gradient(circle at 100% 0%, rgba(2, 132, 199, 0.08) 0%, transparent 60%)'}}></div>
                 </div>
                 <div className="max-w-[1280px] mx-auto relative z-1">
                     <div className="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-8 md:gap-12 items-start">
                         {/* Left Sidebar: Profile Card */}
-                        <motion.div className="bento-card !p-7 relative lg:sticky lg:top-24" initial={{ opacity: 0, x: -50 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }}>
+                        <motion.div className="bento-card !p-7 relative lg:sticky lg:top-24 shadow-xl" initial={{ opacity: 0, x: -50 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }}>
                             <div className="relative mb-6">
                                 <div className="relative w-28 h-28 mx-auto lg:mx-0">
-                                    <div className="w-full h-full rounded-full overflow-hidden shadow-lg p-[2px]" style={{background: 'linear-gradient(135deg, #06b6d4, #14b8a6, #3b82f6)'}}>
-                                        <div className="w-full h-full rounded-full overflow-hidden" style={{background: 'var(--bg-tertiary)'}}>
+                                    <div className="w-full h-full rounded-full overflow-hidden shadow-lg p-[2px]" style={{background: 'linear-gradient(135deg, #0284c7, #0d9488, #3b82f6)'}}>
+                                        <div className="w-full h-full rounded-full overflow-hidden" style={{background: '#ffffff'}}>
                                             <img src="/Profile.jpg" alt="Profile" className="w-full h-full object-cover" />
                                         </div>
                                     </div>
-                                    <div className="absolute bottom-1.5 right-1.5 w-5 h-5 rounded-full flex items-center justify-center" style={{ background: '#10b981', border: '3px solid var(--bg-tertiary)' }}></div>
+                                    <div className="absolute bottom-1.5 right-1.5 w-5 h-5 rounded-full flex items-center justify-center shadow-sm" style={{ background: '#10b981', border: '3px solid #ffffff' }}></div>
                                 </div>
                             </div>
                             <h2 className="text-xl font-bold mb-1 text-center lg:text-left" style={{color: 'var(--text-primary)'}}>BossFam</h2>
@@ -234,14 +234,14 @@ export default function CategoryPage() {
                             <p className="text-sm mb-5 leading-relaxed text-center lg:text-left" style={{color: 'var(--text-secondary)'}}>
                                 he/him<br /><br />
                                 Base in Bangkok TH Editor, Beginner Colorist Service ...
-                                {!isBioExpanded && <span className="cursor-pointer hover:underline ml-1 font-medium" style={{color: '#06b6d4'}} onClick={() => setIsBioExpanded(true)}>Read more</span>}
-                                {isBioExpanded && <span><br />Short Film , Music Video , Content Online , Youtube , Tiktok/Reel<br /><span className="cursor-pointer hover:underline mt-2 inline-block font-medium" style={{color: '#06b6d4'}} onClick={() => setIsBioExpanded(false)}>Show less</span></span>}
+                                {!isBioExpanded && <span className="cursor-pointer hover:underline ml-1 font-semibold" style={{color: '#0284c7'}} onClick={() => setIsBioExpanded(true)}>Read more</span>}
+                                {isBioExpanded && <span><br />Short Film , Music Video , Content Online , Youtube , Tiktok/Reel<br /><span className="cursor-pointer hover:underline mt-2 inline-block font-semibold" style={{color: '#0284c7'}} onClick={() => setIsBioExpanded(false)}>Show less</span></span>}
                             </p>
                             <div className="flex flex-col gap-3 mb-6 items-center lg:items-start">
-                                <a href="mailto:nathasit.mac@gmail.com" className="flex items-center gap-3 text-sm font-medium transition-colors duration-200" style={{color: 'var(--text-primary)'}} onMouseEnter={(e) => (e.currentTarget.style.color = '#06b6d4')} onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--text-primary)')}>
+                                <a href="mailto:nathasit.mac@gmail.com" className="flex items-center gap-3 text-sm font-medium transition-colors duration-200" style={{color: 'var(--text-primary)'}} onMouseEnter={(e) => (e.currentTarget.style.color = '#0284c7')} onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--text-primary)')}>
                                     <FaEnvelope className="text-base" /><span>nathasit.mac@gmail.com</span>
                                 </a>
-                                <a href="https://www.facebook.com/nathasit.opachalermpan.2025/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-sm font-medium transition-colors duration-200" style={{color: 'var(--text-primary)'}} onMouseEnter={(e) => (e.currentTarget.style.color = '#06b6d4')} onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--text-primary)')}>
+                                <a href="https://www.facebook.com/nathasit.opachalermpan.2025/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-sm font-medium transition-colors duration-200" style={{color: 'var(--text-primary)'}} onMouseEnter={(e) => (e.currentTarget.style.color = '#0284c7')} onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--text-primary)')}>
                                     <FaFacebook className="text-base" /><span>Nathasit Opachalermpan</span>
                                 </a>
                             </div>
@@ -257,13 +257,13 @@ export default function CategoryPage() {
                             const embedUrl = getEmbedUrl(project.videoUrl);
                             const hasVideo = embedUrl !== null;
                             return (
-                                <motion.div key={project.id || index} className={`bento-card !p-0 overflow-hidden group flex flex-col h-full relative ${project.featured ? 'ring-1 ring-yellow-500/30' : ''}`}
+                                <motion.div key={project.id || index} className={`bento-card !p-0 overflow-hidden group flex flex-col h-full relative ${project.featured ? 'ring-2 ring-amber-500/40' : ''}`}
                                     initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5, delay: index * 0.08 }}>
                                     {project.featured && (
-                                        <div className="absolute top-3 left-3 z-20 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider shadow-lg flex items-center gap-1"
-                                            style={{background: 'linear-gradient(135deg, #f59e0b, #f97316)', color: '#000'}}><FaStar className="text-[9px]" /> ผลงานเด่น</div>
+                                        <div className="absolute top-3 left-3 z-20 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider shadow-md flex items-center gap-1 text-white"
+                                            style={{background: 'linear-gradient(135deg, #0284c7, #0d9488)'}}><FaStar className="text-[9px]" /> ผลงานเด่น</div>
                                     )}
-                                    <div className="relative w-full aspect-video bg-black overflow-hidden cursor-pointer" onClick={() => setSelectedProject(project)}>
+                                    <div className="relative w-full aspect-video bg-slate-900 overflow-hidden cursor-pointer" onClick={() => setSelectedProject(project)}>
                                         {hasVideo ? (
                                             project.videoUrl?.includes('tiktok.com') ? (
                                                 <div className="w-full h-full relative group">
@@ -272,11 +272,11 @@ export default function CategoryPage() {
                                                     <div className="absolute inset-0 bg-black/20 group-hover:bg-black/30 transition-colors duration-300" />
                                                     <div className="absolute inset-0 flex flex-col items-center justify-center z-10 pointer-events-none gap-2">
                                                         <div className="w-14 h-14 rounded-full backdrop-blur-md flex items-center justify-center transition-all duration-300 group-hover:scale-110 shadow-lg"
-                                                            style={{background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.3)'}}>
-                                                            <FaPlay className="text-white text-lg ml-0.5" />
+                                                            style={{background: 'rgba(255,255,255,0.2)', border: '1px solid rgba(255,255,255,0.4)'}}>
+                                                                <FaPlay className="text-white text-lg ml-0.5" />
                                                         </div>
-                                                        <div className="flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-semibold text-white backdrop-blur-sm"
-                                                            style={{background: 'rgba(0,0,0,0.4)'}}>
+                                                        <div className="flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-semibold text-white backdrop-blur-sm shadow-sm"
+                                                            style={{background: 'rgba(15,23,42,0.6)'}}>
                                                             <svg viewBox="0 0 48 48" fill="currentColor" className="w-3 h-3"><path d="M38.4 21.68V16c-3.54 0-6.56-1.56-8.64-4.06V27.8a11.8 11.8 0 1 1-8.18-11.24v6.18a5.84 5.84 0 1 0 2.22 4.58V0h5.96c0 .5.04 1 .14 1.48A8.64 8.64 0 0 0 38.4 9.52v6.18" /></svg>
                                                             TikTok
                                                         </div>
@@ -292,7 +292,7 @@ export default function CategoryPage() {
                                                     <div className="absolute inset-0 bg-black/20 group-hover:bg-black/30 transition-colors duration-300" />
                                                     <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
                                                         <div className="w-14 h-14 rounded-full backdrop-blur-md flex items-center justify-center transition-all duration-300 group-hover:scale-110 shadow-lg"
-                                                            style={{background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.3)'}}>
+                                                            style={{background: 'rgba(255,255,255,0.2)', border: '1px solid rgba(255,255,255,0.4)'}}>
                                                             <FaPlay className="text-white text-lg ml-0.5" />
                                                         </div>
                                                     </div>
@@ -309,7 +309,7 @@ export default function CategoryPage() {
                                             {project.tech?.map((t, i) => {
                                                 const n = typeof t === 'string' ? t : t.name;
                                                 const c = typeof t === 'object' ? t.color : undefined;
-                                                return <span key={i} className="text-[11px] font-medium px-2.5 py-1 rounded-md border" style={c ? { backgroundColor: `${c}15`, color: c, borderColor: `${c}30` } : { backgroundColor: 'rgba(6,182,212,0.08)', color: 'var(--text-secondary)', borderColor: 'rgba(6,182,212,0.12)' }}>{n}</span>;
+                                                return <span key={i} className="text-[11px] font-medium px-2.5 py-1 rounded-md border shadow-sm" style={c ? { backgroundColor: `${c}12`, color: c, borderColor: `${c}25` } : { backgroundColor: 'rgba(2,132,199,0.06)', color: 'var(--text-secondary)', borderColor: 'var(--glass-border)' }}>{n}</span>;
                                             })}
                                         </div>
                                     </div>
@@ -320,8 +320,8 @@ export default function CategoryPage() {
 
                             {visibleCount < works.length && (
                                 <div className="mt-14 flex justify-center">
-                                    <button onClick={() => setVisibleCount(p => p + 4)} className="inline-flex items-center gap-2 px-8 py-3.5 rounded-2xl font-semibold transition-all duration-300 hover:-translate-y-1 cursor-pointer border-none"
-                                        style={{color: 'var(--text-primary)', border: '1px solid var(--glass-border)', background: 'transparent'}}>Load more</button>
+                                    <button onClick={() => setVisibleCount(p => p + 4)} className="inline-flex items-center gap-2 px-8 py-3.5 rounded-2xl font-semibold transition-all duration-300 hover:-translate-y-1 cursor-pointer border-none shadow-sm"
+                                        style={{color: 'var(--text-primary)', border: '1px solid var(--glass-border)', background: 'rgba(255, 255, 255, 0.85)'}}>Load more</button>
                                 </div>
                             )}
                         </div>

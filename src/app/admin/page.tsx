@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, Reorder, AnimatePresence, useDragControls } from 'framer-motion';
-import { FaPlus, FaEdit, FaTrash, FaSave, FaTimes, FaUpload, FaSignOutAlt, FaBars, FaLayerGroup, FaEye, FaEyeSlash, FaChevronDown, FaChevronUp, FaArrowUp, FaArrowDown, FaTools, FaExclamationTriangle } from 'react-icons/fa';
+import { FaPlus, FaEdit, FaTrash, FaSave, FaTimes, FaUpload, FaSignOutAlt, FaBars, FaLayerGroup, FaEye, FaEyeSlash, FaChevronDown, FaChevronUp, FaArrowUp, FaArrowDown, FaTools, FaExclamationTriangle, FaVideo } from 'react-icons/fa';
 import { useAuth } from '@/context/AuthContext';
 import { useNotification } from '@/context/NotificationContext';
 import { db, auth } from '@/lib/firebase';
@@ -89,6 +89,9 @@ function AdminContent() {
         group: ''
     });
     const [imageFile, setImageFile] = useState<File | null>(null);
+    const [videoFile, setVideoFile] = useState<File | null>(null);
+    const [videoUploadProgress, setVideoUploadProgress] = useState<number>(0);
+    const [isUploadingVideo, setIsUploadingVideo] = useState(false);
 
     useEffect(() => {
         const unsubscribe = auth.onAuthStateChanged(async (user) => {
@@ -341,23 +344,82 @@ function AdminContent() {
         reader.readAsDataURL(file);
     };
 
+    const handleVideoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) processVideoFile(file);
+    };
+
+    const processVideoFile = (file: File) => {
+        if (!file.type.startsWith('video/')) {
+            showNotification('กรุณาอัพโหลดไฟล์วิดีโอเท่านั้น', 'warning');
+            return;
+        }
+        const maxSize = 500 * 1024 * 1024; // 500MB
+        if (file.size > maxSize) {
+            showNotification('ไฟล์วิดีโอขนาดใหญ่เกินไป (สูงสุด 500MB)', 'warning');
+            return;
+        }
+        setVideoFile(file);
+        // Create a preview URL
+        const previewUrl = URL.createObjectURL(file);
+        setFormData(prev => ({ ...prev, videoUrl: previewUrl }));
+    };
+
     const handleDragOver = (e: React.DragEvent) => { e.preventDefault(); setIsDragging(true); };
     const handleDragLeave = (e: React.DragEvent) => { e.preventDefault(); setIsDragging(false); };
     const handleDrop = (e: React.DragEvent) => {
         e.preventDefault(); setIsDragging(false);
         const file = e.dataTransfer.files[0];
-        if (file && file.type.startsWith('image/')) { processFile(file); }
-        else if (file) { showNotification("กรุณาอัพโหลดไฟล์รูปภาพเท่านั้น", 'warning'); }
+        if (!file) return;
+        if (formData.type === 'Video') {
+            if (file.type.startsWith('video/')) { processVideoFile(file); }
+            else { showNotification('กรุณาอัพโหลดไฟล์วิดีโอเท่านั้น', 'warning'); }
+        } else {
+            if (file.type.startsWith('image/')) { processFile(file); }
+            else { showNotification('กรุณาอัพโหลดไฟล์รูปภาพเท่านั้น', 'warning'); }
+        }
     };
 
-    const uploadToCloudinary = async (file: File) => {
+    const uploadToCloudinary = async (file: File, onProgress?: (progress: number) => void) => {
         const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
         const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET;
         if (!cloudName || !uploadPreset) throw new Error("Cloudinary configuration missing.");
         const fd = new FormData();
         fd.append("file", file);
         fd.append("upload_preset", uploadPreset);
-        const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/${file.type.startsWith('video') ? 'video' : 'image'}/upload`, { method: "POST", body: fd });
+
+        const resourceType = file.type.startsWith('video') ? 'video' : 'image';
+
+        if (onProgress && typeof XMLHttpRequest !== 'undefined') {
+            return new Promise<string>((resolve, reject) => {
+                const xhr = new XMLHttpRequest();
+                xhr.upload.addEventListener('progress', (e) => {
+                    if (e.lengthComputable) {
+                        const percent = Math.round((e.loaded / e.total) * 100);
+                        onProgress(percent);
+                    }
+                });
+                xhr.addEventListener('load', () => {
+                    if (xhr.status >= 200 && xhr.status < 300) {
+                        const data = JSON.parse(xhr.responseText);
+                        resolve(data.secure_url);
+                    } else {
+                        try {
+                            const errorData = JSON.parse(xhr.responseText);
+                            reject(new Error(errorData.error?.message || 'Upload failed'));
+                        } catch {
+                            reject(new Error('Upload failed'));
+                        }
+                    }
+                });
+                xhr.addEventListener('error', () => reject(new Error('Upload failed')));
+                xhr.addEventListener('abort', () => reject(new Error('Upload cancelled')));
+                xhr.open('POST', `https://api.cloudinary.com/v1_1/${cloudName}/${resourceType}/upload`);
+                xhr.send(fd);
+            });
+        }
+
+        const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/${resourceType}/upload`, { method: "POST", body: fd });
         if (!response.ok) { const errorData = await response.json(); throw new Error(errorData.error?.message || "Upload failed"); }
         const data = await response.json();
         return data.secure_url;
@@ -376,10 +438,10 @@ function AdminContent() {
 
     const pickerStyles = {
         default: {
-            picker: { background: '#0c1f3d', borderRadius: '16px', boxShadow: '0 20px 40px rgba(0,0,0,0.5)', border: '1px solid rgba(6,182,212,0.15)', padding: '16px', width: '260px', color: '#fff' },
+            picker: { background: '#ffffff', borderRadius: '16px', boxShadow: '0 20px 40px rgba(15,23,42,0.12)', border: '1px solid rgba(226,232,240,0.9)', padding: '16px', width: '260px', color: '#0f172a' },
             controls: { display: 'flex', paddingTop: '12px' },
-            input: { background: '#071428', border: '1px solid rgba(6,182,212,0.15)', boxShadow: 'none', color: '#fff', fontFamily: 'inherit', borderRadius: '8px' },
-            label: { color: '#7eb8c9', fontWeight: '600', textTransform: 'uppercase' as const, fontSize: '11px' }
+            input: { background: '#f8fafc', border: '1px solid #cbd5e1', boxShadow: 'none', color: '#0f172a', fontFamily: 'inherit', borderRadius: '8px' },
+            label: { color: '#64748b', fontWeight: '600', textTransform: 'uppercase' as const, fontSize: '11px' }
         }
     };
 
@@ -405,7 +467,7 @@ function AdminContent() {
 
     const resetForm = () => {
         setFormData({ id: undefined, title: '', description: '', type: 'Graphic', image: '', videoUrl: '', category: 'Graphic Design', tech: [], techInput: '', aspectRatio: '4/3', featured: false, client: '', year: '', challenge: '', solution: '', demo: '', group: '' });
-        setImageFile(null); setEditingId(null); setShowForm(false); setSelectedColor(TAG_COLORS[0].hex);
+        setImageFile(null); setVideoFile(null); setVideoUploadProgress(0); setIsUploadingVideo(false); setEditingId(null); setShowForm(false); setSelectedColor(TAG_COLORS[0].hex);
     };
 
     const handleAddNew = () => {
@@ -443,16 +505,41 @@ function AdminContent() {
                 catch (uploadError: any) { showNotification("อัพโหลดรูปภาพไม่สำเร็จ: " + uploadError.message, 'error'); setIsLoading(false); return; }
             } else if (formData.type === 'Graphic' && !imageUrl && !editingId) { showNotification('กรุณากรอกหรืออัพโหลดรูปภาพ', 'warning'); setIsLoading(false); return; }
             if (formData.type === 'Graphic' && imageUrl && imageUrl.startsWith('data:image')) { showNotification("เกิดข้อผิดพลาด: ระบบพยายามบันทึกรูปภาพขนาดใหญ่เกินไป", 'error'); setIsLoading(false); return; }
-            if (formData.type === 'Video' && !formData.videoUrl?.trim()) { showNotification('กรุณากรอกลิงก์วิดีโอ', 'warning'); setIsLoading(false); return; }
+
+            // Handle Video type: either file upload or URL
+            let videoUrl = formData.videoUrl;
+            if (formData.type === 'Video') {
+                if (videoFile) {
+                    // Upload video file to Cloudinary
+                    try {
+                        setIsUploadingVideo(true);
+                        setVideoUploadProgress(0);
+                        videoUrl = await uploadToCloudinary(videoFile, (progress) => {
+                            setVideoUploadProgress(progress);
+                        });
+                        setIsUploadingVideo(false);
+                    } catch (uploadError: any) {
+                        setIsUploadingVideo(false);
+                        setVideoUploadProgress(0);
+                        showNotification("อัพโหลดวิดีโอไม่สำเร็จ: " + uploadError.message, 'error');
+                        setIsLoading(false);
+                        return;
+                    }
+                } else if (!videoUrl?.trim() || videoUrl.startsWith('blob:')) {
+                    showNotification('กรุณาอัพโหลดไฟล์วิดีโอ หรือกรอกลิงก์วิดีโอ', 'warning');
+                    setIsLoading(false);
+                    return;
+                }
+            }
 
             const workData: any = { title: formData.title?.trim(), description: formData.description?.trim(), category: formData.category?.trim() || 'Graphic Design', tech: formData.tech, size: { aspectRatio: formData.aspectRatio }, featured: formData.featured, type: formData.type, createdAt: Date.now(), client: formData.client?.trim() || '', year: formData.year?.toString().trim() || '', challenge: formData.challenge?.trim() || '', solution: formData.solution?.trim() || '', demo: formData.demo?.trim() || '', group: formData.group || '' };
-            if (formData.type === 'Graphic') { workData.image = imageUrl; } else { workData.videoUrl = formData.videoUrl?.trim(); }
+            if (formData.type === 'Graphic') { workData.image = imageUrl; } else { workData.videoUrl = videoUrl?.trim(); }
 
             if (editingId) { const workRef = doc(db, "works", editingId); await updateDoc(workRef, workData); }
             else { await addDoc(collection(db, "works"), workData); }
             resetForm(); await loadWorks(); showNotification('บันทึกข้อมูลสำเร็จ!', 'success');
         } catch (error: any) { console.error("Error saving document:", error); showNotification("บันทึกไม่สำเร็จ: " + error.message, 'error'); }
-        finally { setIsLoading(false); }
+        finally { setIsLoading(false); setIsUploadingVideo(false); }
     };
 
     const [fontSizeLevel, setFontSizeLevel] = useState(1);
@@ -463,8 +550,8 @@ function AdminContent() {
     return (
         <div className="min-h-screen relative overflow-x-hidden" style={{ backgroundColor: 'var(--bg-primary)', fontSize: FONT_SCALES[fontSizeLevel] }}>
             {/* Background decoration */}
-            <div className="absolute top-[-20%] right-[-10%] w-[60vw] h-[60vw] blur-[80px] z-[1] pointer-events-none"
-                 style={{background: 'radial-gradient(circle, rgba(6, 182, 212, 0.08) 0%, transparent 60%)'}} />
+            <div className="absolute top-[-20%] right-[-10%] w-[60vw] h-[60vw] blur-[90px] z-[1] pointer-events-none"
+                 style={{background: 'radial-gradient(circle, rgba(2, 132, 199, 0.08) 0%, transparent 65%)'}} />
 
             <div className="pt-[120px] max-w-[1200px] mx-auto px-5 pb-[60px] relative z-[2]">
                 
@@ -472,8 +559,8 @@ function AdminContent() {
                 <div className="bento-card !p-6 md:!p-8 mb-8 flex flex-wrap justify-between items-center gap-5">
                     <div className="flex flex-col gap-1">
                         <h1 className="font-space text-[1.8em] font-bold tracking-[-0.5px] leading-tight flex items-center gap-3" style={{color: 'var(--text-primary)'}}>
-                            <span className="w-10 h-10 rounded-xl flex items-center justify-center text-lg"
-                                  style={{background: 'linear-gradient(135deg, #06b6d4, #14b8a6)', color: '#fff'}}>⚙</span>
+                            <span className="w-10 h-10 rounded-xl flex items-center justify-center text-lg shadow-sm"
+                                  style={{background: 'linear-gradient(135deg, #0284c7, #0d9488)', color: '#fff'}}>⚙</span>
                             Admin Panel
                         </h1>
                         <p className="text-[0.85em]" style={{color: 'var(--text-secondary)'}}>จัดการข้อมูลและผลงานทั้งหมดที่นี่</p>
@@ -481,7 +568,7 @@ function AdminContent() {
 
                     <div className="flex flex-wrap gap-3 items-center ml-auto">
                         {/* Font Size Controls */}
-                        <div className="flex items-center gap-0.5 p-1 rounded-xl" style={{background: 'rgba(6, 182, 212, 0.06)', border: '1px solid var(--glass-border)'}}>
+                        <div className="flex items-center gap-0.5 p-1 rounded-xl shadow-sm" style={{background: 'rgba(255, 255, 255, 0.85)', border: '1px solid var(--glass-border)'}}>
                             <button onClick={() => setFontSizeLevel(prev => Math.max(0, prev - 1))} disabled={fontSizeLevel === 0}
                                 className="w-8 h-8 flex items-center justify-center rounded-lg disabled:opacity-30 disabled:cursor-not-allowed transition-colors cursor-pointer border-none"
                                 style={{color: 'var(--text-secondary)', background: 'transparent'}}>
@@ -497,25 +584,25 @@ function AdminContent() {
 
                         {/* Auth Status */}
                         {firebaseUser ? (
-                            <div className="flex items-center gap-3 px-4 py-2 rounded-xl" style={{background: 'rgba(16, 185, 129, 0.08)', border: '1px solid rgba(16, 185, 129, 0.2)'}}>
-                                <span className="text-xs font-semibold flex items-center gap-1.5" style={{color: '#10b981'}}>✅ Verified: {firebaseUser.email}</span>
+                            <div className="flex items-center gap-3 px-4 py-2 rounded-xl shadow-sm" style={{background: 'rgba(16, 185, 129, 0.08)', border: '1px solid rgba(16, 185, 129, 0.25)'}}>
+                                <span className="text-xs font-semibold flex items-center gap-1.5" style={{color: '#059669'}}>✅ Verified: {firebaseUser.email}</span>
                                 <button className="w-7 h-7 p-0 flex items-center justify-center rounded-lg cursor-pointer text-xs transition-all duration-200 border-none"
-                                    style={{background: 'rgba(16, 185, 129, 0.1)', color: '#10b981'}}
+                                    style={{background: 'rgba(16, 185, 129, 0.12)', color: '#059669'}}
                                     onClick={handleFirebaseLogout}>🔒</button>
                             </div>
                         ) : (
-                            <div className="flex items-center gap-3 px-4 py-2 rounded-xl" style={{background: 'rgba(245, 158, 11, 0.08)', border: '1px solid rgba(245, 158, 11, 0.2)'}}>
-                                <span className="text-xs font-semibold flex items-center gap-1.5" style={{color: '#f59e0b'}}>⚠️ Read-Only</span>
-                                <button className="px-3 py-1.5 rounded-lg font-bold text-xs cursor-pointer transition-all duration-200 flex items-center gap-1.5 border-none"
-                                    style={{background: '#f59e0b', color: '#071428'}}
+                            <div className="flex items-center gap-3 px-4 py-2 rounded-xl shadow-sm" style={{background: 'rgba(245, 158, 11, 0.08)', border: '1px solid rgba(245, 158, 11, 0.25)'}}>
+                                <span className="text-xs font-semibold flex items-center gap-1.5" style={{color: '#d97706'}}>⚠️ Read-Only</span>
+                                <button className="px-3 py-1.5 rounded-lg font-bold text-xs cursor-pointer transition-all duration-200 flex items-center gap-1.5 border-none shadow-sm text-white"
+                                    style={{background: 'linear-gradient(135deg, #f59e0b, #d97706)'}}
                                     onClick={handleFirebaseLogin}>🔐 Verify</button>
                             </div>
                         )}
 
                         <div className="w-px h-8 mx-1" style={{background: 'var(--glass-border)'}}></div>
 
-                        <button className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold cursor-pointer transition-all duration-300 border-none hover:-translate-y-0.5"
-                            style={{background: 'rgba(239, 68, 68, 0.08)', color: '#ef4444', border: '1px solid rgba(239, 68, 68, 0.15)'}}
+                        <button className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold cursor-pointer transition-all duration-300 border-none hover:-translate-y-0.5 shadow-sm"
+                            style={{background: 'rgba(239, 68, 68, 0.08)', color: '#ef4444', border: '1px solid rgba(239, 68, 68, 0.2)'}}
                             onClick={discordLogout}>
                             <FaSignOutAlt /> Logout
                         </button>
@@ -651,8 +738,8 @@ function AdminContent() {
                         <FaSave /> {hasUnsavedChanges ? 'บันทึกลำดับ (ยังไม่บันทึก)' : 'ลำดับบันทึกแล้ว'}
                     </button>
                     <button
-                        className="flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-semibold cursor-pointer transition-all duration-300 text-white hover:-translate-y-0.5 border-none"
-                        style={{background: 'linear-gradient(135deg, #06b6d4, #14b8a6)', boxShadow: '0 0 20px rgba(6, 182, 212, 0.3)'}}
+                        className="flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-semibold cursor-pointer transition-all duration-300 text-white hover:-translate-y-0.5 border-none shadow-md"
+                        style={{background: 'linear-gradient(135deg, #0284c7, #0d9488)', boxShadow: '0 8px 25px -4px rgba(2, 132, 199, 0.4)'}}
                         onClick={handleAddNew}
                     >
                         <FaPlus /> เพิ่มผลงานใหม่
@@ -668,7 +755,7 @@ function AdminContent() {
                         onClick={() => setShowCategorySection(!showCategorySection)}
                     >
                         <div className="flex items-center gap-3">
-                            <span className="w-9 h-9 rounded-xl flex items-center justify-center text-base" style={{ background: 'rgba(139, 92, 246, 0.1)', color: '#8b5cf6' }}><FaLayerGroup /></span>
+                            <span className="w-9 h-9 rounded-xl flex items-center justify-center text-base shadow-sm" style={{ background: 'rgba(139, 92, 246, 0.12)', color: '#8b5cf6', border: '1px solid rgba(139, 92, 246, 0.2)' }}><FaLayerGroup /></span>
                             <div className="text-left">
                                 <h2 className="font-space text-base font-bold" style={{ color: 'var(--text-primary)' }}>จัดการหมวดหมู่</h2>
                                 <p className="text-xs mt-0.5" style={{ color: 'var(--text-tertiary)' }}>{categories.length} หมวดหมู่</p>
@@ -693,8 +780,8 @@ function AdminContent() {
                                             <button
                                                 onClick={handleSaveCategoryOrder}
                                                 disabled={isLoading}
-                                                className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold cursor-pointer transition-all duration-300 text-white border-none animate-pulse"
-                                                style={{ background: 'linear-gradient(135deg, #f59e0b, #f97316)', boxShadow: '0 0 20px rgba(245, 158, 11, 0.3)' }}
+                                                className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold cursor-pointer transition-all duration-300 text-white border-none animate-pulse shadow-md"
+                                                style={{ background: 'linear-gradient(135deg, #f59e0b, #f97316)', boxShadow: '0 8px 25px -4px rgba(245, 158, 11, 0.35)' }}
                                             >
                                                 <FaSave /> บันทึกลำดับหมวดหมู่ (ยังไม่บันทึก)
                                             </button>
@@ -708,7 +795,7 @@ function AdminContent() {
                                         ) : parentCategories.map((parent, pIdx) => (
                                             <div key={parent.id}>
                                                 {/* Parent Category */}
-                                                <div className="flex items-center gap-3 p-3 rounded-xl transition-all duration-200" style={{ background: 'var(--bg-secondary)', border: '1px solid var(--glass-border)' }}>
+                                                <div className="flex items-center gap-3 p-3 rounded-xl transition-all duration-200 shadow-sm" style={{ background: 'rgba(255, 255, 255, 0.9)', border: '1px solid var(--glass-border)' }}>
                                                     {/* Reorder Arrows */}
                                                     <div className="flex flex-col gap-0.5">
                                                         <button onClick={() => moveCategoryInList(parent.id!, 'up', false)}
@@ -732,26 +819,26 @@ function AdminContent() {
                                                     <button onClick={() => handleToggleCategoryVisibility(parent)} className="w-7 h-7 rounded-lg flex items-center justify-center cursor-pointer transition-all duration-200 border-none text-xs" style={{ background: parent.visible ? 'rgba(16,185,129,0.1)' : 'rgba(239,68,68,0.1)', color: parent.visible ? '#10b981' : '#ef4444' }}>
                                                         {parent.visible ? <FaEye /> : <FaEyeSlash />}
                                                     </button>
-                                                    <button onClick={() => handleEditCategory(parent)} className="w-7 h-7 rounded-lg flex items-center justify-center cursor-pointer transition-all duration-200 border-none text-xs" style={{ background: 'rgba(6,182,212,0.1)', color: '#06b6d4' }}><FaEdit /></button>
+                                                    <button onClick={() => handleEditCategory(parent)} className="w-7 h-7 rounded-lg flex items-center justify-center cursor-pointer transition-all duration-200 border-none text-xs" style={{ background: 'rgba(2,132,199,0.1)', color: '#0284c7' }}><FaEdit /></button>
                                                     <button onClick={() => handleDeleteCategory(parent.id!)} className="w-7 h-7 rounded-lg flex items-center justify-center cursor-pointer transition-all duration-200 border-none text-xs" style={{ background: 'rgba(239,68,68,0.1)', color: '#ef4444' }}><FaTrash /></button>
                                                 </div>
                                                 {/* Sub-categories */}
                                                 {(() => {
                                                     const children = getChildren(parent.id!);
                                                     return children.map((child, cIdx) => (
-                                                        <div key={child.id} className="flex items-center gap-3 p-3 rounded-xl transition-all duration-200 ml-8 mt-1" style={{ background: 'rgba(6,182,212,0.03)', border: '1px solid var(--glass-border)' }}>
+                                                        <div key={child.id} className="flex items-center gap-3 p-3 rounded-xl transition-all duration-200 ml-8 mt-1 shadow-sm" style={{ background: 'rgba(2,132,199,0.03)', border: '1px solid var(--glass-border)' }}>
                                                             {/* Reorder Arrows for children */}
                                                             <div className="flex flex-col gap-0.5">
                                                                 <button onClick={() => moveCategoryInList(child.id!, 'up', true, parent.id!)}
                                                                     disabled={cIdx === 0}
                                                                     className="w-5 h-5 rounded flex items-center justify-center cursor-pointer transition-all duration-200 border-none text-[8px] disabled:opacity-20 disabled:cursor-not-allowed"
-                                                                    style={{ background: 'rgba(139,92,246,0.08)', color: '#a78bfa' }}>
+                                                                    style={{ background: 'rgba(139,92,246,0.08)', color: '#8b5cf6' }}>
                                                                     <FaArrowUp />
                                                                 </button>
                                                                 <button onClick={() => moveCategoryInList(child.id!, 'down', true, parent.id!)}
                                                                     disabled={cIdx === children.length - 1}
                                                                     className="w-5 h-5 rounded flex items-center justify-center cursor-pointer transition-all duration-200 border-none text-[8px] disabled:opacity-20 disabled:cursor-not-allowed"
-                                                                    style={{ background: 'rgba(139,92,246,0.08)', color: '#a78bfa' }}>
+                                                                    style={{ background: 'rgba(139,92,246,0.08)', color: '#8b5cf6' }}>
                                                                     <FaArrowDown />
                                                                 </button>
                                                             </div>
@@ -764,7 +851,7 @@ function AdminContent() {
                                                             <button onClick={() => handleToggleCategoryVisibility(child)} className="w-7 h-7 rounded-lg flex items-center justify-center cursor-pointer transition-all duration-200 border-none text-xs" style={{ background: child.visible ? 'rgba(16,185,129,0.1)' : 'rgba(239,68,68,0.1)', color: child.visible ? '#10b981' : '#ef4444' }}>
                                                                 {child.visible ? <FaEye /> : <FaEyeSlash />}
                                                             </button>
-                                                            <button onClick={() => handleEditCategory(child)} className="w-7 h-7 rounded-lg flex items-center justify-center cursor-pointer transition-all duration-200 border-none text-xs" style={{ background: 'rgba(6,182,212,0.1)', color: '#06b6d4' }}><FaEdit /></button>
+                                                            <button onClick={() => handleEditCategory(child)} className="w-7 h-7 rounded-lg flex items-center justify-center cursor-pointer transition-all duration-200 border-none text-xs" style={{ background: 'rgba(2,132,199,0.1)', color: '#0284c7' }}><FaEdit /></button>
                                                             <button onClick={() => handleDeleteCategory(child.id!)} className="w-7 h-7 rounded-lg flex items-center justify-center cursor-pointer transition-all duration-200 border-none text-xs" style={{ background: 'rgba(239,68,68,0.1)', color: '#ef4444' }}><FaTrash /></button>
                                                         </div>
                                                     ));
@@ -775,7 +862,7 @@ function AdminContent() {
 
                                     {/* Add/Edit Category Form */}
                                     {showCategoryForm ? (
-                                        <div className="p-4 rounded-xl" style={{ background: 'var(--bg-secondary)', border: '1px solid var(--glass-border)' }}>
+                                        <div className="p-4 rounded-xl shadow-sm" style={{ background: 'rgba(255, 255, 255, 0.9)', border: '1px solid var(--glass-border)' }}>
                                             <h3 className="text-sm font-bold mb-4" style={{ color: 'var(--text-primary)' }}>{editingCategoryId ? 'แก้ไขหมวดหมู่' : 'เพิ่มหมวดหมู่ใหม่'}</h3>
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
                                                 <div className="flex flex-col gap-1">
@@ -807,18 +894,18 @@ function AdminContent() {
                                                     <label className="text-[10px] uppercase tracking-[2px] font-bold" style={{ color: 'var(--text-tertiary)' }}>Icon</label>
                                                     <div className="flex flex-wrap gap-1.5">
                                                         {CATEGORY_ICONS.map(icon => (
-                                                            <button key={icon} type="button" onClick={() => setCategoryForm({ ...categoryForm, icon })} className={`w-8 h-8 rounded-lg flex items-center justify-center cursor-pointer transition-all duration-200 border-none text-base ${categoryForm.icon === icon ? 'scale-110' : ''}`} style={{ background: categoryForm.icon === icon ? 'rgba(6,182,212,0.15)' : 'var(--bg-tertiary)', border: categoryForm.icon === icon ? '1px solid rgba(6,182,212,0.3)' : '1px solid transparent' }}>{icon}</button>
+                                                            <button key={icon} type="button" onClick={() => setCategoryForm({ ...categoryForm, icon })} className={`w-8 h-8 rounded-lg flex items-center justify-center cursor-pointer transition-all duration-200 border-none text-base ${categoryForm.icon === icon ? 'scale-110' : ''}`} style={{ background: categoryForm.icon === icon ? 'rgba(2,132,199,0.15)' : 'rgba(255,255,255,0.7)', border: categoryForm.icon === icon ? '1px solid rgba(2,132,199,0.35)' : '1px solid var(--glass-border)' }}>{icon}</button>
                                                         ))}
                                                     </div>
                                                 </div>
                                             </div>
                                             <div className="flex gap-2">
-                                                <button onClick={handleSaveCategory} className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold cursor-pointer transition-all duration-300 text-white border-none" style={{ background: 'linear-gradient(135deg, #8b5cf6, #7c3aed)' }} disabled={isLoading}><FaSave /> บันทึก</button>
-                                                <button onClick={resetCategoryForm} className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold cursor-pointer transition-all duration-300 border-none" style={{ background: 'transparent', color: 'var(--text-secondary)', border: '1px solid var(--glass-border)' }}><FaTimes /> ยกเลิก</button>
+                                                <button onClick={handleSaveCategory} className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold cursor-pointer transition-all duration-300 text-white border-none shadow-sm" style={{ background: 'linear-gradient(135deg, #8b5cf6, #7c3aed)' }} disabled={isLoading}><FaSave /> บันทึก</button>
+                                                <button onClick={resetCategoryForm} className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold cursor-pointer transition-all duration-300 border-none" style={{ background: 'rgba(255, 255, 255, 0.85)', color: 'var(--text-secondary)', border: '1px solid var(--glass-border)' }}><FaTimes /> ยกเลิก</button>
                                             </div>
                                         </div>
                                     ) : (
-                                        <button onClick={() => { if (!firebaseUser) { showNotification('กรุณายืนยันตัวตนก่อน', 'warning'); handleFirebaseLogin(); return; } setShowCategoryForm(true); }} className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-semibold cursor-pointer transition-all duration-300 border-dashed border-2 hover:-translate-y-0.5" style={{ background: 'transparent', color: '#8b5cf6', borderColor: 'rgba(139,92,246,0.2)' }}><FaPlus /> เพิ่มหมวดหมู่ใหม่</button>
+                                        <button onClick={() => { if (!firebaseUser) { showNotification('กรุณายืนยันตัวตนก่อน', 'warning'); handleFirebaseLogin(); return; } setShowCategoryForm(true); }} className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-semibold cursor-pointer transition-all duration-300 border-dashed border-2 hover:-translate-y-0.5" style={{ background: 'rgba(139,92,246,0.04)', color: '#8b5cf6', borderColor: 'rgba(139,92,246,0.3)' }}><FaPlus /> เพิ่มหมวดหมู่ใหม่</button>
                                     )}
                                 </div>
                             </motion.div>
@@ -828,9 +915,9 @@ function AdminContent() {
 
                 {/* Loading Overlay */}
                 {isLoading && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center" style={{background: 'rgba(2, 10, 24, 0.8)', backdropFilter: 'blur(8px)'}}>
+                    <div className="fixed inset-0 z-50 flex items-center justify-center" style={{background: 'rgba(248, 250, 252, 0.85)', backdropFilter: 'blur(12px)'}}>
                         <div className="flex flex-col items-center gap-4">
-                            <svg className="animate-spin h-10 w-10" viewBox="0 0 24 24" style={{color: '#06b6d4'}}>
+                            <svg className="animate-spin h-10 w-10" viewBox="0 0 24 24" style={{color: '#0284c7'}}>
                                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"></circle>
                                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
                             </svg>
@@ -842,17 +929,17 @@ function AdminContent() {
                 {/* Form */}
                 {showForm && (
                     <motion.div
-                        className="bento-card !p-8 md:!p-10 mb-12"
+                        className="bento-card !p-8 md:!p-10 mb-12 shadow-2xl"
                         initial={{ opacity: 0, y: -20 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -20 }}
                     >
                         <div className="flex justify-between items-center mb-8 pb-5" style={{borderBottom: '1px solid var(--glass-border)'}}>
-                            <h2 className="font-space text-xl font-bold bg-clip-text text-transparent" style={{backgroundImage: 'linear-gradient(135deg, #22d3ee, #2dd4bf)'}}>
+                            <h2 className="font-space text-xl font-bold bg-clip-text text-transparent" style={{backgroundImage: 'linear-gradient(135deg, #0284c7, #0d9488)'}}>
                                 {editingId ? 'แก้ไขผลงาน' : 'เพิ่มผลงานใหม่'}
                             </h2>
-                            <button className="w-9 h-9 rounded-xl flex items-center justify-center cursor-pointer transition-all duration-300 hover:rotate-90 border-none"
-                                style={{background: 'rgba(6, 182, 212, 0.08)', color: 'var(--text-secondary)', border: '1px solid var(--glass-border)'}}
+                            <button className="w-9 h-9 rounded-xl flex items-center justify-center cursor-pointer transition-all duration-300 hover:rotate-90 border-none shadow-sm"
+                                style={{background: 'rgba(255, 255, 255, 0.9)', color: 'var(--text-secondary)', border: '1px solid var(--glass-border)'}}
                                 onClick={resetForm}><FaTimes /></button>
                         </div>
 
@@ -860,13 +947,13 @@ function AdminContent() {
                             {/* Type Toggle */}
                             <div className="flex flex-col gap-2">
                                 <label className="text-[10px] uppercase tracking-[2px] font-bold pl-1" style={{color: 'var(--text-tertiary)'}}>ประเภทผลงาน *</label>
-                                <div className="flex gap-2 p-1 rounded-xl w-fit" style={{background: 'var(--bg-secondary)', border: '1px solid var(--glass-border)'}}>
+                                <div className="flex gap-2 p-1 rounded-xl w-fit shadow-sm" style={{background: 'rgba(255, 255, 255, 0.85)', border: '1px solid var(--glass-border)'}}>
                                     <button type="button"
                                         className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold cursor-pointer transition-all duration-300 border-none min-w-[120px] justify-center`}
                                         style={{
-                                            background: formData.type === 'Graphic' ? 'rgba(6, 182, 212, 0.12)' : 'transparent',
-                                            color: formData.type === 'Graphic' ? '#06b6d4' : 'var(--text-secondary)',
-                                            border: formData.type === 'Graphic' ? '1px solid rgba(6, 182, 212, 0.3)' : '1px solid transparent'
+                                            background: formData.type === 'Graphic' ? 'rgba(2, 132, 199, 0.12)' : 'transparent',
+                                            color: formData.type === 'Graphic' ? '#0284c7' : 'var(--text-secondary)',
+                                            border: formData.type === 'Graphic' ? '1px solid rgba(2, 132, 199, 0.35)' : '1px solid transparent'
                                         }}
                                         onClick={() => setFormData({ ...formData, type: 'Graphic' })}>🎨 Graphic</button>
                                     <button type="button"
@@ -900,17 +987,17 @@ function AdminContent() {
                                         <div
                                             className={`w-full min-h-[200px] border-2 border-dashed rounded-2xl flex justify-center items-center transition-all duration-300 cursor-pointer relative overflow-hidden ${isDragging ? 'scale-[1.01]' : ''}`}
                                             style={{
-                                                borderColor: isDragging ? '#06b6d4' : 'var(--glass-border)',
-                                                background: isDragging ? 'rgba(6, 182, 212, 0.05)' : 'rgba(6, 182, 212, 0.02)'
+                                                borderColor: isDragging ? '#0284c7' : 'rgba(203, 213, 225, 0.8)',
+                                                background: isDragging ? 'rgba(2, 132, 199, 0.06)' : 'rgba(255, 255, 255, 0.6)'
                                             }}
                                             onDragOver={handleDragOver} onDragLeave={handleDragLeave} onDrop={handleDrop}
                                         >
                                             <div className="text-center p-6 pointer-events-none">
-                                                <FaUpload className="text-4xl mb-4 mx-auto" style={{color: 'var(--text-tertiary)'}} />
+                                                <FaUpload className="text-4xl mb-4 mx-auto" style={{color: '#0284c7'}} />
                                                 <p className="text-sm font-semibold mb-1" style={{color: 'var(--text-primary)'}}>ลากไฟล์มาวางที่นี่ หรือ คลิกเพื่อเลือกไฟล์</p>
                                                 <p className="text-xs mb-4" style={{color: 'var(--text-tertiary)'}}>รองรับ JPG, PNG, GIF</p>
-                                                <label className="pointer-events-auto inline-block px-5 py-2 rounded-xl text-sm font-semibold cursor-pointer transition-all duration-200 text-white"
-                                                    style={{background: 'linear-gradient(135deg, #06b6d4, #14b8a6)', boxShadow: '0 0 15px rgba(6, 182, 212, 0.2)'}}>
+                                                <label className="pointer-events-auto inline-block px-5 py-2 rounded-xl text-sm font-semibold cursor-pointer transition-all duration-200 text-white shadow-sm"
+                                                    style={{background: 'linear-gradient(135deg, #0284c7, #0d9488)', boxShadow: '0 4px 15px rgba(2, 132, 199, 0.3)'}}>
                                                     เลือกไฟล์
                                                     <input type="file" accept="image/*" onChange={handleImageSelect} style={{ display: 'none' }} />
                                                 </label>
@@ -930,10 +1017,90 @@ function AdminContent() {
                                     </div>
                                 </div>
                             ) : (
-                                <div className="flex flex-col gap-2">
-                                    <label className="text-[10px] uppercase tracking-[2px] font-bold pl-1" style={{color: 'var(--text-tertiary)'}}>ลิงก์วิดีโอ *</label>
-                                    <input type="text" value={formData.videoUrl} onChange={(e) => setFormData({ ...formData, videoUrl: e.target.value })} placeholder="YouTube, Facebook, หรือ TikTok URL" className={inputStyle} />
-                                    <small className="text-[11px] mt-1 pl-1 opacity-60" style={{color: 'var(--text-tertiary)'}}>รองรับ: YouTube, Facebook, TikTok</small>
+                                <div className="col-span-1 md:col-span-2 flex flex-col gap-2">
+                                    <label className="text-[10px] uppercase tracking-[2px] font-bold pl-1" style={{color: 'var(--text-tertiary)'}}>วิดีโอ *</label>
+                                    <div className="flex flex-col gap-4">
+                                        {/* Video File Upload Area */}
+                                        <div
+                                            className={`w-full min-h-[200px] border-2 border-dashed rounded-2xl flex justify-center items-center transition-all duration-300 cursor-pointer relative overflow-hidden ${isDragging ? 'scale-[1.01]' : ''}`}
+                                            style={{
+                                                borderColor: isDragging ? '#ef4444' : 'var(--glass-border)',
+                                                background: isDragging ? 'rgba(239, 68, 68, 0.05)' : 'rgba(239, 68, 68, 0.02)'
+                                            }}
+                                            onDragOver={handleDragOver} onDragLeave={handleDragLeave} onDrop={handleDrop}
+                                        >
+                                            {videoFile ? (
+                                                <div className="w-full p-4 flex flex-col items-center gap-3">
+                                                    {/* Video Preview */}
+                                                    <div className="w-full max-w-[500px] rounded-xl overflow-hidden" style={{border: '1px solid var(--glass-border)'}}>
+                                                        <video
+                                                            src={formData.videoUrl}
+                                                            controls
+                                                            className="w-full h-auto block"
+                                                            style={{maxHeight: '280px', objectFit: 'contain', background: '#000'}}
+                                                        />
+                                                    </div>
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg" style={{background: 'rgba(16, 185, 129, 0.08)', border: '1px solid rgba(16, 185, 129, 0.2)'}}>
+                                                            <FaVideo className="text-xs" style={{color: '#10b981'}} />
+                                                            <span className="text-xs font-semibold" style={{color: '#10b981'}}>{videoFile.name}</span>
+                                                            <span className="text-[10px] opacity-60" style={{color: '#10b981'}}>({(videoFile.size / (1024 * 1024)).toFixed(1)} MB)</span>
+                                                        </div>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => { setVideoFile(null); setFormData(prev => ({ ...prev, videoUrl: '' })); }}
+                                                            className="w-7 h-7 rounded-lg flex items-center justify-center cursor-pointer transition-all duration-200 border-none hover:scale-110"
+                                                            style={{background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444'}}
+                                                        ><FaTimes className="text-xs" /></button>
+                                                    </div>
+                                                    {/* Upload Progress */}
+                                                    {isUploadingVideo && (
+                                                        <div className="w-full max-w-[400px] flex flex-col items-center gap-2 mt-1">
+                                                            <div className="w-full h-2 rounded-full overflow-hidden" style={{background: 'var(--bg-tertiary)'}}>
+                                                                <div
+                                                                    className="h-full rounded-full transition-all duration-300"
+                                                                    style={{width: `${videoUploadProgress}%`, background: 'linear-gradient(90deg, #ef4444, #f97316)'}}
+                                                                />
+                                                            </div>
+                                                            <span className="text-xs font-semibold" style={{color: '#ef4444'}}>
+                                                                กำลังอัพโหลด... {videoUploadProgress}%
+                                                            </span>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            ) : (
+                                                <div className="text-center p-6 pointer-events-none">
+                                                    <FaVideo className="text-4xl mb-4 mx-auto" style={{color: 'var(--text-tertiary)'}} />
+                                                    <p className="text-sm font-semibold mb-1" style={{color: 'var(--text-primary)'}}>ลากไฟล์วิดีโอมาวางที่นี่ หรือ คลิกเพื่อเลือกไฟล์</p>
+                                                    <p className="text-xs mb-4" style={{color: 'var(--text-tertiary)'}}>รองรับ MP4, MOV, AVI, WebM (สูงสุด 500MB)</p>
+                                                    <label className="pointer-events-auto inline-block px-5 py-2 rounded-xl text-sm font-semibold cursor-pointer transition-all duration-200 text-white"
+                                                        style={{background: 'linear-gradient(135deg, #ef4444, #f97316)', boxShadow: '0 0 15px rgba(239, 68, 68, 0.2)'}}>
+                                                        เลือกไฟล์วิดีโอ
+                                                        <input type="file" accept="video/*" onChange={handleVideoSelect} style={{ display: 'none' }} />
+                                                    </label>
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        {/* Divider */}
+                                        <div className="flex items-center justify-center my-1 relative">
+                                            <div className="h-px flex-1" style={{background: 'var(--glass-border)'}} />
+                                            <span className="px-3 text-[10px] uppercase tracking-[2px] font-semibold" style={{color: 'var(--text-tertiary)'}}>หรือใช้ลิงก์</span>
+                                            <div className="h-px flex-1" style={{background: 'var(--glass-border)'}} />
+                                        </div>
+
+                                        {/* URL Input */}
+                                        <input
+                                            type="text"
+                                            value={videoFile ? '' : formData.videoUrl}
+                                            onChange={(e) => { setVideoFile(null); setFormData({ ...formData, videoUrl: e.target.value }); }}
+                                            placeholder="YouTube, Facebook, หรือ TikTok URL"
+                                            className={inputStyle}
+                                            disabled={!!videoFile}
+                                            style={{ opacity: videoFile ? 0.4 : 1 }}
+                                        />
+                                        <small className="text-[11px] mt-0 pl-1 opacity-60" style={{color: 'var(--text-tertiary)'}}>รองรับ: YouTube, Facebook, TikTok หรืออัพโหลดไฟล์วิดีโอโดยตรง</small>
+                                    </div>
                                 </div>
                             )}
 
@@ -1026,16 +1193,16 @@ function AdminContent() {
                                 </div>
                                 <div className="flex gap-2">
                                     <input type="text" value={formData.techInput} onChange={(e) => setFormData({ ...formData, techInput: e.target.value })} onKeyPress={(e) => e.key === 'Enter' && addTech()} placeholder="พิมพ์ชื่อเครื่องมือ..." className={inputStyle} />
-                                    <button type="button" onClick={addTech} className="px-5 rounded-2xl font-semibold cursor-pointer transition-all duration-300 border-none text-sm"
-                                        style={{background: 'rgba(6, 182, 212, 0.1)', color: '#06b6d4', border: '1px solid rgba(6, 182, 212, 0.2)'}}>เพิ่ม</button>
+                                    <button type="button" onClick={addTech} className="px-5 rounded-2xl font-semibold cursor-pointer transition-all duration-300 border-none text-sm shadow-sm"
+                                        style={{background: 'rgba(2, 132, 199, 0.1)', color: '#0284c7', border: '1px solid rgba(2, 132, 199, 0.25)'}}>เพิ่ม</button>
                                 </div>
                                 <div className="flex flex-wrap gap-2 mt-3">
                                     {(formData.tech || []).map((tech, index) => {
                                         const techName = typeof tech === 'string' ? tech : tech.name;
-                                        const techColor = typeof tech === 'string' ? '#06b6d4' : tech.color;
+                                        const techColor = typeof tech === 'string' ? '#0284c7' : tech.color;
                                         return (
-                                            <span key={index} className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium relative"
-                                                style={{ backgroundColor: `${techColor}15`, color: techColor, border: `1px solid ${techColor}30` }}>
+                                            <span key={index} className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium relative shadow-sm"
+                                                style={{ backgroundColor: `${techColor}12`, color: techColor, border: `1px solid ${techColor}25` }}>
                                                 <div className="absolute inset-0 cursor-pointer z-[1] rounded-lg" onClick={() => setActiveTagColorIndex(index)} title="Click to change color" />
                                                 {activeTagColorIndex === index && (
                                                     <div className="absolute z-[100] top-full left-0">
@@ -1046,7 +1213,7 @@ function AdminContent() {
                                                 {techName}
                                                 <button onClick={(e) => { e.stopPropagation(); removeTech(index); }}
                                                     className="relative z-[2] w-4 h-4 flex items-center justify-center rounded-full text-xs transition-all duration-200 cursor-pointer border-none"
-                                                    style={{background: 'rgba(255,255,255,0.1)', color: 'inherit'}}>×</button>
+                                                    style={{background: 'rgba(15, 23, 42, 0.08)', color: 'inherit'}}>×</button>
                                             </span>
                                         );
                                     })}
@@ -1070,24 +1237,25 @@ function AdminContent() {
                             {/* Featured Toggle */}
                             <div className="flex flex-col gap-2">
                                 <label className="text-[10px] uppercase tracking-[2px] font-bold pl-1 mb-1" style={{color: 'var(--text-tertiary)'}}>สถานะการแสดงผล</label>
-                                <div className="flex items-center gap-4 p-3 rounded-2xl transition-all duration-300 cursor-pointer w-fit"
-                                    style={{background: 'var(--bg-secondary)', border: '1px solid var(--glass-border)'}}
+                                <div className="flex items-center gap-4 p-3 rounded-2xl transition-all duration-300 cursor-pointer w-fit shadow-sm"
+                                    style={{background: 'rgba(255, 255, 255, 0.85)', border: '1px solid var(--glass-border)'}}
                                     onClick={() => setFormData({ ...formData, featured: !formData.featured })}>
                                     <div className="relative inline-block w-[48px] h-[26px] group">
                                         <input type="checkbox" checked={formData.featured} onChange={(e) => setFormData({ ...formData, featured: e.target.checked })} className="opacity-0 w-0 h-0 peer" />
                                         <span className="absolute cursor-pointer inset-0 transition-all duration-400 rounded-full peer-checked:before:translate-x-[22px]"
                                             style={{
-                                                background: formData.featured ? '#06b6d4' : 'var(--bg-tertiary)',
+                                                background: formData.featured ? '#0284c7' : 'rgba(203, 213, 225, 0.6)',
                                                 border: formData.featured ? '1px solid transparent' : '1px solid var(--glass-border)',
                                             }}>
                                             <span className="absolute w-[18px] h-[18px] left-[3px] bottom-[3px] rounded-full transition-all duration-300"
                                                 style={{
-                                                    background: formData.featured ? '#fff' : 'var(--text-tertiary)',
-                                                    transform: formData.featured ? 'translateX(22px)' : 'translateX(0)'
+                                                    background: '#fff',
+                                                    transform: formData.featured ? 'translateX(22px)' : 'translateX(0)',
+                                                    boxShadow: '0 2px 4px rgba(15, 23, 42, 0.15)'
                                                 }}></span>
                                         </span>
                                     </div>
-                                    <span className="text-sm font-semibold transition-colors duration-300" style={{color: formData.featured ? '#06b6d4' : 'var(--text-secondary)'}}>
+                                    <span className="text-sm font-semibold transition-colors duration-300" style={{color: formData.featured ? '#0284c7' : 'var(--text-secondary)'}}>
                                         {formData.featured ? '✨ ผลงานเด่น (Featured)' : 'ผลงานทั่วไป'}
                                     </span>
                                 </div>
@@ -1096,14 +1264,14 @@ function AdminContent() {
                             {/* Save/Cancel */}
                             <div className="col-span-1 md:col-span-2 flex gap-4 mt-4 pt-6" style={{borderTop: '1px solid var(--glass-border)'}}>
                                 <button type="button" onClick={handleSave}
-                                    className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-2xl text-base font-bold cursor-pointer transition-all duration-300 text-white disabled:opacity-50 disabled:cursor-not-allowed border-none hover:-translate-y-0.5"
-                                    style={{background: 'linear-gradient(135deg, #06b6d4, #14b8a6)', boxShadow: '0 0 20px rgba(6, 182, 212, 0.3)'}}
+                                    className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-2xl text-base font-bold cursor-pointer transition-all duration-300 text-white disabled:opacity-50 disabled:cursor-not-allowed border-none hover:-translate-y-0.5 shadow-md"
+                                    style={{background: 'linear-gradient(135deg, #0284c7, #0d9488)', boxShadow: '0 8px 25px -4px rgba(2, 132, 199, 0.4)'}}
                                     disabled={isLoading}>
                                     <FaSave /> {isLoading ? 'กำลังบันทึก...' : 'บันทึก'}
                                 </button>
                                 <button type="button" onClick={resetForm}
-                                    className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-2xl text-base font-bold cursor-pointer transition-all duration-300 disabled:opacity-50 border-none"
-                                    style={{background: 'transparent', color: 'var(--text-secondary)', border: '1px solid var(--glass-border)'}}
+                                    className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-2xl text-base font-bold cursor-pointer transition-all duration-300 disabled:opacity-50 border-none shadow-sm"
+                                    style={{background: 'rgba(255, 255, 255, 0.85)', color: 'var(--text-secondary)', border: '1px solid var(--glass-border)'}}
                                     disabled={isLoading}>
                                     <FaTimes /> ยกเลิก
                                 </button>
@@ -1119,8 +1287,8 @@ function AdminContent() {
                         <small className="text-xs font-medium opacity-60" style={{color: 'var(--text-secondary)'}}>ลากเพื่อจัดลำดับ</small>
                     </h2>
                     {works.length === 0 ? (
-                        <div className="text-center py-16 px-5 rounded-2xl border-2 border-dashed"
-                             style={{color: 'var(--text-secondary)', borderColor: 'var(--glass-border)', background: 'rgba(6, 182, 212, 0.02)'}}>
+                        <div className="text-center py-16 px-5 rounded-2xl border-2 border-dashed shadow-sm"
+                             style={{color: 'var(--text-secondary)', borderColor: 'var(--glass-border)', background: 'rgba(255, 255, 255, 0.6)'}}>
                             <div className="text-4xl mb-3 opacity-30">📁</div>
                             <p>ยังไม่มีผลงาน กรุณาเพิ่มผลงานใหม่</p>
                         </div>
@@ -1163,10 +1331,11 @@ function SortableProjectItem({ work, handleEdit, handleDelete }: SortableProject
             value={work}
             dragListener={false}
             dragControls={controls}
-            whileDrag={{ scale: 1.02, boxShadow: "0 20px 50px rgba(0,0,0,0.5)", zIndex: 100 }}
-            className="grid grid-cols-1 lg:grid-cols-[50px_90px_2fr_1.5fr_70px_100px] p-4 lg:p-5 rounded-2xl items-center transition-all duration-200 group"
+            whileDrag={{ scale: 1.02, boxShadow: "0 20px 40px rgba(15, 23, 42, 0.12)", zIndex: 100 }}
+            className="grid grid-cols-1 lg:grid-cols-[50px_90px_2fr_1.5fr_70px_100px] p-4 lg:p-5 rounded-2xl items-center transition-all duration-200 group shadow-sm"
             style={{
-                background: 'var(--glass-bg)',
+                background: 'rgba(255, 255, 255, 0.85)',
+                backdropFilter: 'blur(16px)',
                 border: '1px solid var(--glass-border)',
                 color: 'var(--text-secondary)'
             }}
@@ -1179,31 +1348,31 @@ function SortableProjectItem({ work, handleEdit, handleDelete }: SortableProject
                 </span>
             </div>
             <div className="flex items-center mb-2 lg:mb-0">
-                <span className={`inline-block px-2.5 py-1 rounded-lg text-[10px] font-bold tracking-[0.5px] uppercase`}
+                <span className={`inline-block px-2.5 py-1 rounded-lg text-[10px] font-bold tracking-[0.5px] uppercase shadow-sm`}
                     style={{
-                        background: work.type === 'Graphic' ? 'rgba(6, 182, 212, 0.1)' : 'rgba(239, 68, 68, 0.1)',
-                        color: work.type === 'Graphic' ? '#06b6d4' : '#ef4444',
-                        border: `1px solid ${work.type === 'Graphic' ? 'rgba(6, 182, 212, 0.2)' : 'rgba(239, 68, 68, 0.2)'}`
+                        background: work.type === 'Graphic' ? 'rgba(2, 132, 199, 0.1)' : 'rgba(239, 68, 68, 0.1)',
+                        color: work.type === 'Graphic' ? '#0284c7' : '#ef4444',
+                        border: `1px solid ${work.type === 'Graphic' ? 'rgba(2, 132, 199, 0.25)' : 'rgba(239, 68, 68, 0.25)'}`
                     }}>
                     {work.type === 'Graphic' ? 'Graphic' : 'Video'}
                 </span>
             </div>
-            <div className="font-medium text-sm line-clamp-1 pr-4 mb-1 lg:mb-0" style={{color: 'var(--text-primary)'}}>{work.title}</div>
+            <div className="font-semibold text-sm line-clamp-1 pr-4 mb-1 lg:mb-0" style={{color: 'var(--text-primary)'}}>{work.title}</div>
             <div className="text-sm line-clamp-1 pr-4 mb-2 lg:mb-0" style={{color: 'var(--text-secondary)'}}>{work.category}</div>
             <div className="hidden lg:flex justify-center items-center">
                 {work.featured ? (
-                    <span className="inline-flex w-6 h-6 rounded-full text-white items-center justify-center text-xs"
-                        style={{background: 'linear-gradient(135deg, #f59e0b, #f97316)', boxShadow: '0 2px 8px rgba(245, 158, 11, 0.3)'}}>✓</span>
+                    <span className="inline-flex w-6 h-6 rounded-full text-white items-center justify-center text-xs shadow-sm"
+                        style={{background: 'linear-gradient(135deg, #0284c7, #0d9488)', boxShadow: '0 2px 8px rgba(2, 132, 199, 0.3)'}}>✓</span>
                 ) : (
                     <span className="inline-block w-6 text-center opacity-20" style={{color: 'var(--text-secondary)'}}>-</span>
                 )}
             </div>
             <div className="flex gap-2 justify-end">
-                <button onClick={() => handleEdit(work)} className="w-8 h-8 rounded-lg flex items-center justify-center cursor-pointer transition-all duration-200 border-none"
-                    style={{background: 'rgba(6, 182, 212, 0.1)', color: '#06b6d4'}}>
+                <button onClick={() => handleEdit(work)} className="w-8 h-8 rounded-lg flex items-center justify-center cursor-pointer transition-all duration-200 border-none shadow-sm"
+                    style={{background: 'rgba(2, 132, 199, 0.1)', color: '#0284c7'}}>
                     <FaEdit className="text-sm" />
                 </button>
-                <button onClick={() => handleDelete(work.id!)} className="w-8 h-8 rounded-lg flex items-center justify-center cursor-pointer transition-all duration-200 border-none"
+                <button onClick={() => handleDelete(work.id!)} className="w-8 h-8 rounded-lg flex items-center justify-center cursor-pointer transition-all duration-200 border-none shadow-sm"
                     style={{background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444'}}>
                     <FaTrash className="text-sm" />
                 </button>

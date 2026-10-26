@@ -24,8 +24,8 @@ const ShootingStars = () => {
                         animationDuration: star.duration,
                         width: '2px',
                         height: '2px',
-                        background: 'linear-gradient(45deg, #22d3ee, transparent)',
-                        boxShadow: '0 0 6px 1px rgba(34, 211, 238, 0.4)',
+                        background: 'linear-gradient(45deg, #0284c7, transparent)',
+                        boxShadow: '0 0 6px 1px rgba(2, 132, 199, 0.4)',
                         borderRadius: '50%',
                     }}
                 />

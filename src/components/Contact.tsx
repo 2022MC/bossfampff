@@ -112,8 +112,8 @@ const Contact = () => {
 
     return (
         <section id="contact" className="py-[100px] px-5 relative" style={{ backgroundColor: 'var(--bg-secondary)' }}>
-            <div className="absolute top-0 left-0 w-1/2 h-1/2 pointer-events-none opacity-30"
-                style={{ background: 'radial-gradient(circle at 0% 0%, rgba(59, 130, 246, 0.06) 0%, transparent 50%)' }}></div>
+            <div className="absolute top-0 left-0 w-1/2 h-1/2 pointer-events-none opacity-40"
+                style={{ background: 'radial-gradient(circle at 0% 0%, rgba(2, 132, 199, 0.08) 0%, transparent 60%)' }}></div>
 
             <motion.div
                 className="max-w-[1200px] mx-auto relative z-[1]"
@@ -124,7 +124,7 @@ const Contact = () => {
             >
                 <motion.div className="mb-16" variants={itemVariants}>
                     <h2 className="font-space text-3xl md:text-4xl font-bold flex items-baseline gap-3" style={{ color: 'var(--text-primary)' }}>
-                        <span className="font-mono text-lg" style={{ color: '#06b6d4' }}>04.</span>
+                        <span className="font-mono text-lg" style={{ color: '#0284c7' }}>04.</span>
                         ติดต่อผม
                     </h2>
                     <p className="text-base mt-3 max-w-[500px]" style={{ color: 'var(--text-secondary)' }}>
@@ -142,10 +142,11 @@ const Contact = () => {
                                 variants={itemVariants}
                                 whileHover={{ x: 6 }}
                             >
-                                <div className="w-12 h-12 rounded-xl flex items-center justify-center text-lg shrink-0 transition-all duration-300"
+                                <div className="w-12 h-12 rounded-xl flex items-center justify-center text-lg shrink-0 transition-all duration-300 shadow-sm"
                                     style={{
                                         color: info.color,
-                                        background: `${info.color}12`
+                                        background: `${info.color}14`,
+                                        border: `1px solid ${info.color}25`
                                     }}>
                                     {info.icon}
                                 </div>
@@ -179,10 +180,10 @@ const Contact = () => {
                                     required
                                     className={inputClasses}
                                     style={{
-                                        backgroundColor: focusedField === field.name ? 'rgba(6, 182, 212, 0.05)' : 'var(--bg-primary)',
-                                        border: `1px solid ${focusedField === field.name ? 'rgba(6, 182, 212, 0.4)' : 'var(--glass-border)'}`,
+                                        backgroundColor: focusedField === field.name ? 'rgba(2, 132, 199, 0.05)' : 'rgba(255, 255, 255, 0.85)',
+                                        border: `1px solid ${focusedField === field.name ? 'rgba(2, 132, 199, 0.45)' : 'rgba(203, 213, 225, 0.7)'}`,
                                         color: 'var(--text-primary)',
-                                        boxShadow: focusedField === field.name ? '0 0 0 4px rgba(6, 182, 212, 0.06)' : 'none'
+                                        boxShadow: focusedField === field.name ? '0 0 0 4px rgba(2, 132, 199, 0.1)' : '0 1px 3px rgba(15, 23, 42, 0.03)'
                                     }}
                                 />
                             </div>
@@ -199,20 +200,20 @@ const Contact = () => {
                                 required
                                 className={`${inputClasses} resize-y min-h-[140px]`}
                                 style={{
-                                    backgroundColor: focusedField === 'message' ? 'rgba(6, 182, 212, 0.05)' : 'var(--bg-primary)',
-                                    border: `1px solid ${focusedField === 'message' ? 'rgba(6, 182, 212, 0.4)' : 'var(--glass-border)'}`,
+                                    backgroundColor: focusedField === 'message' ? 'rgba(2, 132, 199, 0.05)' : 'rgba(255, 255, 255, 0.85)',
+                                    border: `1px solid ${focusedField === 'message' ? 'rgba(2, 132, 199, 0.45)' : 'rgba(203, 213, 225, 0.7)'}`,
                                     color: 'var(--text-primary)',
-                                    boxShadow: focusedField === 'message' ? '0 0 0 4px rgba(6, 182, 212, 0.06)' : 'none'
+                                    boxShadow: focusedField === 'message' ? '0 0 0 4px rgba(2, 132, 199, 0.1)' : '0 1px 3px rgba(15, 23, 42, 0.03)'
                                 }}
                             ></textarea>
                         </div>
                         <button
                             type="submit"
-                            className="flex items-center justify-center gap-3 w-full py-4 mt-2 text-base font-semibold rounded-2xl text-white transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed group"
+                            className="flex items-center justify-center gap-3 w-full py-4 mt-2 text-base font-semibold rounded-2xl text-white transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed group cursor-pointer"
                             disabled={isSubmitting}
                             style={{
-                                background: 'linear-gradient(135deg, #06b6d4, #14b8a6)',
-                                boxShadow: '0 0 20px rgba(6, 182, 212, 0.3), 0 4px 15px rgba(0, 0, 0, 0.2)'
+                                background: 'linear-gradient(135deg, #0284c7, #0d9488)',
+                                boxShadow: '0 8px 25px -4px rgba(2, 132, 199, 0.4), 0 2px 8px rgba(13, 148, 136, 0.2)'
                             }}
                         >
                             {isSubmitting ? (
